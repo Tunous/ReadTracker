@@ -50,16 +50,16 @@
                 android:ems="10"
                 android:hint="0"
                 android:inputType="numberDecimal"
-                app:layout_constraintEnd_toStartOf="@+id/textView"
+                app:layout_constraintEnd_toStartOf="@+id/progressTypeButton"
                 app:layout_constraintStart_toEndOf="@+id/progressSeekBar"
                 app:layout_constraintTop_toBottomOf="@id/bookCard" />
 
             <TextView
-                android:id="@+id/textView"
+                android:id="@+id/progressTypeButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:layout_marginEnd="8dp"
+                android:layout_marginEnd="16dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
                 android:text="%"
@@ -73,7 +73,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:barrierDirection="bottom"
-                app:constraint_referenced_ids="progressSeekBar,progressInput,textView" />
+                app:constraint_referenced_ids="progressSeekBar,progressInput,progressTypeButton" />
 
             <EditText
                 android:id="@+id/reviewInput"

@@ -13,8 +13,11 @@ import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.withContext
 import me.thanel.readtracker.api.GoodreadsApi
+import java.text.DecimalFormat
 
 class MainActivity : AppCompatActivity() {
+
+    var numPages = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,6 +25,18 @@ class MainActivity : AppCompatActivity() {
 
         progressInput.filters = arrayOf(RangeInputFilter(0, 100))
         mergeSeekBarAndInput(progressSeekBar, progressInput)
+        progressTypeButton.setOnClickListener {
+            val progress = progressSeekBar.progress / progressSeekBar.max.toFloat()
+            if (progressTypeButton.text.startsWith("%")) {
+                progressTypeButton.text = "of $numPages #"
+                progressSeekBar.max = numPages
+            } else {
+                progressTypeButton.text = "% done"
+                progressSeekBar.max = 100
+            }
+            progressInput.filters = arrayOf(RangeInputFilter(0, progressSeekBar.max))
+            progressInput.setText((progress * progressSeekBar.max).toInt().toString())
+        }
 
         launch(UI) {
             val response = withContext(CommonPool) {
@@ -33,6 +48,10 @@ class MainActivity : AppCompatActivity() {
             if (review != null) {
                 bookTitleView.text = review.book.title
                 bookAuthorView.text = review.book.authors.joinToString(prefix = "by ") { it.name }
+                ratingView.text = review.book.averageRating.toString()
+                val formatter = DecimalFormat("#,###")
+                totalRatingsView.text = formatter.format(review.book.ratingsCount) + " ratings"
+                numPages = review.book.numPages
             }
         }
     }
@@ -41,9 +60,9 @@ class MainActivity : AppCompatActivity() {
         var skipChange = false
         seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-                if (skipChange) return
-                val percentage = ((progress / seekBar.max.toFloat()) * 100).toInt()
-                editText.setText(percentage.toString())
+                if (!skipChange) {
+                    editText.setText(progress.toString())
+                }
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) = Unit
@@ -53,8 +72,7 @@ class MainActivity : AppCompatActivity() {
         editText.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
                 skipChange = true
-                val input = s?.toString()?.toIntOrNull() ?: 0
-                seekBar.progress = ((input / 100f) * seekBar.max).toInt()
+                seekBar.progress = s?.toString()?.toIntOrNull() ?: 0
                 skipChange = false
             }
 
