@@ -1,8 +1,10 @@
 package me.thanel.readtracker.ui.updateprogress
 
-import android.arch.lifecycle.ViewModelProviders
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.View
+import androidx.lifecycle.ViewModelProviders
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.item_book_card.*
 import kotlinx.android.synthetic.main.update_progress_fragment.*
@@ -49,8 +51,16 @@ class UpdateProgressFragment : BaseFragment(R.layout.update_progress_fragment) {
                     getString(R.string.info_authors, review.book.authors.joinToString { it.name })
             ratingView.text = review.book.averageRating.toString()
             totalRatingsView.text = getString(R.string.info_num_ratings, review.book.ratingsCount)
+
             numPages = review.book.numPages
-            Picasso.get().load(review.book.imageUrl).into(imageView)
+
+            Picasso.get()
+                .load(review.book.imageUrl)
+                .placeholder(ColorDrawable(Color.BLACK))
+                .into(imageView)
+
+            bookInformationGroup.visibility = View.VISIBLE
+            bookInformationProgressBar.visibility = View.GONE
         }
     }
 

@@ -1,7 +1,7 @@
 package me.thanel.readtracker.ui.updateprogress
 
-import android.arch.lifecycle.ViewModel
 import android.util.Log
+import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import me.thanel.readtracker.api.GoodreadsApi
