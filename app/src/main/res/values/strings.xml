@@ -1,3 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <resources>
     <string name="app_name">ReadTracker</string>
+    <string name="hint_pages_done">of %1$d pages</string>
+    <string name="hint_percentage_done">% done</string>
+    <string name="info_authors">by %1$s</string>
+    <string name="info_num_ratings">%1$,3d ratings</string>
 </resources>

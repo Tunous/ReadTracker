@@ -12,7 +12,7 @@ interface GoodreadsService {
     fun getUser(@Path("id") id: Int): Deferred<UserResponse>
 
     @GET("/review/list?v=2&key=KUtQGqdhmKy1nUyQnFZRzA")
-    fun listReviews(
+    fun getMemberBooksFromShelf(
         @Query("id") id: Int,
         @Query("shelf") shelf: String? = null
         // TODO: More parameters
