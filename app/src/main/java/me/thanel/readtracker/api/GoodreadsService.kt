@@ -1,6 +1,6 @@
 package me.thanel.readtracker.api
 
-import kotlinx.coroutines.experimental.Deferred
+import kotlinx.coroutines.Deferred
 import me.thanel.readtracker.api.model.ReviewListResponse
 import me.thanel.readtracker.api.model.UserResponse
 import retrofit2.http.GET

@@ -8,20 +8,27 @@ import android.widget.EditText
 import android.widget.SeekBar
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.item_book_card.*
-import kotlinx.coroutines.experimental.CommonPool
-import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.launch
-import kotlinx.coroutines.experimental.withContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import me.thanel.readtracker.api.GoodreadsApi
 import java.text.DecimalFormat
+import kotlin.coroutines.CoroutineContext
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), CoroutineScope {
+    private lateinit var job: Job
 
-    var numPages = 0
+    override val coroutineContext: CoroutineContext
+        get() = job + Dispatchers.Main
+
+    private var numPages = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        job = Job()
 
         progressInput.filters = arrayOf(RangeInputFilter(0, 100))
         mergeSeekBarAndInput(progressSeekBar, progressInput)
@@ -38,8 +45,8 @@ class MainActivity : AppCompatActivity() {
             progressInput.setText((progress * progressSeekBar.max).toInt().toString())
         }
 
-        launch(UI) {
-            val response = withContext(CommonPool) {
+        launch {
+            val response = withContext(Dispatchers.IO) {
                 GoodreadsApi.service.listReviews(77741768, "currently-reading").await()
             }
             val reviews = response.reviews.reviews
@@ -54,6 +61,11 @@ class MainActivity : AppCompatActivity() {
                 numPages = review.book.numPages
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        job.cancel()
     }
 
     private fun mergeSeekBarAndInput(seekBar: SeekBar, editText: EditText) {
