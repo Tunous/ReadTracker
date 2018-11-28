@@ -1,10 +1,10 @@
-package me.thanel.readtracker.api.model
+package me.thanel.goodreadsapi.model
 
 import com.tickaroo.tikxml.annotation.Element
 import com.tickaroo.tikxml.annotation.Xml
 
 @Xml(name = "GoodreadsResponse")
-data class ReviewListResponse(
+data class UserResponse(
     @Element(name = "Request") val request: Request,
-    @Element val reviews: Reviews
+    @Element(name = "user") val user: User
 )

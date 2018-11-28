@@ -1,4 +1,4 @@
-package me.thanel.readtracker.api.model
+package me.thanel.goodreadsapi.model
 
 import com.tickaroo.tikxml.annotation.PropertyElement
 import com.tickaroo.tikxml.annotation.Xml
