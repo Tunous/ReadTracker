@@ -6,11 +6,27 @@ import com.tickaroo.tikxml.retrofit.TikXmlConverterFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import me.thanel.goodreadsapi.internal.GoodreadsService
+import me.thanel.goodreadsapi.model.AuthData
 import me.thanel.goodreadsapi.model.UserResponse
+import okhttp3.OkHttpClient
 import retrofit2.Retrofit
+import se.akerfeldt.okhttp.signpost.OkHttpOAuthConsumer
+import se.akerfeldt.okhttp.signpost.OkHttpOAuthProvider
+import se.akerfeldt.okhttp.signpost.SigningInterceptor
 
-object GoodreadsApi {
-    private const val BASE_URL = "https://www.goodreads.com/"
+class GoodreadsApi(
+    consumerKey: String,
+    consumerSecret: String,
+    private val token: String,
+    private val tokenSecret: String
+) {
+    private val oAuthConsumer = OkHttpOAuthConsumer(consumerKey, consumerSecret).apply {
+        setTokenWithSecret(this@GoodreadsApi.token, this@GoodreadsApi.tokenSecret)
+    }
+
+    private val okHttpClient = OkHttpClient.Builder()
+        .addInterceptor(SigningInterceptor(oAuthConsumer))
+        .build()
 
     private val tikXml = TikXml.Builder()
         .exceptionOnUnreadXml(false)
@@ -18,6 +34,7 @@ object GoodreadsApi {
 
     private val service: GoodreadsService = Retrofit.Builder()
         .baseUrl(BASE_URL)
+        .client(okHttpClient)
         .addConverterFactory(TikXmlConverterFactory.create(tikXml))
         .addCallAdapterFactory(CoroutineCallAdapterFactory())
         .build()
@@ -25,5 +42,23 @@ object GoodreadsApi {
 
     suspend fun getUser(id: Long): UserResponse = withContext(Dispatchers.IO) {
         service.getUser(id).await()
+    }
+
+    companion object {
+        private const val BASE_URL = "https://www.goodreads.com/"
+        private const val CALLBACK_URL = "me.thanel.readtracker://oauth"
+
+        private val provider = OkHttpOAuthProvider(
+            "${BASE_URL}oauth/request_token",
+            "${BASE_URL}oauth/access_token",
+            "${BASE_URL}oauth/authorize?mobile=1"
+        )
+
+        suspend fun authorize(consumerKey: String, consumerSecret: String) =
+            withContext(Dispatchers.IO) {
+                val consumer = OkHttpOAuthConsumer(consumerKey, consumerSecret)
+                val authUrl = provider.retrieveRequestToken(consumer, CALLBACK_URL)
+                AuthData(authUrl, consumer.token, consumer.tokenSecret)
+            }
     }
 }

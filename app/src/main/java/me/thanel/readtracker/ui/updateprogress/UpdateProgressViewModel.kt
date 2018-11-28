@@ -4,9 +4,19 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import me.thanel.goodreadsapi.GoodreadsApi
 import me.thanel.goodreadsapi.model.UserStatus
+import me.thanel.readtracker.BuildConfig
+import me.thanel.readtracker.Preferences
 
 class UpdateProgressViewModel : ViewModel() {
     private var userStatuses: List<UserStatus>? = null
+    private val api by lazy {
+        GoodreadsApi(
+            BuildConfig.GOODREADS_CONSUMER_KEY,
+            BuildConfig.GOODREADS_CONSUMER_SECRET,
+            Preferences.token!!,
+            Preferences.tokenSecret!!
+        )
+    }
 
     suspend fun getUserStatuses(userId: Long): List<UserStatus>? {
         if (userStatuses != null) {
@@ -15,7 +25,7 @@ class UpdateProgressViewModel : ViewModel() {
         }
 
         Log.d(TAG, "Fetching userStatuses...")
-        val response =  GoodreadsApi.getUser(userId)
+        val response = api.getUser(userId)
         userStatuses = response.user.userStatuses
         Log.d(TAG, "UserStatuses fetched: $userStatuses")
         return userStatuses

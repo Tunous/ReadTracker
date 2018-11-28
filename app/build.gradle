@@ -13,6 +13,8 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField("String", "GOODREADS_CONSUMER_KEY", GOODREADS_CONSUMER_KEY)
+        buildConfigField("String", "GOODREADS_CONSUMER_SECRET", GOODREADS_CONSUMER_SECRET)
     }
     buildTypes {
         release {
@@ -33,6 +35,8 @@ dependencies {
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.0-alpha2'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.0.0'
+    implementation 'com.chibatching.kotpref:kotpref:2.6.0'
+    implementation 'com.chibatching.kotpref:initializer:2.6.0'
     implementation 'com.google.android.material:material:1.0.0'
     implementation 'com.squareup.picasso:picasso:2.71828'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.0.0'
