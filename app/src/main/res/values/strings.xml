@@ -4,7 +4,6 @@
     <string name="hint_pages_done">of %1$d pages</string>
     <string name="hint_percentage_done">% done</string>
     <string name="info_authors">by %1$s</string>
-    <string name="info_num_ratings">%1$,3d ratings</string>
     <string name="action_update_progress">Update progress</string>
     <string name="hint_opinion">What do you think? (Optional)</string>
 </resources>

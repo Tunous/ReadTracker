@@ -6,5 +6,5 @@ import com.tickaroo.tikxml.annotation.Xml
 @Xml(name = "user_shelf")
 data class UserShelf(
     @PropertyElement(name = "id") val id: Long,
-    @PropertyElement(name = "name") val name: String
+    @PropertyElement(name = "name") val name: String?
 )

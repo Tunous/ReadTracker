@@ -18,6 +18,7 @@ class UpdateProgressFragment : BaseFragment(R.layout.update_progress_fragment) {
     private lateinit var viewModel: UpdateProgressViewModel
 
     private var numPages = 0
+    private var usePages = false
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -28,34 +29,48 @@ class UpdateProgressFragment : BaseFragment(R.layout.update_progress_fragment) {
             }
         }
         progressTypeButton.setOnClickListener {
-            val progress = progressSeekBar.progress / progressSeekBar.max.toFloat()
-            if (progressTypeButton.text.startsWith("%")) {
-                progressTypeButton.text = getString(R.string.hint_pages_done, numPages)
-                progressSeekBar.max = numPages
-            } else {
-                progressTypeButton.setText(R.string.hint_percentage_done)
-                progressSeekBar.max = 100
-            }
-            progressInput.setText((progress * progressSeekBar.max).toInt().toString())
+            usePages = !usePages
+            updateProgress()
         }
+    }
+
+    private fun updateProgress() {
+        val progress = progressSeekBar.progress / progressSeekBar.max.toFloat()
+        if (usePages) {
+            progressTypeButton.text = getString(R.string.hint_pages_done, numPages)
+            progressSeekBar.max = numPages
+        } else {
+            progressTypeButton.setText(R.string.hint_percentage_done)
+            progressSeekBar.max = 100
+        }
+        progressInput.setText((progress * progressSeekBar.max).toInt().toString())
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         viewModel = ViewModelProviders.of(this).get(UpdateProgressViewModel::class.java)
         launch {
-            val reviews = viewModel.listReviews(77741768, "currently-reading")
-            val review = reviews?.firstOrNull() ?: return@launch
-            bookTitleView.text = review.book.title
+            val userStatuses = viewModel.getUserStatuses(77741768)
+            val userStatus = userStatuses?.firstOrNull() ?: return@launch
+            val book = userStatus.book
+            bookTitleView.text = book.title
             bookAuthorView.text =
-                    getString(R.string.info_authors, review.book.authors.joinToString { it.name })
-            ratingView.text = review.book.averageRating.toString()
-            totalRatingsView.text = getString(R.string.info_num_ratings, review.book.ratingsCount)
+                    getString(R.string.info_authors, book.authors.joinToString { it.name })
 
-            numPages = review.book.numPages
+            numPages = book.numPages
+
+            if (userStatus.page > 0) {
+                usePages = true
+                updateProgress()
+                progressSeekBar.progress = userStatus.page
+            } else {
+                usePages = false
+                updateProgress()
+                progressSeekBar.progress = userStatus.percent
+            }
 
             Picasso.get()
-                .load(review.book.imageUrl)
+                .load(book.imageUrl)
                 .placeholder(ColorDrawable(Color.BLACK))
                 .into(imageView)
 
