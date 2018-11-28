@@ -37,8 +37,8 @@ class UpdateProgressViewModel : ViewModel() {
         return userStatuses
     }
 
-    suspend fun updatePercentProgress(bookId: Long, progress: Int) {
-        api.updateUserStatus(bookId, progress).await()
+    suspend fun updatePercentProgress(bookId: Long, progress: Int, body: String?) {
+        api.updateUserStatus(bookId, progress, body).await()
     }
 
     companion object {

@@ -49,9 +49,10 @@ class GoodreadsApi(
         service.getUserId().await()
     }
 
-    suspend fun updateUserStatus(bookId: Long, percent: Int) = withContext(Dispatchers.IO) {
-        service.updateUserStatus(bookId, percent)
-    }
+    suspend fun updateUserStatus(bookId: Long, percent: Int, body: String?) =
+        withContext(Dispatchers.IO) {
+            service.updateUserStatus(bookId, percent, body)
+        }
 
     companion object {
         private const val BASE_URL = "https://www.goodreads.com/"

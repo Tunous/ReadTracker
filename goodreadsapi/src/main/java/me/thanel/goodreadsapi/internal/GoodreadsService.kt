@@ -20,6 +20,7 @@ internal interface GoodreadsService {
     @FormUrlEncoded
     fun updateUserStatus(
         @Field("user_status[book_id]") bookId: Long,
-        @Field("user_status[percent]") percent: Int
+        @Field("user_status[percent]") percent: Int,
+        @Field("user_status[body]") body: String?
     ): Deferred<ResponseBody>
 }

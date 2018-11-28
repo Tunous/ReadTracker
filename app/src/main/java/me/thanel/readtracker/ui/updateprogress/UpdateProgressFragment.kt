@@ -36,8 +36,10 @@ class UpdateProgressFragment : BaseFragment(R.layout.update_progress_fragment) {
         }
         updateProgressButton.setOnClickListener {
             launch {
-                viewModel.updatePercentProgress(bookId, progressSeekBar.progress)
+                val body = reviewInput.text?.toString()
+                viewModel.updatePercentProgress(bookId, progressSeekBar.progress, body)
                 Toast.makeText(requireContext(), "Updated progress", Toast.LENGTH_SHORT).show()
+                reviewInput.text?.clear()
             }
         }
     }
