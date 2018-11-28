@@ -6,6 +6,7 @@ import android.view.View
 import androidx.lifecycle.ViewModelProviders
 import kotlinx.android.synthetic.main.authorize_fragment.*
 import kotlinx.coroutines.launch
+import me.thanel.readtracker.MainActivity
 import me.thanel.readtracker.R
 import me.thanel.readtracker.ui.base.BaseFragment
 
@@ -29,15 +30,20 @@ class AuthorizeFragment : BaseFragment(R.layout.authorize_fragment) {
         }
     }
 
+    fun finishAuthorization() {
+        launch {
+            viewModel.finishAuthorization()
+
+            val mainActivity = requireActivity() as MainActivity
+            mainActivity.displayProgressFragment()
+        }
+    }
+
     private fun beginAuthorization() {
         launch {
-            try {
-                loginButton.isEnabled = false
-                val authUri = viewModel.beginAuthorization()
-                startActivity(Intent(Intent.ACTION_VIEW, authUri))
-            } finally {
-                loginButton.isEnabled = true
-            }
+            loginButton.isEnabled = false
+            val authUri = viewModel.beginAuthorization()
+            startActivity(Intent(Intent.ACTION_VIEW, authUri))
         }
     }
 

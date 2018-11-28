@@ -6,7 +6,8 @@ import com.tickaroo.tikxml.retrofit.TikXmlConverterFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import me.thanel.goodreadsapi.internal.GoodreadsService
-import me.thanel.goodreadsapi.model.AuthData
+import me.thanel.goodreadsapi.model.AccessTokenData
+import me.thanel.goodreadsapi.model.RequestTokenData
 import me.thanel.goodreadsapi.model.UserResponse
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -44,6 +45,14 @@ class GoodreadsApi(
         service.getUser(id).await()
     }
 
+    suspend fun getUserId() = withContext(Dispatchers.IO) {
+        service.getUserId().await()
+    }
+
+    suspend fun updateUserStatus(bookId: Long, percent: Int) = withContext(Dispatchers.IO) {
+        service.updateUserStatus(bookId, percent)
+    }
+
     companion object {
         private const val BASE_URL = "https://www.goodreads.com/"
         private const val CALLBACK_URL = "me.thanel.readtracker://oauth"
@@ -58,7 +67,19 @@ class GoodreadsApi(
             withContext(Dispatchers.IO) {
                 val consumer = OkHttpOAuthConsumer(consumerKey, consumerSecret)
                 val authUrl = provider.retrieveRequestToken(consumer, CALLBACK_URL)
-                AuthData(authUrl, consumer.token, consumer.tokenSecret)
+                RequestTokenData(authUrl, consumer.token, consumer.tokenSecret)
             }
+
+        suspend fun getAccessToken(
+            consumerKey: String,
+            consumerSecret: String,
+            token: String,
+            tokenSecret: String
+        ) = withContext(Dispatchers.IO) {
+            val consumer = OkHttpOAuthConsumer(consumerKey, consumerSecret)
+            consumer.setTokenWithSecret(token, tokenSecret)
+            provider.retrieveAccessToken(consumer, null)
+            AccessTokenData(consumer.token, consumer.tokenSecret)
+        }
     }
 }

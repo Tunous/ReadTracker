@@ -4,8 +4,13 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProviders
 import com.chibatching.kotpref.bulk
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import me.thanel.readtracker.ui.authorize.AuthorizeFragment
+import me.thanel.readtracker.ui.authorize.AuthorizeViewModel
 import me.thanel.readtracker.ui.updateprogress.UpdateProgressFragment
 
 class MainActivity : AppCompatActivity() {
@@ -34,7 +39,7 @@ class MainActivity : AppCompatActivity() {
         displayFragment(AuthorizeFragment.newInstance(error))
     }
 
-    private fun displayProgressFragment() {
+    fun displayProgressFragment() {
         displayFragment(UpdateProgressFragment.newInstance())
     }
 
@@ -62,7 +67,12 @@ class MainActivity : AppCompatActivity() {
             return false
         }
 
-        Preferences.isAuthorized = true
+        val viewModel = ViewModelProviders.of(this).get(AuthorizeViewModel::class.java)
+        GlobalScope.launch(Dispatchers.Main) {
+            viewModel.finishAuthorization()
+            displayProgressFragment()
+        }
+
         return true
     }
 }

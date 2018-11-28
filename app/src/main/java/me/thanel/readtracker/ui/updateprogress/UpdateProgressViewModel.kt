@@ -18,6 +18,12 @@ class UpdateProgressViewModel : ViewModel() {
         )
     }
 
+    suspend fun getUserId(): Long {
+        val response = api.getUserId()
+        val userId = response.user.id
+        return userId
+    }
+
     suspend fun getUserStatuses(userId: Long): List<UserStatus>? {
         if (userStatuses != null) {
             Log.d(TAG, "Returning existing userStatuses $userStatuses")
@@ -29,6 +35,10 @@ class UpdateProgressViewModel : ViewModel() {
         userStatuses = response.user.userStatuses
         Log.d(TAG, "UserStatuses fetched: $userStatuses")
         return userStatuses
+    }
+
+    suspend fun updatePercentProgress(bookId: Long, progress: Int) {
+        api.updateUserStatus(bookId, progress).await()
     }
 
     companion object {
