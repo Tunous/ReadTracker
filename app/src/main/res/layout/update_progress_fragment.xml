@@ -24,9 +24,9 @@
             android:id="@+id/progressInput"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="4dp"
             android:layout_marginTop="16dp"
-            android:layout_marginEnd="8dp"
+            android:layout_marginEnd="4dp"
             android:background="@null"
             android:ems="10"
             android:hint="@string/hint_zero"
@@ -34,8 +34,8 @@
             android:inputType="numberDecimal"
             android:paddingStart="24dp"
             android:paddingEnd="24dp"
-            app:layout_constraintEnd_toStartOf="@+id/progressTypeSegmentedGroup"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/increaseProgressButton"
+            app:layout_constraintStart_toEndOf="@+id/decreaseProgressButton"
             app:layout_constraintTop_toBottomOf="@id/bookCard"
             tools:targetApi="o" />
 
@@ -93,11 +93,11 @@
         </info.hoang8f.android.segmented.SegmentedGroup>
 
         <androidx.constraintlayout.widget.Barrier
-            android:id="@+id/barrier2"
+            android:id="@+id/progressBarrier"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:barrierDirection="bottom"
-            app:constraint_referenced_ids="progressSeekBar,progressInput,progressTypeSegmentedGroup" />
+            app:constraint_referenced_ids="progressSeekBar,progressInput,progressTypeSegmentedGroup,increaseProgressButton,decreaseProgressButton" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/userStatusCommentTextInputLayout"
@@ -114,7 +114,7 @@
             app:layout_constraintBottom_toTopOf="@+id/updateProgressButton"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/barrier2"
+            app:layout_constraintTop_toBottomOf="@+id/progressBarrier"
             app:layout_constraintVertical_bias="0">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -139,6 +139,28 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
+
+        <ImageView
+            android:id="@+id/decreaseProgressButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:background="?selectableItemBackgroundBorderless"
+            app:layout_constraintBottom_toBottomOf="@+id/progressTypeSegmentedGroup"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/progressTypeSegmentedGroup"
+            app:srcCompat="@drawable/ic_chevron_left" />
+
+        <ImageView
+            android:id="@+id/increaseProgressButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:background="?selectableItemBackgroundBorderless"
+            app:layout_constraintBottom_toBottomOf="@+id/progressTypeSegmentedGroup"
+            app:layout_constraintEnd_toStartOf="@+id/progressTypeSegmentedGroup"
+            app:layout_constraintTop_toTopOf="@+id/progressTypeSegmentedGroup"
+            app:srcCompat="@drawable/ic_chevron_right" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

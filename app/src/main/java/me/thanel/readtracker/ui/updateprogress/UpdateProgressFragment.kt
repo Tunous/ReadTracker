@@ -53,6 +53,13 @@ class UpdateProgressFragment : BaseFragment(R.layout.update_progress_fragment) {
         progressTypeSegmentedGroup.setOnCheckedChangeListener { _, checkedId ->
             setupProgressTypeButton(checkedId == R.id.pageProgressTypeButton)
         }
+
+        increaseProgressButton.setOnClickListener {
+            progressSeekBar.progress += 1
+        }
+        decreaseProgressButton.setOnClickListener {
+            progressSeekBar.progress -= 1
+        }
     }
 
     private fun setupSeekBarProgressListener() {
@@ -61,7 +68,11 @@ class UpdateProgressFragment : BaseFragment(R.layout.update_progress_fragment) {
             if (!skipChange) {
                 progressInput.setText(it.toString())
             }
-            updateProgressButton.setText(if (it == progressSeekBar.max) R.string.action_finished else R.string.action_update_progress)
+            val isMax = it == progressSeekBar.max
+            val isMin = it == 0
+            updateProgressButton.setText(if (isMax) R.string.action_finished else R.string.action_update_progress)
+            increaseProgressButton.isEnabled = !isMax
+            decreaseProgressButton.isEnabled = !isMin
         }
 
         progressInput.afterTextChanged {
