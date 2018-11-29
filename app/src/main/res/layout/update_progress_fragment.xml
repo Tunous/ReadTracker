@@ -43,32 +43,64 @@
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:ems="10"
+            android:hint="@string/hint_zero"
+            android:importantForAutofill="no"
             android:inputType="numberDecimal"
-            app:layout_constraintEnd_toStartOf="@+id/progressTypeButton"
+            app:layout_constraintEnd_toStartOf="@+id/progressTypeSegmentedGroup"
             app:layout_constraintStart_toEndOf="@+id/progressSeekBar"
-            app:layout_constraintTop_toBottomOf="@id/bookCard" />
+            app:layout_constraintTop_toBottomOf="@id/bookCard"
+            tools:targetApi="o" />
 
-        <TextView
-            android:id="@+id/progressTypeButton"
+        <info.hoang8f.android.segmented.SegmentedGroup
+            android:id="@+id/progressTypeSegmentedGroup"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="8dp"
-            android:labelFor="@+id/progressInput"
-            android:text="@string/hint_percentage_done"
+            android:orientation="horizontal"
             app:layout_constraintBottom_toBottomOf="@+id/progressInput"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/progressInput"
-            app:layout_constraintTop_toTopOf="@+id/progressInput" />
+            app:layout_constraintTop_toTopOf="@+id/progressInput"
+            app:sc_border_width="2dp"
+            app:sc_tint_color="?colorPrimary">
+
+            <RadioButton
+                android:id="@+id/percentProgressTypeButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:button="@null"
+                android:gravity="center"
+                android:paddingStart="16dp"
+                android:paddingTop="8dp"
+                android:paddingEnd="16dp"
+                android:paddingBottom="8dp"
+                android:text="@string/progress_type_percent"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Body1" />
+
+            <RadioButton
+                android:id="@+id/pageProgressTypeButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:button="@null"
+                android:gravity="center"
+                android:paddingStart="16dp"
+                android:paddingTop="8dp"
+                android:paddingEnd="16dp"
+                android:paddingBottom="8dp"
+                android:text="@string/progress_type_page"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Body1" />
+
+        </info.hoang8f.android.segmented.SegmentedGroup>
 
         <androidx.constraintlayout.widget.Barrier
             android:id="@+id/barrier2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:barrierDirection="bottom"
-            app:constraint_referenced_ids="progressSeekBar,progressInput,progressTypeButton" />
+            app:constraint_referenced_ids="progressSeekBar,progressInput,progressTypeSegmentedGroup" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/userStatusCommentTextInputLayout"

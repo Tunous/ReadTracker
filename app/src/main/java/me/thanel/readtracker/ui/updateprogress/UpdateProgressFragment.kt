@@ -15,12 +15,12 @@ import me.thanel.readtracker.ui.base.BaseFragment
 import me.thanel.readtracker.ui.util.afterTextChanged
 import me.thanel.readtracker.ui.util.onProgressChanged
 import me.thanel.readtracker.ui.util.toIntOrElse
+import kotlin.math.roundToInt
 
 class UpdateProgressFragment : BaseFragment(R.layout.update_progress_fragment) {
     private lateinit var viewModel: UpdateProgressViewModel
 
     private var numPages = 0
-    private var usePages = false
     private var bookId = 0L
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -34,11 +34,6 @@ class UpdateProgressFragment : BaseFragment(R.layout.update_progress_fragment) {
 
         setupSeekBarProgressListener()
 
-        progressTypeButton.setOnClickListener {
-            usePages = !usePages
-            updateProgress()
-        }
-
         userStatusCommentTextInputEditText.afterTextChanged {
             val inputLength = it?.length ?: 0
             updateProgressButton.isEnabled =
@@ -47,11 +42,16 @@ class UpdateProgressFragment : BaseFragment(R.layout.update_progress_fragment) {
 
         updateProgressButton.setOnClickListener {
             launch {
+                // TODO: Use correct progress type
                 val body = userStatusCommentTextInputEditText.text?.toString()
                 viewModel.updatePercentProgress(bookId, progressSeekBar.progress, body)
                 Toast.makeText(requireContext(), "Updated progress", Toast.LENGTH_SHORT).show()
                 userStatusCommentTextInputEditText.text?.clear()
             }
+        }
+
+        progressTypeSegmentedGroup.setOnCheckedChangeListener { _, checkedId ->
+            setupProgressTypeButton(checkedId == R.id.pageProgressTypeButton)
         }
     }
 
@@ -71,16 +71,18 @@ class UpdateProgressFragment : BaseFragment(R.layout.update_progress_fragment) {
         }
     }
 
-    private fun updateProgress() {
+    private fun setupProgressTypeButton(usePages: Boolean) {
         val progress = progressSeekBar.progress / progressSeekBar.max.toFloat()
         if (usePages) {
-            progressTypeButton.text = getString(R.string.hint_pages_done, numPages)
+            progressTypeSegmentedGroup.check(R.id.pageProgressTypeButton)
             progressSeekBar.max = numPages
         } else {
-            progressTypeButton.setText(R.string.hint_percentage_done)
+            progressTypeSegmentedGroup.check(R.id.percentProgressTypeButton)
             progressSeekBar.max = 100
         }
-        progressInput.setText((progress * progressSeekBar.max).toInt().toString())
+
+        val newProgress = (progress * progressSeekBar.max).roundToInt()
+        progressInput.setText(newProgress.toString())
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -99,12 +101,10 @@ class UpdateProgressFragment : BaseFragment(R.layout.update_progress_fragment) {
             numPages = book.numPages
 
             if (userStatus.page > 0) {
-                usePages = true
-                updateProgress()
+                setupProgressTypeButton(true)
                 progressSeekBar.progress = userStatus.page
             } else {
-                usePages = false
-                updateProgress()
+                setupProgressTypeButton(false)
                 progressSeekBar.progress = userStatus.percent
             }
 
