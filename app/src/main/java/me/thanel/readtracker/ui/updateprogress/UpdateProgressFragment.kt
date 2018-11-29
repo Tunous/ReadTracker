@@ -12,7 +12,8 @@ import kotlinx.android.synthetic.main.update_progress_fragment.*
 import kotlinx.coroutines.launch
 import me.thanel.readtracker.R
 import me.thanel.readtracker.ui.base.BaseFragment
-import me.thanel.readtracker.ui.util.connectTo
+import me.thanel.readtracker.ui.util.afterTextChanged
+import me.thanel.readtracker.ui.util.onProgressChanged
 import me.thanel.readtracker.ui.util.toIntOrElse
 
 class UpdateProgressFragment : BaseFragment(R.layout.update_progress_fragment) {
@@ -24,12 +25,15 @@ class UpdateProgressFragment : BaseFragment(R.layout.update_progress_fragment) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        progressSeekBar.connectTo(progressInput)
+
         progressInput.setOnFocusChangeListener { _, hasFocus ->
             if (!hasFocus && progressInput.text.toIntOrElse { 0 } > progressSeekBar.max) {
                 progressInput.setText(progressSeekBar.max.toString())
             }
         }
+
+        setupSeekBarProgressListener()
+
         progressTypeButton.setOnClickListener {
             usePages = !usePages
             updateProgress()
@@ -48,6 +52,22 @@ class UpdateProgressFragment : BaseFragment(R.layout.update_progress_fragment) {
                 Toast.makeText(requireContext(), "Updated progress", Toast.LENGTH_SHORT).show()
                 userStatusCommentTextInputEditText.text?.clear()
             }
+        }
+    }
+
+    private fun setupSeekBarProgressListener() {
+        var skipChange = false
+        progressSeekBar.onProgressChanged {
+            if (!skipChange) {
+                progressInput.setText(it.toString())
+            }
+            updateProgressButton.setText(if (it == progressSeekBar.max) R.string.action_finished else R.string.action_update_progress)
+        }
+
+        progressInput.afterTextChanged {
+            skipChange = true
+            progressSeekBar.progress = it.toIntOrElse { 0 }
+            skipChange = false
         }
     }
 
