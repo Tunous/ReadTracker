@@ -71,25 +71,27 @@
             app:constraint_referenced_ids="progressSeekBar,progressInput,progressTypeButton" />
 
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/userStatusCommentTextInputLayout"
             style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
             android:layout_width="0dp"
-            android:layout_height="0dp"
+            android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="16dp"
             android:hint="@string/hint_opinion"
+            app:counterEnabled="true"
+            app:counterMaxLength="420"
             app:layout_constraintBottom_toTopOf="@+id/updateProgressButton"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHeight_min="136dp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/barrier2">
+            app:layout_constraintTop_toBottomOf="@+id/barrier2"
+            app:layout_constraintVertical_bias="0">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/reviewInput"
+                android:id="@+id/userStatusCommentTextInputEditText"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:ems="10"
+                android:layout_height="wrap_content"
                 android:gravity="top"
                 android:inputType="textCapSentences|textAutoCorrect|textAutoComplete|textMultiLine"
                 android:minLines="5" />

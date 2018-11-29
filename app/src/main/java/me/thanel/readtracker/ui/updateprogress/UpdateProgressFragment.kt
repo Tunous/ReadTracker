@@ -34,12 +34,19 @@ class UpdateProgressFragment : BaseFragment(R.layout.update_progress_fragment) {
             usePages = !usePages
             updateProgress()
         }
+
+        userStatusCommentTextInputEditText.afterTextChanged {
+            val inputLength = it?.length ?: 0
+            updateProgressButton.isEnabled =
+                    inputLength <= userStatusCommentTextInputLayout.counterMaxLength
+        }
+
         updateProgressButton.setOnClickListener {
             launch {
-                val body = reviewInput.text?.toString()
+                val body = userStatusCommentTextInputEditText.text?.toString()
                 viewModel.updatePercentProgress(bookId, progressSeekBar.progress, body)
                 Toast.makeText(requireContext(), "Updated progress", Toast.LENGTH_SHORT).show()
-                reviewInput.text?.clear()
+                userStatusCommentTextInputEditText.text?.clear()
             }
         }
     }
