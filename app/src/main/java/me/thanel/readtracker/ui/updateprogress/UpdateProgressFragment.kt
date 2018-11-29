@@ -10,6 +10,7 @@ import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.item_book_card.*
 import kotlinx.android.synthetic.main.update_progress_fragment.*
 import kotlinx.coroutines.launch
+import me.thanel.readtracker.Preferences
 import me.thanel.readtracker.R
 import me.thanel.readtracker.ui.base.BaseFragment
 import me.thanel.readtracker.ui.util.afterTextChanged
@@ -100,7 +101,9 @@ class UpdateProgressFragment : BaseFragment(R.layout.update_progress_fragment) {
         super.onActivityCreated(savedInstanceState)
         viewModel = ViewModelProviders.of(this).get(UpdateProgressViewModel::class.java)
         launch {
-            val userId = viewModel.getUserId()
+            val userId = Preferences.userId ?: viewModel.getUserId()
+            Preferences.userId = userId
+
             val userStatuses = viewModel.getUserStatuses(userId)
             val userStatus = userStatuses?.firstOrNull() ?: return@launch
             val book = userStatus.book

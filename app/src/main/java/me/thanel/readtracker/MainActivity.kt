@@ -63,6 +63,7 @@ class MainActivity : AppCompatActivity() {
                 token = null
                 tokenSecret = null
                 isAuthorized = false
+                userId = null
             }
             return false
         }

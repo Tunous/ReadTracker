@@ -35,6 +35,7 @@ class AuthorizeViewModel : ViewModel() {
             token = response.token
             tokenSecret = response.tokenSecret
             isAuthorized = true
+            userId = null
         }
     }
 }
