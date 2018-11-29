@@ -15,7 +15,7 @@
             android:layout_width="96dp"
             android:layout_height="0dp"
             android:cropToPadding="true"
-            android:scaleType="fitCenter"
+            android:scaleType="centerCrop"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintHeight_min="144dp"
             app:layout_constraintStart_toStartOf="parent"
