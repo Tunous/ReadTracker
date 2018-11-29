@@ -6,8 +6,9 @@
     <string name="hint_opinion">What do you think? (Optional)</string>
     <string name="hint_pages_done">of %1$d pages</string>
     <string name="hint_percentage_done">% done</string>
+    <string name="hint_zero">0</string>
     <string name="info_authors">by %1$s</string>
+    <string name="info_pages">%1$d pages</string>
     <string name="progress_type_page">#</string>
     <string name="progress_type_percent">%</string>
-    <string name="hint_zero">0</string>
 </resources>

@@ -96,6 +96,7 @@ class UpdateProgressFragment : BaseFragment(R.layout.update_progress_fragment) {
             bookTitleView.text = book.title
             bookAuthorView.text =
                     getString(R.string.info_authors, book.authors.joinToString { it.name })
+            pagesTextView.text = getString(R.string.info_pages, book.numPages)
 
             bookId = book.id
             numPages = book.numPages
