@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GoodreadsResponse>
+    <Request>
+        <authentication>true</authentication>
+        <key><![CDATA[abc123]]></key>
+        <method><![CDATA[auth_user]]></method>
+    </Request>
+    <user id="1234">
+        <name>User</name>
+    </user>
+</GoodreadsResponse>
