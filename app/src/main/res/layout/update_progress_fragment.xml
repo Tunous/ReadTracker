@@ -16,151 +16,26 @@
             layout="@layout/item_book_card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <EditText
-            android:id="@+id/progressInput"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="4dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="4dp"
-            android:background="@null"
-            android:ems="10"
-            android:hint="@string/hint_zero"
-            android:importantForAutofill="no"
-            android:inputType="numberDecimal"
-            android:paddingStart="24dp"
-            android:paddingEnd="24dp"
-            app:layout_constraintEnd_toStartOf="@+id/increaseProgressButton"
-            app:layout_constraintStart_toEndOf="@+id/decreaseProgressButton"
-            app:layout_constraintTop_toBottomOf="@id/bookCard"
-            tools:targetApi="o" />
-
-        <SeekBar
-            android:id="@+id/progressSeekBar"
-            style="@style/Widget.AppCompat.SeekBar"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:elevation="2dp"
-            android:max="100"
-            app:layout_constraintBaseline_toBaselineOf="@+id/progressInput"
-            app:layout_constraintEnd_toEndOf="@+id/progressInput"
-            app:layout_constraintStart_toStartOf="@+id/progressInput"
-            tools:progress="25" />
-
-        <info.hoang8f.android.segmented.SegmentedGroup
-            android:id="@+id/progressTypeSegmentedGroup"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="12dp"
-            android:layout_marginEnd="16dp"
-            android:orientation="horizontal"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/bookCard"
-            app:sc_border_width="2dp"
-            app:sc_tint_color="?colorPrimary">
-
-            <RadioButton
-                android:id="@+id/percentProgressTypeButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:button="@null"
-                android:gravity="center"
-                android:paddingStart="16dp"
-                android:paddingTop="8dp"
-                android:paddingEnd="16dp"
-                android:paddingBottom="8dp"
-                android:text="@string/progress_type_percent"
-                android:textAppearance="@style/TextAppearance.MaterialComponents.Body1" />
-
-            <RadioButton
-                android:id="@+id/pageProgressTypeButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:button="@null"
-                android:gravity="center"
-                android:paddingStart="16dp"
-                android:paddingTop="8dp"
-                android:paddingEnd="16dp"
-                android:paddingBottom="8dp"
-                android:text="@string/progress_type_page"
-                android:textAppearance="@style/TextAppearance.MaterialComponents.Body1" />
-
-        </info.hoang8f.android.segmented.SegmentedGroup>
-
-        <androidx.constraintlayout.widget.Barrier
-            android:id="@+id/progressBarrier"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:barrierDirection="bottom"
-            app:constraint_referenced_ids="progressSeekBar,progressInput,progressTypeSegmentedGroup,increaseProgressButton,decreaseProgressButton" />
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/userStatusCommentTextInputLayout"
-            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="12dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="16dp"
-            android:hint="@string/hint_opinion"
-            app:counterEnabled="true"
-            app:counterMaxLength="420"
-            app:layout_constraintBottom_toTopOf="@+id/updateProgressButton"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/progressBarrier"
-            app:layout_constraintVertical_bias="0">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/userStatusCommentTextInputEditText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="top"
-                android:inputType="textCapSentences|textAutoCorrect|textAutoComplete|textMultiLine"
-                android:minLines="5" />
-
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <Button
-            android:id="@+id/updateProgressButton"
-            style="@style/Widget.AppCompat.Button.Colored"
+        <include
+            android:id="@+id/updateProgressContent"
+            layout="@layout/update_progress"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="8dp"
-            android:text="@string/action_update_progress"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@+id/bookCard" />
+
+        <ProgressBar
+            android:id="@+id/updateProgressContentProgressBar"
+            style="@android:style/Widget.Material.Light.ProgressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="64dp"
+            android:indeterminate="true"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <ImageView
-            android:id="@+id/decreaseProgressButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:background="?selectableItemBackgroundBorderless"
-            app:layout_constraintBottom_toBottomOf="@+id/progressTypeSegmentedGroup"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/progressTypeSegmentedGroup"
-            app:srcCompat="@drawable/ic_chevron_left" />
-
-        <ImageView
-            android:id="@+id/increaseProgressButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:background="?selectableItemBackgroundBorderless"
-            app:layout_constraintBottom_toBottomOf="@+id/progressTypeSegmentedGroup"
-            app:layout_constraintEnd_toStartOf="@+id/progressTypeSegmentedGroup"
-            app:layout_constraintTop_toTopOf="@+id/progressTypeSegmentedGroup"
-            app:srcCompat="@drawable/ic_chevron_right" />
+            app:layout_constraintTop_toBottomOf="@+id/bookCard" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

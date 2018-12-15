@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.lifecycle.ViewModelProviders
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.item_book_card.*
+import kotlinx.android.synthetic.main.update_progress.*
 import kotlinx.android.synthetic.main.update_progress_fragment.*
 import kotlinx.coroutines.launch
 import me.thanel.readtracker.Preferences
@@ -130,6 +131,8 @@ class UpdateProgressFragment : BaseFragment(R.layout.update_progress_fragment) {
 
             bookInformationGroup.visibility = View.VISIBLE
             bookInformationProgressBar.visibility = View.GONE
+            updateProgressContentProgressBar.visibility = View.GONE
+            updateProgressContent.visibility = View.VISIBLE
         }
     }
 

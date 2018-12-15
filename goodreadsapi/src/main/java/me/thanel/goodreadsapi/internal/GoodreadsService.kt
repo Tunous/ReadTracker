@@ -10,7 +10,7 @@ import retrofit2.http.POST
 import retrofit2.http.Path
 
 internal interface GoodreadsService {
-    @GET("/user/show/{id}.xml?key=KUtQGqdhmKy1nUyQnFZRzA")
+    @GET("/user/show/{id}.xml")
     fun getUser(@Path("id") id: Long): Deferred<UserResponse>
 
     @GET("/api/auth_user")
