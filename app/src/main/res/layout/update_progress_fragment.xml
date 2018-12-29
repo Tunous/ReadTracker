@@ -16,7 +16,9 @@
             layout="@layout/item_book_card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:visibility="gone"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:visibility="visible" />
 
         <include
             android:id="@+id/updateProgressContent"
@@ -24,18 +26,48 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:visibility="gone"
-            app:layout_constraintTop_toBottomOf="@+id/bookCard" />
+            app:layout_constraintTop_toBottomOf="@+id/bookCard"
+            tools:visibility="visible" />
 
         <ProgressBar
             android:id="@+id/updateProgressContentProgressBar"
             style="@android:style/Widget.Material.Light.ProgressBar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="64dp"
             android:indeterminate="true"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/bookCard" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:visibility="gone" />
+
+        <LinearLayout
+            android:id="@+id/noInformationContainer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:layout_marginEnd="24dp"
+                android:text="@string/info_empty_state" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/exploreBooksButton"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton.Icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/action_explore_books"
+                app:icon="@drawable/ic_open_in_new"
+                app:iconSize="16dp" />
+
+        </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

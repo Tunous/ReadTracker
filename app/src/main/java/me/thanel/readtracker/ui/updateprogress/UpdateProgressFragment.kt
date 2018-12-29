@@ -1,7 +1,9 @@
 package me.thanel.readtracker.ui.updateprogress
 
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -59,6 +61,10 @@ class UpdateProgressFragment : BaseFragment(R.layout.update_progress_fragment) {
         decreaseProgressButton.setOnClickListener {
             progressSeekBar.progress -= 1
         }
+
+        exploreBooksButton.setOnClickListener {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://www.goodreads.com/book")))
+        }
     }
 
     private fun setupSeekBarProgressListener() {
@@ -104,7 +110,12 @@ class UpdateProgressFragment : BaseFragment(R.layout.update_progress_fragment) {
             Preferences.userId = userId
 
             val userStatuses = viewModel.getUserStatuses(userId)
-            val userStatus = userStatuses?.firstOrNull() ?: return@launch
+            val userStatus = userStatuses?.firstOrNull()
+            if (userStatus == null) {
+                showNoDataInformation()
+                return@launch
+            }
+
             val book = userStatus.book
             bookTitleView.text = book.title
             bookAuthorView.text =
@@ -128,11 +139,16 @@ class UpdateProgressFragment : BaseFragment(R.layout.update_progress_fragment) {
                 .placeholder(ColorDrawable(Color.BLACK))
                 .into(imageView)
 
-            bookInformationGroup.visibility = View.VISIBLE
-            bookInformationProgressBar.visibility = View.GONE
-            updateProgressContentProgressBar.visibility = View.GONE
+            bookCard.visibility = View.VISIBLE
             updateProgressContent.visibility = View.VISIBLE
+            updateProgressContentProgressBar.visibility = View.GONE
+            noInformationContainer.visibility = View.GONE
         }
+    }
+
+    private fun showNoDataInformation() {
+        noInformationContainer.visibility = View.VISIBLE
+        updateProgressContentProgressBar.visibility = View.GONE
     }
 
     private fun onUpdateProgressButtonClicked() {

@@ -67,29 +67,6 @@
             app:layout_constraintTop_toBottomOf="@+id/bookAuthorView"
             tools:text="@string/info_pages" />
 
-        <androidx.constraintlayout.widget.Group
-            android:id="@+id/bookInformationGroup"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="gone"
-            app:constraint_referenced_ids="bookTitleView,bookAuthorView,pagesTextView"
-            tools:visibility="visible" />
-
-        <ProgressBar
-            android:id="@+id/bookInformationProgressBar"
-            style="@android:style/Widget.Material.Light.ProgressBar.Small"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp"
-            android:indeterminate="true"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/imageView"
-            app:layout_constraintTop_toTopOf="parent" />
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.cardview.widget.CardView>
