@@ -11,10 +11,13 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:background="?selectableItemBackgroundBorderless"
+        android:contentDescription="@string/desc_decrement_progress"
+        android:tooltipText="@string/desc_decrement_progress"
         app:layout_constraintBottom_toBottomOf="@+id/progressTypeSegmentedGroup"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/progressTypeSegmentedGroup"
-        app:srcCompat="@drawable/ic_chevron_left" />
+        app:srcCompat="@drawable/ic_chevron_left"
+        tools:ignore="UnusedAttribute" />
 
     <EditText
         android:id="@+id/progressInput"
@@ -53,10 +56,13 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:background="?selectableItemBackgroundBorderless"
+        android:contentDescription="@string/desc_increment_progress"
+        android:tooltipText="@string/desc_increment_progress"
         app:layout_constraintBottom_toBottomOf="@+id/progressTypeSegmentedGroup"
         app:layout_constraintEnd_toStartOf="@+id/progressTypeSegmentedGroup"
         app:layout_constraintTop_toTopOf="@+id/progressTypeSegmentedGroup"
-        app:srcCompat="@drawable/ic_chevron_right" />
+        app:srcCompat="@drawable/ic_chevron_right"
+        tools:ignore="UnusedAttribute" />
 
     <info.hoang8f.android.segmented.SegmentedGroup
         android:id="@+id/progressTypeSegmentedGroup"
@@ -82,7 +88,9 @@
             android:paddingEnd="16dp"
             android:paddingBottom="8dp"
             android:text="@string/progress_type_percent"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Body1" />
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+            android:tooltipText="@string/tooltip_percent_progress"
+            tools:ignore="UnusedAttribute" />
 
         <RadioButton
             android:id="@+id/pageProgressTypeButton"
@@ -95,7 +103,9 @@
             android:paddingEnd="16dp"
             android:paddingBottom="8dp"
             android:text="@string/progress_type_page"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Body1" />
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+            android:tooltipText="@string/tooltip_page_progress"
+            tools:ignore="UnusedAttribute" />
 
     </info.hoang8f.android.segmented.SegmentedGroup>
 

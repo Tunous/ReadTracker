@@ -6,6 +6,10 @@
 
     <string name="app_name">ReadTracker</string>
 
+    <string name="desc_book_cover">Book cover image</string>
+    <string name="desc_decrement_progress">Decrement progress</string>
+    <string name="desc_increment_progress">Increment progress</string>
+
     <string name="hint_opinion">What do you think? (Optional)</string>
     <string name="hint_pages_done">of %1$d pages</string>
     <string name="hint_percentage_done">% done</string>
@@ -17,5 +21,7 @@
 
     <string name="progress_type_page">#</string>
     <string name="progress_type_percent">%</string>
-    <string name="desc_book_cover">Book cover image</string>
+
+    <string name="tooltip_page_progress">Update progress by page number</string>
+    <string name="tooltip_percent_progress">Update progress by percentage</string>
 </resources>
