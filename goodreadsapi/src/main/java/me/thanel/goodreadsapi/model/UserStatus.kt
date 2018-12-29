@@ -9,5 +9,6 @@ data class UserStatus(
     @PropertyElement(name = "id") val id: Long,
     @PropertyElement(name = "page") val page: Int,
     @PropertyElement(name = "percent") val percent: Int,
+    @PropertyElement(name = "review_id") val reviewId: Long,
     @Element(name = "book") val book: Book
 )

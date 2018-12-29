@@ -6,10 +6,14 @@ import com.tickaroo.tikxml.retrofit.TikXmlConverterFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import me.thanel.goodreadsapi.internal.GoodreadsService
+import me.thanel.goodreadsapi.internal.util.applyIf
+import me.thanel.goodreadsapi.internal.util.nullIfBlank
 import me.thanel.goodreadsapi.model.AccessTokenData
 import me.thanel.goodreadsapi.model.RequestTokenData
+import me.thanel.goodreadsapi.model.ShortDate
 import me.thanel.goodreadsapi.model.UserResponse
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import se.akerfeldt.okhttp.signpost.OkHttpOAuthConsumer
 import se.akerfeldt.okhttp.signpost.OkHttpOAuthProvider
@@ -27,6 +31,11 @@ class GoodreadsApi(
 
     private val okHttpClient = OkHttpClient.Builder()
         .addInterceptor(SigningInterceptor(oAuthConsumer))
+        .applyIf(BuildConfig.DEBUG) {
+            addInterceptor(HttpLoggingInterceptor().apply {
+                level = HttpLoggingInterceptor.Level.BASIC
+            })
+        }
         .build()
 
     private val tikXml = TikXml.Builder()
@@ -49,9 +58,26 @@ class GoodreadsApi(
         service.getUserId().await()
     }
 
-    suspend fun updateUserStatus(bookId: Long, percent: Int, body: String?) =
+    suspend fun updateProgressByPercent(bookId: Long, percent: Int, body: String?) =
         withContext(Dispatchers.IO) {
-            service.updateUserStatus(bookId, percent, body)
+            service.updateUserStatusByPercent(bookId, percent, body.nullIfBlank())
+        }
+
+    suspend fun updateProgressByPageNumber(bookId: Long, page: Int, body: String?) =
+        withContext(Dispatchers.IO) {
+            service.updateUserStatusByPageNumber(bookId, page, body.nullIfBlank())
+        }
+
+    suspend fun finishReading(reviewId: Long, rating: Int?, body: String?) =
+        withContext(Dispatchers.IO) {
+            service.editReview(
+                reviewId = reviewId,
+                reviewText = body.nullIfBlank(),
+                rating = rating,
+                dateRead = ShortDate.now(),
+                shelf = "read",
+                finished = true
+            )
         }
 
     companion object {

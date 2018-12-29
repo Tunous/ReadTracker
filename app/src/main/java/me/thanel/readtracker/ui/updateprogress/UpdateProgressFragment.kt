@@ -24,6 +24,9 @@ class UpdateProgressFragment : BaseFragment(R.layout.update_progress_fragment) {
 
     private var numPages = 0
     private var bookId = 0L
+    private var reviewId = 0L
+
+    private val commentBody get() = userStatusCommentTextInputEditText.text?.toString()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -43,13 +46,7 @@ class UpdateProgressFragment : BaseFragment(R.layout.update_progress_fragment) {
         }
 
         updateProgressButton.setOnClickListener {
-            launch {
-                // TODO: Use correct progress type
-                val body = userStatusCommentTextInputEditText.text?.toString()
-                viewModel.updatePercentProgress(bookId, progressSeekBar.progress, body)
-                Toast.makeText(requireContext(), "Updated progress", Toast.LENGTH_SHORT).show()
-                userStatusCommentTextInputEditText.text?.clear()
-            }
+            onUpdateProgressButtonClicked()
         }
 
         progressTypeSegmentedGroup.setOnCheckedChangeListener { _, checkedId ->
@@ -75,6 +72,7 @@ class UpdateProgressFragment : BaseFragment(R.layout.update_progress_fragment) {
             updateProgressButton.setText(if (isMax) R.string.action_finished else R.string.action_update_progress)
             increaseProgressButton.isEnabled = !isMax
             decreaseProgressButton.isEnabled = !isMin
+            ratingBar.visibility = if (isMax) View.VISIBLE else View.GONE
         }
 
         progressInput.afterTextChanged {
@@ -115,6 +113,7 @@ class UpdateProgressFragment : BaseFragment(R.layout.update_progress_fragment) {
 
             bookId = book.id
             numPages = book.numPages
+            reviewId = userStatus.reviewId
 
             if (userStatus.page > 0) {
                 setupProgressTypeButton(true)
@@ -134,6 +133,39 @@ class UpdateProgressFragment : BaseFragment(R.layout.update_progress_fragment) {
             updateProgressContentProgressBar.visibility = View.GONE
             updateProgressContent.visibility = View.VISIBLE
         }
+    }
+
+    private fun onUpdateProgressButtonClicked() {
+        if (progressSeekBar.progress == progressSeekBar.max) {
+            finishReading()
+            return
+        }
+        if (progressTypeSegmentedGroup.checkedRadioButtonId == R.id.pageProgressTypeButton) {
+            updateProgressByPageNumber()
+        } else {
+            updateProgressByPercent()
+        }
+    }
+
+    private fun finishReading() = launch {
+        viewModel.finishReading(reviewId, ratingBar.progress, commentBody)
+        onProgressUpdated()
+        activity?.finish()
+    }
+
+    private fun updateProgressByPercent() = launch {
+        viewModel.updateProgressByPercent(bookId, progressSeekBar.progress, commentBody)
+        onProgressUpdated()
+    }
+
+    private fun updateProgressByPageNumber() = launch {
+        viewModel.updateProgressByPageNumber(bookId, progressSeekBar.progress, commentBody)
+        onProgressUpdated()
+    }
+
+    private fun onProgressUpdated() {
+        Toast.makeText(requireContext(), "Updated progress", Toast.LENGTH_SHORT).show()
+        userStatusCommentTextInputEditText.text?.clear()
     }
 
     companion object {

@@ -1,6 +1,7 @@
 package me.thanel.goodreadsapi.internal
 
 import kotlinx.coroutines.Deferred
+import me.thanel.goodreadsapi.model.ShortDate
 import me.thanel.goodreadsapi.model.UserResponse
 import okhttp3.ResponseBody
 import retrofit2.http.Field
@@ -18,9 +19,28 @@ internal interface GoodreadsService {
 
     @POST("/user_status.xml")
     @FormUrlEncoded
-    fun updateUserStatus(
+    fun updateUserStatusByPercent(
         @Field("user_status[book_id]") bookId: Long,
         @Field("user_status[percent]") percent: Int,
         @Field("user_status[body]") body: String?
+    ): Deferred<ResponseBody>
+
+    @POST("/user_status.xml")
+    @FormUrlEncoded
+    fun updateUserStatusByPageNumber(
+        @Field("user_status[book_id]") bookId: Long,
+        @Field("user_status[page]") page: Int,
+        @Field("user_status[body]") body: String?
+    ): Deferred<ResponseBody>
+
+    @POST("/review/{reviewId}.xml")
+    @FormUrlEncoded
+    fun editReview(
+        @Path("reviewId") reviewId: Long,
+        @Field("review[review]") reviewText: String?,
+        @Field("review[rating]") rating: Int?,
+        @Field("review[read_at]") dateRead: ShortDate?,
+        @Field("finished") finished: Boolean?,
+        @Field("shelf") shelf: String?
     ): Deferred<ResponseBody>
 }
