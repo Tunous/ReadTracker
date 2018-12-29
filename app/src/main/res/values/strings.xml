@@ -17,4 +17,5 @@
 
     <string name="progress_type_page">#</string>
     <string name="progress_type_percent">%</string>
+    <string name="desc_book_cover">Book cover image</string>
 </resources>

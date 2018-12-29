@@ -20,6 +20,16 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:visibility="visible" />
 
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:background="?dividerHorizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/bookCard" />
+
         <include
             android:id="@+id/updateProgressContent"
             layout="@layout/update_progress"

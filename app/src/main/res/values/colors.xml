@@ -1,6 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
+    <!-- Palette -->
+    <color name="tax_break">#436767</color>
+    <color name="eastern_blue">#0E8192</color>
+    <color name="niagara">#2AA998</color>
+    <color name="judge_gray">#4C482D</color>
+    <color name="bison_hide">#C3BDA3</color>
+    <color name="ivory">#FDFDE9</color>
+
+    <!-- Main -->
+    <color name="primary">@color/niagara</color>
+    <color name="primary_dark">@color/tax_break</color>
+    <color name="secondary">@color/eastern_blue</color>
+
+    <!-- Backgrounds -->
+    <color name="background">@color/ivory</color>
+    <color name="status_bar">@color/secondary</color>
+
+    <!-- Texts -->
+    <color name="text_primary">@color/judge_gray</color>
 </resources>
