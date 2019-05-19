@@ -1,0 +1,14 @@
+CREATE TABLE pendingProgressUpdate (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    readProgressId INTEGER NOT NULL,
+    page INTEGER,
+    percent INTEGER
+);
+
+insertPageUpdate:
+INSERT INTO pendingProgressUpdate(readProgressId, page, percent)
+VALUES(?, ?, NULL);
+
+insertProgressUpdate:
+INSERT INTO pendingProgressUpdate(readProgressId, page, percent)
+VALUES(?, NULL, ?);

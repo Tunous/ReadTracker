@@ -6,7 +6,6 @@ import android.view.View
 import androidx.lifecycle.ViewModelProviders
 import kotlinx.android.synthetic.main.authorize_fragment.*
 import kotlinx.coroutines.launch
-import me.thanel.readtracker.MainActivity
 import me.thanel.readtracker.R
 import me.thanel.readtracker.ui.base.BaseFragment
 
@@ -15,10 +14,7 @@ class AuthorizeFragment : BaseFragment(R.layout.authorize_fragment) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        val error = arguments?.getString(ARG_ERROR)
-        errorTextView.text = error
-        errorTextView.visibility = if (error != null) View.VISIBLE else View.GONE
+        showOrHideError(arguments?.getString(ARG_ERROR))
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -30,20 +26,22 @@ class AuthorizeFragment : BaseFragment(R.layout.authorize_fragment) {
         }
     }
 
-    fun finishAuthorization() {
-        launch {
-            viewModel.finishAuthorization()
-
-            val mainActivity = requireActivity() as MainActivity
-            mainActivity.displayProgressFragment()
-        }
+    private fun showOrHideError(error: String?) {
+        errorTextView.text = error
+        errorTextView.visibility = if (error != null) View.VISIBLE else View.GONE
     }
 
     private fun beginAuthorization() {
+        loginButton.isEnabled = false
         launch {
-            loginButton.isEnabled = false
-            val authUri = viewModel.beginAuthorization()
-            startActivity(Intent(Intent.ACTION_VIEW, authUri))
+            try {
+                val authUri = viewModel.beginAuthorization()
+                startActivity(Intent(Intent.ACTION_VIEW, authUri))
+            } catch (e: Exception) {
+                showOrHideError("Something went wrong: ${e.localizedMessage}")
+            } finally {
+                loginButton.isEnabled = true
+            }
         }
     }
 

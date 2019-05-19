@@ -1,40 +1,63 @@
 package me.thanel.readtracker.ui.updateprogress
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
+import dagger.Lazy
 import me.thanel.goodreadsapi.GoodreadsApi
-import me.thanel.goodreadsapi.model.UserStatus
-import me.thanel.readtracker.BuildConfig
-import me.thanel.readtracker.Preferences
+import me.thanel.goodreadsapi.internal.util.nullIfBlank
+import me.thanel.readtracker.Database
+import me.thanel.readtracker.di.ReadTracker
+import me.thanel.readtracker.user.UserRepository
+import javax.inject.Inject
 
 class UpdateProgressViewModel : ViewModel() {
-    private var userStatuses: List<UserStatus>? = null
-    private val api by lazy {
-        GoodreadsApi(
-            BuildConfig.GOODREADS_CONSUMER_KEY,
-            BuildConfig.GOODREADS_CONSUMER_SECRET,
-            Preferences.token!!,
-            Preferences.tokenSecret!!
-        )
+
+    @Inject
+    internal lateinit var lazyApi: Lazy<GoodreadsApi>
+    private val api get() = lazyApi.get()
+
+    @Inject
+    internal lateinit var userRepository: UserRepository
+
+    @Inject
+    internal lateinit var database: Database
+
+    init {
+        ReadTracker.dependencyInjector.inject(this)
     }
 
-    suspend fun getUserId(): Long {
-        val response = api.getUserId()
-        val userId = response.user.id
-        return userId
-    }
-
-    suspend fun getUserStatuses(userId: Long): List<UserStatus>? {
-        if (userStatuses != null) {
-            Log.d(TAG, "Returning existing userStatuses $userStatuses")
-            return userStatuses
-        }
-
-        Log.d(TAG, "Fetching userStatuses...")
+    suspend fun fetchReadProgress() {
+        val userId = userRepository.getUserId()
         val response = api.getUser(userId)
-        userStatuses = response.user.userStatuses
-        Log.d(TAG, "UserStatuses fetched: $userStatuses")
-        return userStatuses
+        response.user.userStatuses?.let { statuses ->
+            val books = statuses
+                .map { it.book }
+                .distinctBy { it.id }
+
+            database.transaction {
+                database.bookQueries.deleteAll()
+                database.readProgressQueries.deleteAll()
+
+                for (book in books) {
+                    database.bookQueries.insert(
+                        book.id,
+                        book.title,
+                        book.numPages.toLong(),
+                        book.imageUrl,
+                        book.authors.joinToString { it.name }.nullIfBlank()
+                    )
+                }
+
+                for (status in statuses) {
+                    database.readProgressQueries.insert(
+                        status.id,
+                        status.book.id,
+                        status.page.toLong(),
+                        status.percent.toLong(),
+                        status.reviewId
+                    )
+                }
+            }
+        }
     }
 
     suspend fun updateProgressByPercent(bookId: Long, progress: Int, body: String?) {
@@ -47,9 +70,5 @@ class UpdateProgressViewModel : ViewModel() {
 
     suspend fun finishReading(reviewId: Long, rating: Int, body: String?) {
         api.finishReading(reviewId, rating, body).await()
-    }
-
-    companion object {
-        private val TAG = UpdateProgressViewModel::class.java.simpleName
     }
 }
