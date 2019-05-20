@@ -3,6 +3,7 @@ package me.thanel.goodreadsapi
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import com.tickaroo.tikxml.TikXml
 import com.tickaroo.tikxml.retrofit.TikXmlConverterFactory
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.runBlocking
 import me.thanel.goodreadsapi.internal.GoodreadsService
 import okhttp3.mockwebserver.MockResponse
@@ -46,7 +47,7 @@ class GoodreadsServiceTest {
             .setResponseCode(200)
             .setBody(getXml("xml/userId.xml")))
 
-        val response = runBlocking { service.getUserId().await() }
+        val response = service.getUserIdAsync().awaitBlocking()
 
         assertEquals("/api/auth_user", server.takeRequest().path)
         assertEquals(1234, response.user.id)
@@ -60,7 +61,7 @@ class GoodreadsServiceTest {
             .setResponseCode(200)
             .setBody(getXml("xml/user_1234.xml")))
 
-        val response = runBlocking { service.getUser(1234).await() }
+        val response = service.getUserAsync(1234).awaitBlocking()
 
         assertEquals("/user/show/1234.xml", server.takeRequest().path)
         assertEquals(1234, response.user.id)
@@ -90,4 +91,8 @@ class GoodreadsServiceTest {
         val file = File(uri.path)
         return file.readText()
     }
+}
+
+private fun <T> Deferred<T>.awaitBlocking() = runBlocking {
+    await()
 }

@@ -51,26 +51,26 @@ class GoodreadsApi(
         .create(GoodreadsService::class.java)
 
     suspend fun getUser(id: Long): UserResponse = withContext(Dispatchers.IO) {
-        service.getUser(id).await()
+        service.getUserAsync(id).await()
     }
 
     suspend fun getUserId() = withContext(Dispatchers.IO) {
-        service.getUserId().await()
+        service.getUserIdAsync().await()
     }
 
     suspend fun updateProgressByPercent(bookId: Long, percent: Int, body: String?) =
         withContext(Dispatchers.IO) {
-            service.updateUserStatusByPercent(bookId, percent, body.nullIfBlank())
+            service.updateUserStatusByPercentAsync(bookId, percent, body.nullIfBlank())
         }
 
     suspend fun updateProgressByPageNumber(bookId: Long, page: Int, body: String?) =
         withContext(Dispatchers.IO) {
-            service.updateUserStatusByPageNumber(bookId, page, body.nullIfBlank())
+            service.updateUserStatusByPageNumberAsync(bookId, page, body.nullIfBlank())
         }
 
     suspend fun finishReading(reviewId: Long, rating: Int?, body: String?) =
         withContext(Dispatchers.IO) {
-            service.editReview(
+            service.editReviewAsync(
                 reviewId = reviewId,
                 reviewText = body.nullIfBlank(),
                 rating = rating,

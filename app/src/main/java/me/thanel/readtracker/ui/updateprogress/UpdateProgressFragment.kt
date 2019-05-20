@@ -146,12 +146,12 @@ class UpdateProgressFragment : BaseFragment(R.layout.update_progress_fragment) {
         }
 
         bookId = progress.bookId
-        numPages = progress.numPages.toInt()
+        numPages = progress.numPages
         reviewId = progress.reviewId
 
         when {
-            progress.page > 0 -> updateProgress(progress.page.toInt(), usePages = true)
-            progress.percent > 0 -> updateProgress(progress.percent.toInt(), usePages = false)
+            progress.page > 0 -> updateProgress(progress.page, usePages = true)
+            progress.percent > 0 -> updateProgress(progress.percent, usePages = false)
             else -> throw IllegalStateException("Received progress without valid information")
         }
 
@@ -163,9 +163,9 @@ class UpdateProgressFragment : BaseFragment(R.layout.update_progress_fragment) {
             Picasso.get()
                 .load(progress.bookImageUrl!!)
                 .placeholder(ColorDrawable(Color.BLACK))
-                .into(imageView)
+                .into(bookCoverImageView)
         } else {
-            imageView.setImageDrawable(ColorDrawable(Color.BLACK))
+            bookCoverImageView.setImageDrawable(ColorDrawable(Color.BLACK))
         }
 
         bookCard.visibility = View.VISIBLE

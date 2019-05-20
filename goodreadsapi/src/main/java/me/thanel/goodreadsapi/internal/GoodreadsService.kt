@@ -12,14 +12,14 @@ import retrofit2.http.Path
 
 internal interface GoodreadsService {
     @GET("/user/show/{id}.xml")
-    fun getUser(@Path("id") id: Long): Deferred<UserResponse>
+    fun getUserAsync(@Path("id") id: Long): Deferred<UserResponse>
 
     @GET("/api/auth_user")
-    fun getUserId(): Deferred<UserResponse>
+    fun getUserIdAsync(): Deferred<UserResponse>
 
     @POST("/user_status.xml")
     @FormUrlEncoded
-    fun updateUserStatusByPercent(
+    fun updateUserStatusByPercentAsync(
         @Field("user_status[book_id]") bookId: Long,
         @Field("user_status[percent]") percent: Int,
         @Field("user_status[body]") body: String?
@@ -27,7 +27,7 @@ internal interface GoodreadsService {
 
     @POST("/user_status.xml")
     @FormUrlEncoded
-    fun updateUserStatusByPageNumber(
+    fun updateUserStatusByPageNumberAsync(
         @Field("user_status[book_id]") bookId: Long,
         @Field("user_status[page]") page: Int,
         @Field("user_status[body]") body: String?
@@ -35,7 +35,7 @@ internal interface GoodreadsService {
 
     @POST("/review/{reviewId}.xml")
     @FormUrlEncoded
-    fun editReview(
+    fun editReviewAsync(
         @Path("reviewId") reviewId: Long,
         @Field("review[review]") reviewText: String?,
         @Field("review[rating]") rating: Int?,

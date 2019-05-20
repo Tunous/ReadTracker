@@ -1,7 +1,7 @@
 CREATE TABLE book (
     id INTEGER NOT NULL,
     title TEXT NOT NULL,
-    numPages INTEGER NOT NULL,
+    numPages INTEGER as Int NOT NULL,
     imageUrl TEXT,
     authors TEXT
 );

@@ -1,6 +1,7 @@
 package me.thanel.readtracker.di
 
 import dagger.Component
+import me.thanel.readtracker.ui.ReadingListFragment
 import me.thanel.readtracker.ui.updateprogress.UpdateProgressFragment
 import me.thanel.readtracker.ui.updateprogress.UpdateProgressViewModel
 import javax.inject.Singleton
@@ -16,4 +17,5 @@ import javax.inject.Singleton
 interface RootComponent {
     fun inject(viewModel: UpdateProgressViewModel)
     fun inject(fragment: UpdateProgressFragment)
+    fun inject(fragment: ReadingListFragment)
 }

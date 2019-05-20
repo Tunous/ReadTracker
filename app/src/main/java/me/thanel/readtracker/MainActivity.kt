@@ -9,6 +9,7 @@ import com.chibatching.kotpref.bulk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import me.thanel.readtracker.ui.ReadingListFragment
 import me.thanel.readtracker.ui.authorize.AuthorizeFragment
 import me.thanel.readtracker.ui.authorize.AuthorizeViewModel
 import me.thanel.readtracker.ui.updateprogress.UpdateProgressFragment
@@ -20,7 +21,7 @@ class MainActivity : AppCompatActivity() {
 
         if (savedInstanceState == null) {
             if (Preferences.isAuthorized) {
-                displayProgressFragment()
+                displayReadingListFragment()
             } else {
                 displayAuthorizeFragment()
             }
@@ -28,7 +29,7 @@ class MainActivity : AppCompatActivity() {
 
         if (intent?.action == Intent.ACTION_VIEW) {
             if (handleAuthorizedIntent()) {
-                displayProgressFragment()
+                displayReadingListFragment()
             } else {
                 displayAuthorizeFragment("Something went wrong")
             }
@@ -39,8 +40,12 @@ class MainActivity : AppCompatActivity() {
         displayFragment(AuthorizeFragment.newInstance(error))
     }
 
-    fun displayProgressFragment() {
+    private fun displayProgressFragment() {
         displayFragment(UpdateProgressFragment.newInstance())
+    }
+
+    private fun displayReadingListFragment() {
+        displayFragment(ReadingListFragment.newInstance())
     }
 
     private fun displayFragment(fragment: Fragment) {
@@ -71,7 +76,7 @@ class MainActivity : AppCompatActivity() {
         val viewModel = ViewModelProviders.of(this).get(AuthorizeViewModel::class.java)
         GlobalScope.launch(Dispatchers.Main) {
             viewModel.finishAuthorization()
-            displayProgressFragment()
+            displayReadingListFragment()
         }
 
         return true

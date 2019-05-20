@@ -9,22 +9,21 @@
         android:id="@+id/imageViewCard"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
-        android:layout_marginBottom="16dp"
         app:cardCornerRadius="4dp"
         app:cardElevation="4dp"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
             android:id="@+id/bookCoverImageView"
-            android:layout_width="96dp"
-            android:layout_height="144dp"
+            android:layout_width="52dp"
+            android:layout_height="80dp"
             android:contentDescription="@string/desc_book_cover"
             android:scaleType="centerCrop"
-            app:srcCompat="@android:color/black" />
+            app:srcCompat="@android:color/black"
+            tools:srcCompat="@tools:sample/avatars" />
 
     </androidx.cardview.widget.CardView>
 
@@ -33,15 +32,13 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="40dp"
-        android:layout_marginEnd="24dp"
-        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
-        app:layout_constraintBottom_toTopOf="@+id/bookAuthorView"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:text="I Am Legend"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/imageViewCard"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0"
-        app:layout_constraintVertical_chainStyle="packed"
         tools:text="I Am Legend" />
 
     <TextView
@@ -49,27 +46,40 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="24dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="16dp"
+        android:text="by Richard Matheson"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
-        app:layout_constraintBottom_toTopOf="@+id/pagesTextView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/imageViewCard"
         app:layout_constraintTop_toBottomOf="@+id/bookTitleView"
         tools:text="by Richard Matheson" />
 
-    <TextView
-        android:id="@+id/pagesTextView"
+    <SeekBar
+        android:id="@+id/bookSeekBar"
+        style="@android:style/Widget.Material.SeekBar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="4dp"
-        android:layout_marginEnd="24dp"
-        android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:max="100"
+        android:progress="25"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/updateBookProgressButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageViewCard" />
+
+    <ImageView
+        android:id="@+id/updateBookProgressButton"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginEnd="16dp"
+        android:background="?selectableItemBackgroundBorderless"
+        app:layout_constraintBottom_toBottomOf="@+id/bookSeekBar"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/imageViewCard"
-        app:layout_constraintTop_toBottomOf="@+id/bookAuthorView"
-        tools:text="@string/info_pages" />
+        app:layout_constraintTop_toTopOf="@+id/bookSeekBar"
+        app:srcCompat="@drawable/ic_done" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

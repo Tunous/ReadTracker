@@ -31,6 +31,7 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.0.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
     androidTestImplementation 'androidx.test:runner:1.1.1'
 
@@ -54,4 +55,6 @@ dependencies {
     kapt "com.google.dagger:dagger-compiler:2.16"
 
     testImplementation 'junit:junit:4.12'
+
+    implementation "com.daimajia.numberprogressbar:library:1.4@aar"
 }

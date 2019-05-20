@@ -41,7 +41,7 @@ class UpdateProgressViewModel : ViewModel() {
                     database.bookQueries.insert(
                         book.id,
                         book.title,
-                        book.numPages.toLong(),
+                        book.numPages,
                         book.imageUrl,
                         book.authors.joinToString { it.name }.nullIfBlank()
                     )
@@ -51,8 +51,8 @@ class UpdateProgressViewModel : ViewModel() {
                     database.readProgressQueries.insert(
                         status.id,
                         status.book.id,
-                        status.page.toLong(),
-                        status.percent.toLong(),
+                        status.page,
+                        status.percent,
                         status.reviewId
                     )
                 }

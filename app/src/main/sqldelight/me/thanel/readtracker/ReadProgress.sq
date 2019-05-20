@@ -1,8 +1,8 @@
 CREATE TABLE readProgress (
     id INTEGER NOT NULL,
     bookId INTEGER NOT NULL,
-    page INTEGER NOT NULL,
-    percent INTEGER NOT NULL,
+    page INTEGER as Int NOT NULL,
+    percent INTEGER as Int NOT NULL,
     reviewId INTEGER NOT NULL
 );
 
