@@ -27,6 +27,7 @@ import me.thanel.readtracker.ui.base.BaseFragment
 import me.thanel.readtracker.ui.updateprogress.UpdateProgressViewModel
 import me.thanel.readtracker.ui.updateprogress.executeAsListLiveData
 import javax.inject.Inject
+import kotlin.math.roundToInt
 
 class ReadingListFragment : BaseFragment(R.layout.fragment_reading_list) {
 
@@ -98,17 +99,39 @@ class BookViewHolder(
     itemView: View,
     onUpdateProgressCallback: (SelectWithBookInformation, Int) -> Unit
 ) : RecyclerView.ViewHolder(itemView) {
+
     init {
+        itemView.bookProgressView.onProgressChangeListener = {
+            val progressItem = itemView.tag as SelectWithBookInformation
+            val page: Int
+            val percent: Int
+            if (progressItem.page > 0) {
+                percent = ((it / progressItem.numPages.toFloat()) * 100).roundToInt()
+                page = it
+            } else {
+                percent = it
+                page = ((it / 100f) * progressItem.numPages).roundToInt()
+            }
+            itemView.bookProgressIndicatorView.text = "$page/${progressItem.numPages} pages ($percent%)"
+
+            with(itemView.updateBookProgressButton) {
+                if (visibility == View.GONE) {
+                    alpha = 0f
+                    visibility = View.VISIBLE
+                    animate().alpha(1f).setDuration(1000).start()
+                }
+            }
+        }
         itemView.updateBookProgressButton.setOnClickListener {
-            val progressItem = it.tag as SelectWithBookInformation
-            val progress = itemView.bookSeekBar.progress
+            val progressItem = itemView.tag as SelectWithBookInformation
+            val progress = itemView.bookProgressView.currentValue
             onUpdateProgressCallback(progressItem, progress)
         }
     }
 }
 
 class BookAdapter(
-    val onUpdateProgressCallback: (SelectWithBookInformation, Int) -> Unit
+    private val onUpdateProgressCallback: (SelectWithBookInformation, Int) -> Unit
 ) : RecyclerView.Adapter<BookViewHolder>() {
 
     val items = mutableListOf<SelectWithBookInformation>()
@@ -126,7 +149,7 @@ class BookAdapter(
     override fun onBindViewHolder(holder: BookViewHolder, position: Int) {
         val progressItem = items[position]
 
-        holder.itemView.updateBookProgressButton.tag = progressItem
+        holder.itemView.tag = progressItem
 
         holder.itemView.bookTitleView.text = progressItem.bookTitle
         holder.itemView.bookAuthorView.text = holder.itemView.context.getString(R.string.info_authors, progressItem.bookAuthors)
@@ -139,16 +162,22 @@ class BookAdapter(
             holder.itemView.bookCoverImageView.setImageDrawable(ColorDrawable(Color.BLACK))
         }
 
-        when {
-            progressItem.page > 0 -> {
-                holder.itemView.bookSeekBar.max = progressItem.numPages
-                holder.itemView.bookSeekBar.progress = progressItem.page
+        with(holder.itemView.bookProgressView) {
+            when {
+                progressItem.page > 0 -> {
+                    maxValue = progressItem.numPages
+                    currentValue = progressItem.page
+                }
+                progressItem.percent > 0 -> {
+                    maxValue = 100
+                    currentValue = progressItem.percent
+                }
+                else -> throw IllegalStateException("Received progress without valid information")
             }
-            progressItem.percent > 0 -> {
-                holder.itemView.bookSeekBar.max = 100
-                holder.itemView.bookSeekBar.progress = progressItem.percent
-            }
-            else -> throw IllegalStateException("Received progress without valid information")
         }
+
+        holder.itemView.bookProgressIndicatorView.text = "${progressItem.page}/${progressItem.numPages} (${progressItem.percent}%)"
+        holder.itemView.updateBookProgressButton.visibility = View.GONE
+        holder.itemView.updateBookProgressButton.alpha = 0f
     }
 }

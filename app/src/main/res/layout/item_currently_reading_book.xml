@@ -5,16 +5,29 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
+    <me.thanel.readtracker.ui.view.BackgroundProgressView
+        android:id="@+id/bookProgressView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:alpha="0.2"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <androidx.cardview.widget.CardView
         android:id="@+id/imageViewCard"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
         app:cardCornerRadius="4dp"
         app:cardElevation="4dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0">
 
         <ImageView
             android:id="@+id/bookCoverImageView"
@@ -55,31 +68,26 @@
         app:layout_constraintTop_toBottomOf="@+id/bookTitleView"
         tools:text="by Richard Matheson" />
 
-    <SeekBar
-        android:id="@+id/bookSeekBar"
-        style="@android:style/Widget.Material.SeekBar"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        android:max="100"
-        android:progress="25"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/updateBookProgressButton"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageViewCard" />
-
     <ImageView
         android:id="@+id/updateBookProgressButton"
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
         android:background="?selectableItemBackgroundBorderless"
-        app:layout_constraintBottom_toBottomOf="@+id/bookSeekBar"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/bookSeekBar"
         app:srcCompat="@drawable/ic_done" />
+
+    <TextView
+        android:id="@+id/bookProgressIndicatorView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+        app:layout_constraintStart_toEndOf="@+id/imageViewCard"
+        app:layout_constraintTop_toBottomOf="@+id/bookAuthorView"
+        tools:text="85/548 (16%)" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

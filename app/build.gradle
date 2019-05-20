@@ -55,6 +55,4 @@ dependencies {
     kapt "com.google.dagger:dagger-compiler:2.16"
 
     testImplementation 'junit:junit:4.12'
-
-    implementation "com.daimajia.numberprogressbar:library:1.4@aar"
 }
