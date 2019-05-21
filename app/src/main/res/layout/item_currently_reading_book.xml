@@ -31,8 +31,8 @@
 
         <ImageView
             android:id="@+id/bookCoverImageView"
-            android:layout_width="52dp"
-            android:layout_height="80dp"
+            android:layout_width="100dp"
+            android:layout_height="150dp"
             android:contentDescription="@string/desc_book_cover"
             android:scaleType="centerCrop"
             app:srcCompat="@android:color/black"
@@ -45,13 +45,13 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="4dp"
         android:layout_marginEnd="16dp"
         android:text="I Am Legend"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/updateBookProgressButton"
         app:layout_constraintStart_toEndOf="@+id/imageViewCard"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/imageViewCard"
         tools:text="I Am Legend" />
 
     <TextView
@@ -63,7 +63,7 @@
         android:layout_marginEnd="16dp"
         android:text="by Richard Matheson"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/updateBookProgressButton"
         app:layout_constraintStart_toEndOf="@+id/imageViewCard"
         app:layout_constraintTop_toBottomOf="@+id/bookTitleView"
         tools:text="by Richard Matheson" />
@@ -73,21 +73,21 @@
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
         android:background="?selectableItemBackgroundBorderless"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toBottomOf="@+id/imageViewCard"
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@drawable/ic_done" />
 
     <TextView
         android:id="@+id/bookProgressIndicatorView"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+        app:layout_constraintBottom_toBottomOf="@+id/imageViewCard"
+        app:layout_constraintEnd_toStartOf="@+id/updateBookProgressButton"
         app:layout_constraintStart_toEndOf="@+id/imageViewCard"
-        app:layout_constraintTop_toBottomOf="@+id/bookAuthorView"
         tools:text="85/548 (16%)" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
