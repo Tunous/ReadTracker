@@ -149,11 +149,11 @@ class UpdateProgressFragment : BaseFragment(R.layout.update_progress_fragment) {
         numPages = progress.numPages
         reviewId = progress.reviewId
 
-        when {
-            progress.page > 0 -> updateProgress(progress.page, usePages = true)
-            progress.percent > 0 -> updateProgress(progress.percent, usePages = false)
-            else -> throw IllegalStateException("Received progress without valid information")
-        }
+        // when {
+        //     progress.page > 0 -> updateProgress(progress.page, usePages = true)
+        //     progress.percent > 0 -> updateProgress(progress.percent, usePages = false)
+        //     else -> throw IllegalStateException("Received progress without valid information")
+        // }
 
         bookTitleView.text = progress.bookTitle
         pagesTextView.text = getString(R.string.info_pages, progress.numPages)

@@ -11,8 +11,8 @@ import kotlinx.android.synthetic.main.dialog_review.*
 import kotlinx.android.synthetic.main.dialog_review.view.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import me.thanel.goodreadsapi.GoodreadsApi
 import me.thanel.readtracker.R
+import me.thanel.readtracker.api.ReadingProgressRepository
 import me.thanel.readtracker.di.ReadTracker
 import me.thanel.readtracker.model.ProgressType
 import me.thanel.readtracker.model.ProgressType.Page
@@ -24,7 +24,7 @@ import javax.inject.Inject
 class ReviewDialog : DialogFragment() {
 
     @Inject
-    internal lateinit var api: Lazy<GoodreadsApi>
+    internal lateinit var readingProgressRepository: Lazy<ReadingProgressRepository>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,9 +72,10 @@ class ReviewDialog : DialogFragment() {
         val reviewBody = getReviewBody()
 
         GlobalScope.launch {
+            val repository = readingProgressRepository.get()
             when (progressType) {
-                Page -> api.get().updateProgressByPageNumber(bookId, progress, reviewBody).await()
-                Percent -> api.get().updateProgressByPercent(bookId, progress, reviewBody).await()
+                Page -> repository.updateProgressByPageNumber(bookId, progress, reviewBody)
+                Percent -> repository.updateProgressByPercent(bookId, progress, reviewBody)
             }
         }
     }
@@ -85,7 +86,7 @@ class ReviewDialog : DialogFragment() {
         val reviewBody = getReviewBody()
 
         GlobalScope.launch {
-            api.get().finishReading(reviewId, rating, reviewBody).await()
+            readingProgressRepository.get().finishReading(reviewId, rating, reviewBody)
         }
     }
 

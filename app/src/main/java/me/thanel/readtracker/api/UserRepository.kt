@@ -1,4 +1,4 @@
-package me.thanel.readtracker.user
+package me.thanel.readtracker.api
 
 import me.thanel.goodreadsapi.GoodreadsApi
 import me.thanel.readtracker.Preferences

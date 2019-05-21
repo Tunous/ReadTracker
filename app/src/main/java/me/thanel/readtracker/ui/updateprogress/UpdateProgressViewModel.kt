@@ -5,8 +5,8 @@ import dagger.Lazy
 import me.thanel.goodreadsapi.GoodreadsApi
 import me.thanel.goodreadsapi.internal.util.nullIfBlank
 import me.thanel.readtracker.Database
+import me.thanel.readtracker.api.UserRepository
 import me.thanel.readtracker.di.ReadTracker
-import me.thanel.readtracker.user.UserRepository
 import javax.inject.Inject
 
 class UpdateProgressViewModel : ViewModel() {
@@ -61,14 +61,14 @@ class UpdateProgressViewModel : ViewModel() {
     }
 
     suspend fun updateProgressByPercent(bookId: Long, progress: Int, body: String?) {
-        api.updateProgressByPercent(bookId, progress, body).await()
+        api.updateProgressByPercent(bookId, progress, body)
     }
 
     suspend fun updateProgressByPageNumber(bookId: Long, progress: Int, body: String?) {
-        api.updateProgressByPageNumber(bookId, progress, body).await()
+        api.updateProgressByPageNumber(bookId, progress, body)
     }
 
     suspend fun finishReading(reviewId: Long, rating: Int, body: String?) {
-        api.finishReading(reviewId, rating, body).await()
+        api.finishReading(reviewId, rating, body)
     }
 }

@@ -22,9 +22,9 @@ import me.thanel.readtracker.R
 import me.thanel.readtracker.ReadProgressQueries
 import me.thanel.readtracker.SelectWithBookInformation
 import me.thanel.readtracker.di.ReadTracker
-import me.thanel.readtracker.model.ProgressType
 import me.thanel.readtracker.model.ProgressType.Page
 import me.thanel.readtracker.model.ProgressType.Percent
+import me.thanel.readtracker.model.progressType
 import me.thanel.readtracker.ui.base.BaseFragment
 import me.thanel.readtracker.ui.review.ReviewDialog
 import me.thanel.readtracker.ui.updateprogress.UpdateProgressViewModel
@@ -93,9 +93,6 @@ class ReadingListFragment : BaseFragment(R.layout.fragment_reading_list) {
     }
 }
 
-val SelectWithBookInformation.progressType: ProgressType
-    get() = if (page > 0) Page else Percent
-
 class BookViewHolder(
     itemView: View,
     onUpdateProgressCallback: (SelectWithBookInformation, Int) -> Unit
@@ -106,7 +103,7 @@ class BookViewHolder(
             val progressItem = itemView.tag as SelectWithBookInformation
             val page: Int
             val percent: Int
-            if (progressItem.page > 0) {
+            if (progressItem.page != null) {
                 percent = ((it / progressItem.numPages.toFloat()) * 100).roundToInt()
                 page = it
             } else {
@@ -166,16 +163,15 @@ class BookAdapter(
         }
 
         with(holder.itemView.bookProgressView) {
-            when {
-                progressItem.page > 0 -> {
+            when (progressItem.progressType) {
+                Page -> {
                     maxValue = progressItem.numPages
-                    currentValue = progressItem.page
+                    currentValue = progressItem.page!!
                 }
-                progressItem.percent > 0 -> {
+                Percent -> {
                     maxValue = 100
-                    currentValue = progressItem.percent
+                    currentValue = progressItem.percent!!
                 }
-                else -> throw IllegalStateException("Received progress without valid information")
             }
         }
 

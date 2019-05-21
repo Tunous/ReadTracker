@@ -1,8 +1,8 @@
 CREATE TABLE readProgress (
     id INTEGER NOT NULL,
     bookId INTEGER NOT NULL,
-    page INTEGER as Int NOT NULL,
-    percent INTEGER as Int NOT NULL,
+    page INTEGER as Int,
+    percent INTEGER as Int,
     reviewId INTEGER NOT NULL
 );
 
@@ -30,3 +30,17 @@ INNER JOIN book ON readProgress.bookId = book.id;
 insert:
 INSERT INTO readProgress(id, bookId, page, percent, reviewId)
 VALUES (?, ?, ?, ?, ?);
+
+updateProgressByPageNumber:
+UPDATE readProgress
+SET
+    page = ?,
+    percent = NULL
+WHERE bookId = ?;
+
+updateProgressByPercent:
+UPDATE readProgress
+SET
+    page = NULL,
+    percent = ?
+WHERE bookId = ?;

@@ -50,26 +50,26 @@ class GoodreadsApi(
         .build()
         .create(GoodreadsService::class.java)
 
-    suspend fun getUser(id: Long): UserResponse = withContext(Dispatchers.IO) {
+    suspend fun getUser(id: Long): UserResponse = withContext(Dispatchers.Default) {
         service.getUserAsync(id).await()
     }
 
-    suspend fun getUserId() = withContext(Dispatchers.IO) {
+    suspend fun getUserId() = withContext(Dispatchers.Default) {
         service.getUserIdAsync().await()
     }
 
     suspend fun updateProgressByPercent(bookId: Long, percent: Int, body: String?) =
-        withContext(Dispatchers.IO) {
-            service.updateUserStatusByPercentAsync(bookId, percent, body.nullIfBlank())
+        withContext(Dispatchers.Default) {
+            service.updateUserStatusByPercentAsync(bookId, percent, body.nullIfBlank()).await()
         }
 
     suspend fun updateProgressByPageNumber(bookId: Long, page: Int, body: String?) =
-        withContext(Dispatchers.IO) {
-            service.updateUserStatusByPageNumberAsync(bookId, page, body.nullIfBlank())
+        withContext(Dispatchers.Default) {
+            service.updateUserStatusByPageNumberAsync(bookId, page, body.nullIfBlank()).await()
         }
 
     suspend fun finishReading(reviewId: Long, rating: Int?, body: String?) =
-        withContext(Dispatchers.IO) {
+        withContext(Dispatchers.Default) {
             service.editReviewAsync(
                 reviewId = reviewId,
                 reviewText = body.nullIfBlank(),
@@ -77,7 +77,7 @@ class GoodreadsApi(
                 dateRead = ShortDate.now(),
                 shelf = "read",
                 finished = true
-            )
+            ).await()
         }
 
     companion object {
@@ -91,7 +91,7 @@ class GoodreadsApi(
         )
 
         suspend fun authorize(consumerKey: String, consumerSecret: String) =
-            withContext(Dispatchers.IO) {
+            withContext(Dispatchers.Default) {
                 val consumer = OkHttpOAuthConsumer(consumerKey, consumerSecret)
                 val authUrl = provider.retrieveRequestToken(consumer, CALLBACK_URL)
                 RequestTokenData(authUrl, consumer.token, consumer.tokenSecret)
@@ -102,7 +102,7 @@ class GoodreadsApi(
             consumerSecret: String,
             token: String,
             tokenSecret: String
-        ) = withContext(Dispatchers.IO) {
+        ) = withContext(Dispatchers.Default) {
             val consumer = OkHttpOAuthConsumer(consumerKey, consumerSecret)
             consumer.setTokenWithSecret(token, tokenSecret)
             provider.retrieveAccessToken(consumer, null)
