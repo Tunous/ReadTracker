@@ -8,8 +8,7 @@ import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.item_currently_reading_book.view.*
 import me.thanel.readtracker.R
 import me.thanel.readtracker.SelectWithBookInformation
-import me.thanel.readtracker.model.ProgressType
-import me.thanel.readtracker.model.progressType
+import me.thanel.readtracker.model.actualPage
 import kotlin.math.roundToInt
 
 class BookViewHolder(
@@ -63,34 +62,15 @@ class BookViewHolder(
 
     private fun bindProgressView(item: SelectWithBookInformation) {
         with(itemView.bookProgressView) {
-            when (item.progressType) {
-                ProgressType.Page -> {
-                    maxValue = item.numPages
-                    currentValue = item.page ?: 0
-                }
-                ProgressType.Percent -> {
-                    maxValue = 100
-                    currentValue = item.percent ?: 0
-                }
-            }
+            maxValue = item.numPages
+            currentValue = item.actualPage
             bindProgress(item, currentValue)
         }
     }
 
-    private fun bindProgress(progressItem: SelectWithBookInformation, progress: Int) {
+    private fun bindProgress(progressItem: SelectWithBookInformation, page: Int) {
         val numPages = progressItem.numPages
-        val page: Int
-        val percent: Int
-        when (progressItem.progressType) {
-            ProgressType.Page -> {
-                page = progress
-                percent = pageToPercent(page, numPages)
-            }
-            ProgressType.Percent -> {
-                percent = progress
-                page = percentToPage(percent, numPages)
-            }
-        }
+        val percent = pageToPercent(page, numPages)
         progressIndicatorView.text =
             itemView.context.getString(R.string.info_book_progress, page, numPages, percent)
 
@@ -100,11 +80,6 @@ class BookViewHolder(
     private fun pageToPercent(page: Int, numPages: Int): Int {
         val floatPercent = page / numPages.toFloat()
         return (floatPercent * 100).roundToInt()
-    }
-
-    private fun percentToPage(percent: Int, numPages: Int): Int {
-        val floatPercent = percent / 100f
-        return (floatPercent * numPages).roundToInt()
     }
 
     private fun handleProgressChanged(progress: Int) {

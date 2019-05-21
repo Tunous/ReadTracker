@@ -10,9 +10,6 @@ import kotlinx.coroutines.launch
 import me.thanel.readtracker.R
 import me.thanel.readtracker.SelectWithBookInformation
 import me.thanel.readtracker.di.ReadTracker
-import me.thanel.readtracker.model.ProgressType.Page
-import me.thanel.readtracker.model.ProgressType.Percent
-import me.thanel.readtracker.model.progressType
 import me.thanel.readtracker.ui.base.BaseFragment
 import me.thanel.readtracker.ui.review.ReviewDialog
 import me.thanel.readtracker.ui.updateprogress.UpdateProgressViewModel
@@ -45,15 +42,11 @@ class ReadingListFragment : BaseFragment(R.layout.fragment_reading_list) {
     }
 
     private fun onUpdateBookProgress(progressItem: SelectWithBookInformation, progress: Int) {
-        val progressType = progressItem.progressType
-        val hasFinishedReading = when (progressType) {
-            Page -> progress == progressItem.numPages
-            Percent -> progress == 100
-        }
+        val hasFinishedReading = progress == progressItem.numPages
         val dialog = if (hasFinishedReading) {
             ReviewDialog.createForFinished(progressItem.reviewId)
         } else {
-            ReviewDialog.createForInProgress(progressItem.bookId, progress, progressType)
+            ReviewDialog.createForInProgress(progressItem.bookId, progress)
         }
         dialog.show(fragmentManager, "reviewDialog")
     }

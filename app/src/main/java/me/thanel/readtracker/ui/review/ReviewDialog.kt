@@ -14,9 +14,6 @@ import kotlinx.coroutines.launch
 import me.thanel.readtracker.R
 import me.thanel.readtracker.api.ReadingProgressRepository
 import me.thanel.readtracker.di.ReadTracker
-import me.thanel.readtracker.model.ProgressType
-import me.thanel.readtracker.model.ProgressType.Page
-import me.thanel.readtracker.model.ProgressType.Percent
 import me.thanel.readtracker.ui.util.requireArguments
 import me.thanel.readtracker.ui.util.withArguments
 import javax.inject.Inject
@@ -68,15 +65,11 @@ class ReviewDialog : DialogFragment() {
         val arguments = requireArguments()
         val bookId = arguments.getLong(ARG_BOOK_ID)
         val progress = arguments.getInt(ARG_PROGRESS)
-        val progressType = arguments.getSerializable(ARG_PROGRESS_TYPE) as ProgressType
         val reviewBody = getReviewBody()
 
         GlobalScope.launch {
             val repository = readingProgressRepository.get()
-            when (progressType) {
-                Page -> repository.updateProgressByPageNumber(bookId, progress, reviewBody)
-                Percent -> repository.updateProgressByPercent(bookId, progress, reviewBody)
-            }
+            repository.updateProgressByPageNumber(bookId, progress, reviewBody)
         }
     }
 
@@ -94,17 +87,14 @@ class ReviewDialog : DialogFragment() {
         private const val ARG_REVIEW_ID = "reviewId"
         private const val ARG_BOOK_ID = "bookId"
         private const val ARG_PROGRESS = "progress"
-        private const val ARG_PROGRESS_TYPE = "progressType"
 
         fun createForInProgress(
             bookId: Long,
-            progress: Int,
-            progressType: ProgressType
+            progress: Int
         ): ReviewDialog =
             ReviewDialog().withArguments {
                 putLong(ARG_BOOK_ID, bookId)
                 putInt(ARG_PROGRESS, progress)
-                putSerializable(ARG_PROGRESS_TYPE, progressType)
             }
 
         fun createForFinished(reviewId: Long): ReviewDialog = ReviewDialog().withArguments {
