@@ -1,4 +1,4 @@
-package me.thanel.readtracker.ui
+package me.thanel.readtracker.ui.readinglist
 
 import androidx.lifecycle.ViewModel
 

@@ -4,5 +4,5 @@
     android:id="@+id/readingRecyclerView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.ReadingListFragment"
+    tools:context=".ui.readinglist.ReadingListFragment"
     tools:listitem="@layout/item_currently_reading_book" />

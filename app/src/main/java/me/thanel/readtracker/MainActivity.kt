@@ -9,9 +9,9 @@ import com.chibatching.kotpref.bulk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import me.thanel.readtracker.ui.ReadingListFragment
 import me.thanel.readtracker.ui.authorize.AuthorizeFragment
 import me.thanel.readtracker.ui.authorize.AuthorizeViewModel
+import me.thanel.readtracker.ui.readinglist.ReadingListFragment
 import me.thanel.readtracker.ui.updateprogress.UpdateProgressFragment
 
 class MainActivity : AppCompatActivity() {
