@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <resources>
+    <string name="action_cancel">Cancel</string>
     <string name="action_explore_books">Explore books</string>
     <string name="action_finished">I\'m finished!</string>
+    <string name="action_submit_review">Submit review</string>
     <string name="action_update_progress">Update progress</string>
 
     <string name="app_name">ReadTracker</string>

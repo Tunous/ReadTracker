@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -23,7 +22,11 @@ import me.thanel.readtracker.R
 import me.thanel.readtracker.ReadProgressQueries
 import me.thanel.readtracker.SelectWithBookInformation
 import me.thanel.readtracker.di.ReadTracker
+import me.thanel.readtracker.model.ProgressType
+import me.thanel.readtracker.model.ProgressType.Page
+import me.thanel.readtracker.model.ProgressType.Percent
 import me.thanel.readtracker.ui.base.BaseFragment
+import me.thanel.readtracker.ui.review.ReviewDialog
 import me.thanel.readtracker.ui.updateprogress.UpdateProgressViewModel
 import me.thanel.readtracker.ui.updateprogress.executeAsListLiveData
 import javax.inject.Inject
@@ -55,22 +58,17 @@ class ReadingListFragment : BaseFragment(R.layout.fragment_reading_list) {
     }
 
     private fun onUpdateBookProgress(progressItem: SelectWithBookInformation, progress: Int) {
-        launch {
-            when {
-                progressItem.page > 0 -> {
-                    viewModel.updateProgressByPageNumber(progressItem.bookId, progress, body = null)
-                }
-                progressItem.percent > 0 -> {
-                    viewModel.updateProgressByPercent(progressItem.bookId, progress, body = null)
-                }
-                else -> {
-                    Toast.makeText(requireContext(), "Couldn't update progress", Toast.LENGTH_SHORT).show()
-                    return@launch
-                }
-            }
-
-            Toast.makeText(requireContext(), "Updated progress", Toast.LENGTH_SHORT).show()
+        val progressType = progressItem.progressType
+        val hasFinishedReading = when (progressType) {
+            Page -> progress == progressItem.numPages
+            Percent -> progress == 100
         }
+        val dialog = if (hasFinishedReading) {
+            ReviewDialog.createForFinished(progressItem.reviewId)
+        } else {
+            ReviewDialog.createFroInProgress(progressItem.bookId, progress, progressType)
+        }
+        dialog.show(fragmentManager, "reviewDialog")
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -95,6 +93,9 @@ class ReadingListFragment : BaseFragment(R.layout.fragment_reading_list) {
     }
 }
 
+val SelectWithBookInformation.progressType: ProgressType
+    get() = if (page > 0) Page else Percent
+
 class BookViewHolder(
     itemView: View,
     onUpdateProgressCallback: (SelectWithBookInformation, Int) -> Unit
@@ -112,7 +113,8 @@ class BookViewHolder(
                 percent = it
                 page = ((it / 100f) * progressItem.numPages).roundToInt()
             }
-            itemView.bookProgressIndicatorView.text = "$page/${progressItem.numPages} pages ($percent%)"
+            itemView.bookProgressIndicatorView.text =
+                "$page/${progressItem.numPages} pages ($percent%)"
 
             with(itemView.updateBookProgressButton) {
                 if (visibility == View.GONE) {
@@ -152,7 +154,8 @@ class BookAdapter(
         holder.itemView.tag = progressItem
 
         holder.itemView.bookTitleView.text = progressItem.bookTitle
-        holder.itemView.bookAuthorView.text = holder.itemView.context.getString(R.string.info_authors, progressItem.bookAuthors)
+        holder.itemView.bookAuthorView.text =
+            holder.itemView.context.getString(R.string.info_authors, progressItem.bookAuthors)
         if (progressItem.bookImageUrl != null) {
             Picasso.get()
                 .load(progressItem.bookImageUrl!!)
@@ -176,7 +179,8 @@ class BookAdapter(
             }
         }
 
-        holder.itemView.bookProgressIndicatorView.text = "${progressItem.page}/${progressItem.numPages} (${progressItem.percent}%)"
+        holder.itemView.bookProgressIndicatorView.text =
+            "${progressItem.page}/${progressItem.numPages} (${progressItem.percent}%)"
         holder.itemView.updateBookProgressButton.visibility = View.GONE
         holder.itemView.updateBookProgressButton.alpha = 0f
     }
