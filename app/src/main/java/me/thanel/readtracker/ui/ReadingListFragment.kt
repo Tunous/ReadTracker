@@ -16,10 +16,8 @@ import kotlinx.android.synthetic.main.item_book_card.view.bookAuthorView
 import kotlinx.android.synthetic.main.item_book_card.view.bookCoverImageView
 import kotlinx.android.synthetic.main.item_book_card.view.bookTitleView
 import kotlinx.android.synthetic.main.item_currently_reading_book.view.*
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.thanel.readtracker.R
-import me.thanel.readtracker.ReadProgressQueries
 import me.thanel.readtracker.SelectWithBookInformation
 import me.thanel.readtracker.di.ReadTracker
 import me.thanel.readtracker.model.ProgressType.Page
@@ -28,8 +26,6 @@ import me.thanel.readtracker.model.progressType
 import me.thanel.readtracker.ui.base.BaseFragment
 import me.thanel.readtracker.ui.review.ReviewDialog
 import me.thanel.readtracker.ui.updateprogress.UpdateProgressViewModel
-import me.thanel.readtracker.ui.updateprogress.executeAsListLiveData
-import javax.inject.Inject
 import kotlin.math.roundToInt
 
 class ReadingListFragment : BaseFragment(R.layout.fragment_reading_list) {
@@ -37,9 +33,6 @@ class ReadingListFragment : BaseFragment(R.layout.fragment_reading_list) {
     companion object {
         fun newInstance() = ReadingListFragment()
     }
-
-    @Inject
-    internal lateinit var readProgressQueries: ReadProgressQueries
 
     private lateinit var viewModel: UpdateProgressViewModel
 
@@ -66,7 +59,7 @@ class ReadingListFragment : BaseFragment(R.layout.fragment_reading_list) {
         val dialog = if (hasFinishedReading) {
             ReviewDialog.createForFinished(progressItem.reviewId)
         } else {
-            ReviewDialog.createFroInProgress(progressItem.bookId, progress, progressType)
+            ReviewDialog.createForInProgress(progressItem.bookId, progress, progressType)
         }
         dialog.show(fragmentManager, "reviewDialog")
     }
@@ -74,13 +67,9 @@ class ReadingListFragment : BaseFragment(R.layout.fragment_reading_list) {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         viewModel = ViewModelProviders.of(this).get(UpdateProgressViewModel::class.java)
-
-        readProgressQueries.selectWithBookInformation()
-            .executeAsListLiveData()
-            .observe(this, Observer(::fillBooks))
-
-        launch(Dispatchers.IO) {
-            viewModel.fetchReadProgress()
+        viewModel.getReadingStatusLiveData().observe(this, Observer(::fillBooks))
+        launch {
+            viewModel.synchronizeDatabase()
         }
     }
 

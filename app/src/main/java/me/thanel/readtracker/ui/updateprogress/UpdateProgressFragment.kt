@@ -134,7 +134,7 @@ class UpdateProgressFragment : BaseFragment(R.layout.update_progress_fragment) {
             .observe(this, Observer(::bindProgress))
 
         launch(Dispatchers.IO) {
-            viewModel.fetchReadProgress()
+            viewModel.synchronizeDatabase()
         }
     }
 

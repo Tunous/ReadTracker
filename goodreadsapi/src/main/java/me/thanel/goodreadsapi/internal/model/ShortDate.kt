@@ -1,9 +1,9 @@
-package me.thanel.goodreadsapi.model
+package me.thanel.goodreadsapi.internal.model
 
 import android.text.format.DateFormat
-import java.util.*
+import java.util.Date
 
-class ShortDate(date: Date) {
+internal class ShortDate(date: Date) {
     private val formattedDate by lazy {
         DateFormat.format("yyyy-MM-dd", date).toString()
     }

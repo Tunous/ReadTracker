@@ -6,12 +6,14 @@ import com.tickaroo.tikxml.retrofit.TikXmlConverterFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import me.thanel.goodreadsapi.internal.GoodreadsService
+import me.thanel.goodreadsapi.internal.model.ShortDate
 import me.thanel.goodreadsapi.internal.util.applyIf
 import me.thanel.goodreadsapi.internal.util.nullIfBlank
 import me.thanel.goodreadsapi.model.AccessTokenData
+import me.thanel.goodreadsapi.model.Book
+import me.thanel.goodreadsapi.model.ReadingProgressStatus
+import me.thanel.goodreadsapi.model.ReadingProgressStatusGroup
 import me.thanel.goodreadsapi.model.RequestTokenData
-import me.thanel.goodreadsapi.model.ShortDate
-import me.thanel.goodreadsapi.model.UserResponse
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -50,12 +52,30 @@ class GoodreadsApi(
         .build()
         .create(GoodreadsService::class.java)
 
-    suspend fun getUser(id: Long): UserResponse = withContext(Dispatchers.Default) {
-        service.getUserAsync(id).await()
-    }
+    suspend fun getReadingProgressStatus(userId: Long): ReadingProgressStatusGroup =
+        withContext(Dispatchers.Default) {
+            val userResponse = service.getUserAsync(userId).await()
+            val statuses = userResponse.user.userStatuses?.map {
+                ReadingProgressStatus(it.id, it.book.id, it.page, it.percent, it.reviewId)
+            }
+            val books = userResponse.user.userStatuses?.map { status ->
+                val book = status.book
+                Book(
+                    book.id,
+                    book.title,
+                    book.numPages,
+                    book.imageUrl,
+                    book.authors.joinToString { it.name }.nullIfBlank()
+                )
+            }
+            return@withContext ReadingProgressStatusGroup(
+                statuses ?: emptyList(),
+                books ?: emptyList()
+            )
+        }
 
     suspend fun getUserId() = withContext(Dispatchers.Default) {
-        service.getUserIdAsync().await()
+        service.getUserIdAsync().await().user.id
     }
 
     suspend fun updateProgressByPercent(bookId: Long, percent: Int, body: String?) =

@@ -1,8 +1,8 @@
 package me.thanel.goodreadsapi.internal
 
 import kotlinx.coroutines.Deferred
-import me.thanel.goodreadsapi.model.ShortDate
-import me.thanel.goodreadsapi.model.UserResponse
+import me.thanel.goodreadsapi.internal.model.ShortDate
+import me.thanel.goodreadsapi.internal.model.UserResponse
 import okhttp3.ResponseBody
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded

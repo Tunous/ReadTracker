@@ -96,7 +96,7 @@ class ReviewDialog : DialogFragment() {
         private const val ARG_PROGRESS = "progress"
         private const val ARG_PROGRESS_TYPE = "progressType"
 
-        fun createFroInProgress(
+        fun createForInProgress(
             bookId: Long,
             progress: Int,
             progressType: ProgressType

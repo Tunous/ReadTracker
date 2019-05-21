@@ -10,7 +10,8 @@ import javax.inject.Singleton
 @Singleton
 class ReadingProgressRepository @Inject constructor(
     private val api: GoodreadsApi,
-    private val database: Database
+    private val database: Database,
+    private val userRepository: UserRepository
 ) {
     suspend fun updateProgressByPageNumber(
         bookId: Long,
@@ -36,5 +37,35 @@ class ReadingProgressRepository @Inject constructor(
         reviewBody: String? = null
     ) = withContext(Dispatchers.Default) {
         api.finishReading(reviewId, rating, reviewBody)
+    }
+
+    suspend fun synchronizeDatabase() = withContext(Dispatchers.Default) {
+        val userId = userRepository.getUserId()
+        val (statuses, books) = api.getReadingProgressStatus(userId)
+
+        database.transaction {
+            database.bookQueries.deleteAll()
+            database.readProgressQueries.deleteAll()
+
+            books.forEach { book ->
+                database.bookQueries.insert(
+                    book.id,
+                    book.title,
+                    book.numPages,
+                    book.imageUrl,
+                    book.authors
+                )
+            }
+
+            statuses.forEach { status ->
+                database.readProgressQueries.insert(
+                    status.id,
+                    status.bookId,
+                    status.page,
+                    status.percent,
+                    status.reviewId
+                )
+            }
+        }
     }
 }

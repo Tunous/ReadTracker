@@ -9,18 +9,11 @@ import javax.inject.Singleton
 class UserRepository @Inject constructor(
     private val api: GoodreadsApi
 ) {
-    suspend fun getUserId(): Long {
-        return Preferences.userId ?: fetchAndStoreUserId()
-    }
+    suspend fun getUserId() = Preferences.userId ?: fetchAndStoreUserId()
 
-    private suspend fun fetchUserId(): Long {
-        val response = api.getUserId()
-        return response.user.id
-    }
+    private suspend fun fetchUserId() = api.getUserId()
 
-    private suspend fun fetchAndStoreUserId(): Long {
-        val userId = fetchUserId()
-        Preferences.userId = userId
-        return userId
+    private suspend fun fetchAndStoreUserId() = fetchUserId().also {
+        Preferences.userId = it
     }
 }
