@@ -6,9 +6,11 @@ import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.item_currently_reading_book.view.*
+import me.thanel.goodreadsapi.internal.util.nullIfBlank
 import me.thanel.readtracker.R
 import me.thanel.readtracker.SelectWithBookInformation
 import me.thanel.readtracker.model.actualPage
+import me.thanel.readtracker.ui.util.RangeInputFilter
 import kotlin.math.roundToInt
 
 class BookViewHolder(
@@ -16,12 +18,14 @@ class BookViewHolder(
     onUpdateProgress: (SelectWithBookInformation, Int) -> Unit
 ) : RecyclerView.ViewHolder(itemView) {
 
-    private val readPercentageTextView = itemView.readPercentageTextView
     private val pagesTextView = itemView.pagesTextView
     private val updateProgressButton = itemView.updateProgressButton
     private val bookTitleView = itemView.bookTitleView
     private val bookAuthorView = itemView.bookAuthorView
     private val bookCoverImageView = itemView.bookCoverImageView
+    private val readPercentageEditTextView = itemView.readPercentageEditTextView
+    private val readPercentageTextView = itemView.readPercentageTextView
+    private val bookProgressView = itemView.bookProgressView
 
     private val progressItem: SelectWithBookInformation
         get() = itemView.tag as SelectWithBookInformation
@@ -31,6 +35,14 @@ class BookViewHolder(
         updateProgressButton.setOnClickListener {
             val progress = itemView.bookProgressView.currentValue
             onUpdateProgress(progressItem, progress)
+        }
+        readPercentageEditTextView.afterUserTextChanged = {
+            val progress = it?.toIntOrNull() ?: 0
+            bookProgressView.currentValue = percentToPage(progress, progressItem.numPages)
+        }
+        readPercentageEditTextView.filters = arrayOf(RangeInputFilter(0..100))
+        readPercentageTextView.setOnClickListener {
+            readPercentageEditTextView.requestFocus()
         }
     }
 
@@ -62,7 +74,7 @@ class BookViewHolder(
     }
 
     private fun bindProgressView(item: SelectWithBookInformation) {
-        with(itemView.bookProgressView) {
+        with(bookProgressView) {
             maxValue = item.numPages
             currentValue = item.actualPage
             bindProgress(item, currentValue)
@@ -75,13 +87,22 @@ class BookViewHolder(
 
         pagesTextView.text =
             itemView.context.getString(R.string.info_book_pages_progress, page, numPages)
-        readPercentageTextView.text =
-            itemView.context.getString(R.string.info_book_percent_progress, percent)
+
+        val percentText = percent.toString()
+        val currentText = readPercentageEditTextView.text?.toString()?.nullIfBlank() ?: "0"
+        if (percentText != currentText) {
+            readPercentageEditTextView.setText(percentText)
+        }
     }
 
     private fun pageToPercent(page: Int, numPages: Int): Int {
         val floatPercent = page / numPages.toFloat()
         return (floatPercent * 100).roundToInt()
+    }
+
+    private fun percentToPage(percent: Int, numPages: Int): Int {
+        val floatPercent = percent / 100f
+        return (floatPercent * numPages).roundToInt()
     }
 
     private fun handleProgressChanged(progress: Int) {

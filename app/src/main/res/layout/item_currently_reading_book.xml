@@ -78,18 +78,6 @@
         app:srcCompat="@drawable/ic_done" />
 
     <TextView
-        android:id="@+id/readPercentageTextView"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-        app:layout_constraintBottom_toBottomOf="@+id/bookCoverCardView"
-        app:layout_constraintEnd_toStartOf="@+id/updateProgressButton"
-        app:layout_constraintStart_toEndOf="@+id/bookCoverCardView"
-        tools:text="16%" />
-
-    <TextView
         android:id="@+id/pagesTextView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -100,5 +88,34 @@
         app:layout_constraintStart_toEndOf="@+id/bookCoverCardView"
         app:layout_constraintTop_toTopOf="@+id/bookCoverCardView"
         tools:text="85/548 pages" />
+
+    <me.thanel.readtracker.ui.view.UserInputEditText
+        android:id="@+id/readPercentageEditTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:background="@null"
+        android:hint="0"
+        android:inputType="number"
+        android:selectAllOnFocus="true"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintBottom_toBottomOf="@+id/bookCoverCardView"
+        app:layout_constraintEnd_toStartOf="@+id/readPercentageTextView"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toEndOf="@id/bookCoverCardView" />
+
+    <TextView
+        android:id="@+id/readPercentageTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:text="%"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+        app:layout_constraintBottom_toBottomOf="@+id/readPercentageEditTextView"
+        app:layout_constraintEnd_toStartOf="@+id/updateProgressButton"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/readPercentageEditTextView" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

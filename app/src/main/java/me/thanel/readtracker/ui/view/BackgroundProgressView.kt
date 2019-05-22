@@ -50,6 +50,7 @@ class BackgroundProgressView @JvmOverloads constructor(
     override var maxValue = 100
     override var currentValue = 20
         set(value) {
+            if (field == value) return
             field = value
             invalidate()
             onProgressChangeListener(value)
