@@ -3,6 +3,7 @@ package me.thanel.readtracker.ui.readinglist
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.view.View
+import android.view.inputmethod.EditorInfo
 import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.item_currently_reading_book.view.*
@@ -15,7 +16,7 @@ import kotlin.math.roundToInt
 
 class BookViewHolder(
     itemView: View,
-    onUpdateProgress: (SelectWithBookInformation, Int) -> Unit
+    private val onUpdateProgress: (SelectWithBookInformation, Int) -> Unit
 ) : RecyclerView.ViewHolder(itemView) {
 
     private val pagesTextView = itemView.pagesTextView
@@ -33,17 +34,28 @@ class BookViewHolder(
     init {
         itemView.bookProgressView.onProgressChangeListener = this::handleProgressChanged
         updateProgressButton.setOnClickListener {
-            val progress = itemView.bookProgressView.currentValue
-            onUpdateProgress(progressItem, progress)
+            notifyUpdateProgress()
         }
         readPercentageEditTextView.afterUserTextChanged = {
             val progress = it?.toIntOrNull() ?: 0
             bookProgressView.currentValue = percentToPage(progress, progressItem.numPages)
         }
         readPercentageEditTextView.filters = arrayOf(RangeInputFilter(0..100))
+        readPercentageEditTextView.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                notifyUpdateProgress()
+                return@setOnEditorActionListener true
+            }
+            false
+        }
         readPercentageTextView.setOnClickListener {
             readPercentageEditTextView.requestFocus()
         }
+    }
+
+    private fun notifyUpdateProgress() {
+        val progress = itemView.bookProgressView.currentValue
+        onUpdateProgress(progressItem, progress)
     }
 
     fun bind(item: SelectWithBookInformation) {

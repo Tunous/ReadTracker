@@ -96,6 +96,7 @@
         android:layout_marginStart="16dp"
         android:background="@null"
         android:hint="0"
+        android:imeOptions="actionDone"
         android:inputType="number"
         android:selectAllOnFocus="true"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
