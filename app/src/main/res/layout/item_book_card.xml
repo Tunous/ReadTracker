@@ -6,7 +6,7 @@
     android:layout_height="wrap_content">
 
     <androidx.cardview.widget.CardView
-        android:id="@+id/imageViewCard"
+        android:id="@+id/bookCoverCardView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
@@ -38,7 +38,7 @@
         android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
         app:layout_constraintBottom_toTopOf="@+id/bookAuthorView"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/imageViewCard"
+        app:layout_constraintStart_toEndOf="@+id/bookCoverCardView"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0"
         app:layout_constraintVertical_chainStyle="packed"
@@ -54,7 +54,7 @@
         android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
         app:layout_constraintBottom_toTopOf="@+id/pagesTextView"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/imageViewCard"
+        app:layout_constraintStart_toEndOf="@+id/bookCoverCardView"
         app:layout_constraintTop_toBottomOf="@+id/bookTitleView"
         tools:text="by Richard Matheson" />
 
@@ -68,7 +68,7 @@
         android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/imageViewCard"
+        app:layout_constraintStart_toEndOf="@+id/bookCoverCardView"
         app:layout_constraintTop_toBottomOf="@+id/bookAuthorView"
         tools:text="@string/info_pages" />
 

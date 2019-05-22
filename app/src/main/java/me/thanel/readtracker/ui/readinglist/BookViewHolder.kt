@@ -16,8 +16,9 @@ class BookViewHolder(
     onUpdateProgress: (SelectWithBookInformation, Int) -> Unit
 ) : RecyclerView.ViewHolder(itemView) {
 
-    private val progressIndicatorView = itemView.bookProgressIndicatorView
-    private val updateProgressButton = itemView.updateBookProgressButton
+    private val readPercentageTextView = itemView.readPercentageTextView
+    private val pagesTextView = itemView.pagesTextView
+    private val updateProgressButton = itemView.updateProgressButton
     private val bookTitleView = itemView.bookTitleView
     private val bookAuthorView = itemView.bookAuthorView
     private val bookCoverImageView = itemView.bookCoverImageView
@@ -71,10 +72,11 @@ class BookViewHolder(
     private fun bindProgress(progressItem: SelectWithBookInformation, page: Int) {
         val numPages = progressItem.numPages
         val percent = pageToPercent(page, numPages)
-        progressIndicatorView.text =
-            itemView.context.getString(R.string.info_book_progress, page, numPages, percent)
 
-        animateShowSaveButton()
+        pagesTextView.text =
+            itemView.context.getString(R.string.info_book_pages_progress, page, numPages)
+        readPercentageTextView.text =
+            itemView.context.getString(R.string.info_book_percent_progress, percent)
     }
 
     private fun pageToPercent(page: Int, numPages: Int): Int {
@@ -84,6 +86,7 @@ class BookViewHolder(
 
     private fun handleProgressChanged(progress: Int) {
         bindProgress(progressItem, progress)
+        animateShowSaveButton()
     }
 
     private fun animateShowSaveButton() = with(updateProgressButton) {

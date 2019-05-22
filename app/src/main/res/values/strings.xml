@@ -27,5 +27,6 @@
     <string name="tooltip_page_progress">Update progress by page number</string>
     <string name="tooltip_percent_progress">Update progress by percentage</string>
 
-    <string name="info_book_progress">%1$d/%2$d pages (%3$d%%)</string>
+    <string name="info_book_pages_progress">%1$d/%2$d pages</string>
+    <string name="info_book_percent_progress">%1$d%%</string>
 </resources>
