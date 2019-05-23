@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.fragment_reading_list.*
 import kotlinx.coroutines.launch
@@ -14,12 +15,38 @@ import me.thanel.readtracker.di.ReadTracker
 import me.thanel.readtracker.ui.base.BaseFragment
 import me.thanel.readtracker.ui.review.ReviewDialog
 import me.thanel.readtracker.ui.updateprogress.UpdateProgressViewModel
+import me.thanel.recyclerviewutils.adapter.lazyAdapterWrapper
 
 class ReadingListFragment : BaseFragment(R.layout.fragment_reading_list) {
 
     private lateinit var viewModel: UpdateProgressViewModel
 
-    private val adapter = BookAdapter(::onUpdateBookProgress)
+    private val adapterWrapper by lazyAdapterWrapper {
+        register(ProgressBookViewBinder(::onUpdateBookProgress), object: DiffUtil.ItemCallback<SelectWithBookInformation>() {
+            override fun areItemsTheSame(
+                oldItem: SelectWithBookInformation,
+                newItem: SelectWithBookInformation
+            ): Boolean {
+                return oldItem.id == newItem.id
+            }
+
+            override fun areContentsTheSame(
+                oldItem: SelectWithBookInformation,
+                newItem: SelectWithBookInformation
+            ): Boolean {
+                return oldItem as SelectWithBookInformation.Impl == newItem as SelectWithBookInformation.Impl
+            }
+        })
+        register(ToReadBookViewBinder(), object: DiffUtil.ItemCallback<Book>() {
+            override fun areItemsTheSame(oldItem: Book, newItem: Book): Boolean {
+                return oldItem.id == newItem.id
+            }
+
+            override fun areContentsTheSame(oldItem: Book, newItem: Book): Boolean {
+                return oldItem as Book.Impl == newItem as Book.Impl
+            }
+        })
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,7 +56,7 @@ class ReadingListFragment : BaseFragment(R.layout.fragment_reading_list) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        readingRecyclerView.adapter = adapter
+        readingRecyclerView.adapter = adapterWrapper.adapter
         readingRecyclerView.layoutManager = LinearLayoutManager(requireContext())
     }
 
@@ -65,12 +92,11 @@ class ReadingListFragment : BaseFragment(R.layout.fragment_reading_list) {
         fillBooks()
     }
 
-    private fun fillBooks() {
-        // TODO: Diff calculation
-        adapter.items.clear()
-        adapter.items.addAll(progressBooks)
-        adapter.items.addAll(futureBooks)
-        adapter.notifyDataSetChanged()
+    private fun fillBooks() = launch {
+        val items = mutableListOf<Any>()
+        items.addAll(progressBooks)
+        items.addAll(futureBooks)
+        adapterWrapper.updateItems(items)
     }
 
     companion object {
