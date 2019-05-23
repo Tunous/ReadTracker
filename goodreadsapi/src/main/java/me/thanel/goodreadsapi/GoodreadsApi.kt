@@ -74,6 +74,20 @@ class GoodreadsApi(
             )
         }
 
+    suspend fun getBooksInShelf(userId: Long, shelf: String) = withContext(Dispatchers.Default) {
+        val reviewsResponse = service.getBooksInShelfAsync(userId, shelf).await()
+        return@withContext reviewsResponse.reviews.map {
+            val book = it.book
+            Book(
+                book.id,
+                book.title,
+                book.numPages,
+                book.imageUrl,
+                book.authors.joinToString { it.name }.nullIfBlank()
+            )
+        }
+    }
+
     suspend fun getUserId() = withContext(Dispatchers.Default) {
         service.getUserIdAsync().await().user.id
     }

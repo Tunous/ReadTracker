@@ -1,6 +1,7 @@
 package me.thanel.goodreadsapi.internal
 
 import kotlinx.coroutines.Deferred
+import me.thanel.goodreadsapi.internal.model.ReviewResponse
 import me.thanel.goodreadsapi.internal.model.ShortDate
 import me.thanel.goodreadsapi.internal.model.UserResponse
 import okhttp3.ResponseBody
@@ -9,6 +10,7 @@ import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 internal interface GoodreadsService {
     @GET("/user/show/{id}.xml")
@@ -16,6 +18,12 @@ internal interface GoodreadsService {
 
     @GET("/api/auth_user")
     fun getUserIdAsync(): Deferred<UserResponse>
+
+    @GET("/review/list/{userId}.xml?v=2&order=a&sort=position")
+    fun getBooksInShelfAsync(
+        @Path("userId") userId: Long,
+        @Query("shelf") shelf: String?
+    ): Deferred<ReviewResponse>
 
     @POST("/user_status.xml")
     @FormUrlEncoded

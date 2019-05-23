@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.item_currently_reading_book.view.*
 import me.thanel.goodreadsapi.internal.util.nullIfBlank
+import me.thanel.readtracker.Book
 import me.thanel.readtracker.R
 import me.thanel.readtracker.SelectWithBookInformation
 import me.thanel.readtracker.model.actualPage
@@ -56,6 +57,19 @@ class BookViewHolder(
     private fun notifyUpdateProgress() {
         val progress = itemView.bookProgressView.currentValue
         onUpdateProgress(progressItem, progress)
+    }
+
+    fun bind(book: Book) {
+        bookTitleView.text = book.title
+        bookAuthorView.text = itemView.context.getString(R.string.info_authors, book.authors)
+        if (book.imageUrl != null) {
+            Picasso.get()
+                .load(book.imageUrl!!)
+                .placeholder(ColorDrawable(Color.BLACK))
+                .into(bookCoverImageView)
+        } else {
+            bookCoverImageView.setImageDrawable(ColorDrawable(Color.BLACK))
+        }
     }
 
     fun bind(item: SelectWithBookInformation) {

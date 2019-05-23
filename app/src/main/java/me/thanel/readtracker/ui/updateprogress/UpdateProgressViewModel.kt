@@ -3,6 +3,7 @@ package me.thanel.readtracker.ui.updateprogress
 import androidx.lifecycle.ViewModel
 import dagger.Lazy
 import me.thanel.goodreadsapi.GoodreadsApi
+import me.thanel.readtracker.BookQueries
 import me.thanel.readtracker.Database
 import me.thanel.readtracker.ReadProgressQueries
 import me.thanel.readtracker.api.ReadingProgressRepository
@@ -26,6 +27,9 @@ class UpdateProgressViewModel : ViewModel() {
     internal lateinit var readProgressQueries: ReadProgressQueries
 
     @Inject
+    internal lateinit var bookQueries: BookQueries
+
+    @Inject
     internal lateinit var database: Database
 
     init {
@@ -38,6 +42,9 @@ class UpdateProgressViewModel : ViewModel() {
 
     fun getReadingStatusLiveData() =
         readProgressQueries.selectWithBookInformation().executeAsListLiveData()
+
+    fun getBooksToReadLiveData() =
+        bookQueries.selectBooksToRead().executeAsListLiveData()
 
     suspend fun updateProgressByPercent(bookId: Long, progress: Int, body: String?) {
         api.updateProgressByPercent(bookId, progress, body)

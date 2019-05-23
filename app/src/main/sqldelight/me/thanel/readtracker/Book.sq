@@ -1,14 +1,22 @@
 CREATE TABLE book (
-    id INTEGER NOT NULL,
+    id INTEGER NOT NULL PRIMARY KEY ON CONFLICT REPLACE,
     title TEXT NOT NULL,
     numPages INTEGER as Int NOT NULL,
     imageUrl TEXT,
-    authors TEXT
+    authors TEXT,
+    position INTEGER as Int UNIQUE ON CONFLICT REPLACE
 );
 
 insert:
-INSERT INTO book(id, title, numPages, imageUrl, authors)
-VALUES (?, ?, ?, ?, ?);
+INSERT INTO book(id, title, numPages, imageUrl, authors, position)
+VALUES (?, ?, ?, ?, ?, ?);
 
 deleteAll:
 DELETE FROM book;
+
+selectBooksToRead:
+SELECT book.*
+FROM book
+LEFT JOIN readProgress ON book.id = readProgress.bookId
+WHERE readProgress.id IS NULL
+ORDER BY book.position ASC;

@@ -44,16 +44,14 @@ class ReadingProgressRepository @Inject constructor(
         val (statuses, books) = api.getReadingProgressStatus(userId)
 
         database.transaction {
-            database.bookQueries.deleteAll()
-            database.readProgressQueries.deleteAll()
-
             books.forEach { book ->
                 database.bookQueries.insert(
                     book.id,
                     book.title,
                     book.numPages,
                     book.imageUrl,
-                    book.authors
+                    book.authors,
+                    position = null
                 )
             }
 
@@ -64,6 +62,21 @@ class ReadingProgressRepository @Inject constructor(
                     status.page,
                     status.percent,
                     status.reviewId
+                )
+            }
+        }
+
+
+        val booksToRead = api.getBooksInShelf(userId, "to-read")
+        database.transaction {
+            booksToRead.withIndex().forEach { (position, book) ->
+                database.bookQueries.insert(
+                    book.id,
+                    book.title,
+                    book.numPages,
+                    book.imageUrl,
+                    book.authors,
+                    position = position
                 )
             }
         }

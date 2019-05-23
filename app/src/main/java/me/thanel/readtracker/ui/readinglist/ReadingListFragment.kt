@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.fragment_reading_list.*
 import kotlinx.coroutines.launch
+import me.thanel.readtracker.Book
 import me.thanel.readtracker.R
 import me.thanel.readtracker.SelectWithBookInformation
 import me.thanel.readtracker.di.ReadTracker
@@ -35,7 +36,8 @@ class ReadingListFragment : BaseFragment(R.layout.fragment_reading_list) {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         viewModel = ViewModelProviders.of(this).get(UpdateProgressViewModel::class.java)
-        viewModel.getReadingStatusLiveData().observe(this, Observer(::fillBooks))
+        viewModel.getReadingStatusLiveData().observe(this, Observer(::fillProgressBooks))
+        viewModel.getBooksToReadLiveData().observe(this, Observer(::fillBooksToRead))
         launch {
             viewModel.synchronizeDatabase()
         }
@@ -51,12 +53,23 @@ class ReadingListFragment : BaseFragment(R.layout.fragment_reading_list) {
         dialog.show(fragmentManager, "reviewDialog")
     }
 
-    private fun fillBooks(data: List<SelectWithBookInformation>?) {
+    private fun fillProgressBooks(data: List<SelectWithBookInformation>?) {
+        progressBooks = data ?: emptyList()
+    }
+
+    private var progressBooks = listOf<SelectWithBookInformation>()
+    private var futureBooks = listOf<Book>()
+
+    private fun fillBooksToRead(books: List<Book>?) {
+        futureBooks = books ?: emptyList()
+        fillBooks()
+    }
+
+    private fun fillBooks() {
         // TODO: Diff calculation
         adapter.items.clear()
-        if (data != null) {
-            adapter.items.addAll(data)
-        }
+        adapter.items.addAll(progressBooks)
+        adapter.items.addAll(futureBooks)
         adapter.notifyDataSetChanged()
     }
 
