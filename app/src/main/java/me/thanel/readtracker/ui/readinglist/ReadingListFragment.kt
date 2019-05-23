@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.fragment_reading_list.*
+import kotlinx.android.synthetic.main.item_section_header.*
 import kotlinx.coroutines.launch
 import me.thanel.readtracker.Book
 import me.thanel.readtracker.R
@@ -16,6 +17,19 @@ import me.thanel.readtracker.ui.base.BaseFragment
 import me.thanel.readtracker.ui.review.ReviewDialog
 import me.thanel.readtracker.ui.updateprogress.UpdateProgressViewModel
 import me.thanel.recyclerviewutils.adapter.lazyAdapterWrapper
+import me.thanel.recyclerviewutils.viewholder.BaseItemViewBinder
+import me.thanel.recyclerviewutils.viewholder.ContainerViewHolder
+
+class SeactionHeaderViewBinder : BaseItemViewBinder<String, ContainerViewHolder>(R.layout.item_section_header) {
+    override fun onCreateViewHolder(itemView: View): ContainerViewHolder {
+        return ContainerViewHolder(itemView)
+    }
+
+    override fun onBindViewHolder(holder: ContainerViewHolder, item: String) {
+        super.onBindViewHolder(holder, item)
+        holder.sectionHeaderTextView.text = item
+    }
+}
 
 class ReadingListFragment : BaseFragment(R.layout.fragment_reading_list) {
 
@@ -44,6 +58,15 @@ class ReadingListFragment : BaseFragment(R.layout.fragment_reading_list) {
 
             override fun areContentsTheSame(oldItem: Book, newItem: Book): Boolean {
                 return oldItem as Book.Impl == newItem as Book.Impl
+            }
+        })
+        register(SeactionHeaderViewBinder(), object: DiffUtil.ItemCallback<String>() {
+            override fun areItemsTheSame(oldItem: String, newItem: String): Boolean {
+                return oldItem == newItem
+            }
+
+            override fun areContentsTheSame(oldItem: String, newItem: String): Boolean {
+                return true
             }
         })
     }
@@ -94,7 +117,9 @@ class ReadingListFragment : BaseFragment(R.layout.fragment_reading_list) {
 
     private fun fillBooks() = launch {
         val items = mutableListOf<Any>()
+        items.add("Currently reading")
         items.addAll(progressBooks)
+        items.add("To read")
         items.addAll(futureBooks)
         adapterWrapper.updateItems(items)
     }
