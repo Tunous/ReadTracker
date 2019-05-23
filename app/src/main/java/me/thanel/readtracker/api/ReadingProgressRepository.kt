@@ -3,6 +3,7 @@ package me.thanel.readtracker.api
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import me.thanel.goodreadsapi.GoodreadsApi
+import me.thanel.goodreadsapi.model.Book
 import me.thanel.readtracker.Database
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -45,14 +46,7 @@ class ReadingProgressRepository @Inject constructor(
 
         database.transaction {
             books.forEach { book ->
-                database.bookQueries.insert(
-                    book.id,
-                    book.title,
-                    book.numPages,
-                    book.imageUrl,
-                    book.authors,
-                    position = null
-                )
+                insertBook(book, null)
             }
 
             statuses.forEach { status ->
@@ -67,18 +61,29 @@ class ReadingProgressRepository @Inject constructor(
         }
 
 
+        val currentlyReadingBooks = api.getBooksInShelf(userId, "currently-reading")
+        database.transaction {
+            currentlyReadingBooks.forEach { book ->
+                insertBook(book, null)
+            }
+        }
+
         val booksToRead = api.getBooksInShelf(userId, "to-read")
         database.transaction {
             booksToRead.withIndex().forEach { (position, book) ->
-                database.bookQueries.insert(
-                    book.id,
-                    book.title,
-                    book.numPages,
-                    book.imageUrl,
-                    book.authors,
-                    position = position
-                )
+                insertBook(book, position)
             }
         }
+    }
+
+    private fun insertBook(book: Book, position: Int?) {
+        database.bookQueries.insert(
+            book.id,
+            book.title,
+            book.numPages,
+            book.imageUrl,
+            book.authors,
+            position = position
+        )
     }
 }
