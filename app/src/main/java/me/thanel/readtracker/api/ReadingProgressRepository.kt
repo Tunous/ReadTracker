@@ -7,7 +7,7 @@ import me.thanel.goodreadsapi.GoodreadsApiInterface
 import me.thanel.goodreadsapi.model.Book
 import me.thanel.readtracker.Database
 import me.thanel.readtracker.model.BookWithProgress
-import me.thanel.readtracker.ui.updateprogress.executeAsListLiveData
+import me.thanel.readtracker.util.executeAsListLiveData
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -22,25 +22,15 @@ class ReadingProgressRepository @Inject constructor(
         pageNumber: Int,
         reviewBody: String? = null
     ) = withContext(Dispatchers.Default) {
-        database.readProgressQueries.updateProgressByPageNumber(pageNumber, bookId)
+        database.readProgressQueries.updateProgress(pageNumber, bookId)
         api.updateProgressByPageNumber(bookId, pageNumber, reviewBody)
-    }
-
-    suspend fun updateProgressByPercent(
-        bookId: Long,
-        percent: Int,
-        reviewBody: String? = null
-    ) = withContext(Dispatchers.Default) {
-        database.readProgressQueries.updateProgressByPercent(percent, bookId)
-        api.updateProgressByPercent(bookId, percent, reviewBody)
     }
 
     fun getBooksToReadAsLiveData(): LiveData<List<BookWithProgress>> {
         return database.bookQueries.selectBooksToRead { id, title, numPages, imageUrl, authors ->
             BookWithProgress(
                 progressId = null,
-                page = null,
-                percent = null,
+                page = 0,
                 reviewId = null,
                 book = Book(
                     id = id,
@@ -54,11 +44,10 @@ class ReadingProgressRepository @Inject constructor(
     }
 
     fun getBooksWithProgressAsLiveData(): LiveData<List<BookWithProgress>> {
-        return database.readProgressQueries.selectWithBookInformation { id, page, percent, reviewId, bookId, numPages, bookTitle, bookImageUrl, bookAuthors ->
+        return database.readProgressQueries.selectWithBookInformation { id, page, reviewId, bookId, numPages, bookTitle, bookImageUrl, bookAuthors ->
             BookWithProgress(
                 progressId = id,
                 page = page,
-                percent = percent,
                 reviewId = reviewId,
                 book = Book(
                     id = bookId,
@@ -94,7 +83,6 @@ class ReadingProgressRepository @Inject constructor(
                     status.id,
                     status.bookId,
                     status.page,
-                    status.percent,
                     status.reviewId
                 )
             }

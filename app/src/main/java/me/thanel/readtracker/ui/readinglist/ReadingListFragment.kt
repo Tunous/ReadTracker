@@ -13,12 +13,11 @@ import me.thanel.readtracker.di.ReadTracker
 import me.thanel.readtracker.model.BookWithProgress
 import me.thanel.readtracker.ui.base.BaseFragment
 import me.thanel.readtracker.ui.review.ReviewDialog
-import me.thanel.readtracker.ui.updateprogress.UpdateProgressViewModel
 import me.thanel.recyclerviewutils.adapter.lazyAdapterWrapper
 
 class ReadingListFragment : BaseFragment(R.layout.fragment_reading_list) {
 
-    private lateinit var viewModel: UpdateProgressViewModel
+    private lateinit var viewModel: ReadingListViewModel
 
     private var progressBooks = listOf<BookWithProgress>()
     private var futureBooks = listOf<BookWithProgress>()
@@ -63,7 +62,7 @@ class ReadingListFragment : BaseFragment(R.layout.fragment_reading_list) {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProviders.of(this).get(UpdateProgressViewModel::class.java)
+        viewModel = ViewModelProviders.of(this).get(ReadingListViewModel::class.java)
         viewModel.getReadingStatusLiveData().observe(this, Observer(::fillProgressBooks))
         viewModel.getBooksToReadLiveData().observe(this, Observer(::fillBooksToRead))
         launch {

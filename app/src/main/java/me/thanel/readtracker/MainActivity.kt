@@ -12,7 +12,6 @@ import kotlinx.coroutines.launch
 import me.thanel.readtracker.ui.authorize.AuthorizeFragment
 import me.thanel.readtracker.ui.authorize.AuthorizeViewModel
 import me.thanel.readtracker.ui.readinglist.ReadingListFragment
-import me.thanel.readtracker.ui.updateprogress.UpdateProgressFragment
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,10 +37,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun displayAuthorizeFragment(error: String? = null) {
         displayFragment(AuthorizeFragment.newInstance(error))
-    }
-
-    private fun displayProgressFragment() {
-        displayFragment(UpdateProgressFragment.newInstance())
     }
 
     private fun displayReadingListFragment() {

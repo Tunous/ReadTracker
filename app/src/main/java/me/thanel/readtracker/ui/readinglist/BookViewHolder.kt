@@ -9,7 +9,6 @@ import kotlinx.android.synthetic.main.item_currently_reading_book.*
 import me.thanel.goodreadsapi.internal.util.nullIfBlank
 import me.thanel.readtracker.R
 import me.thanel.readtracker.model.BookWithProgress
-import me.thanel.readtracker.model.actualPage
 import me.thanel.readtracker.ui.util.RangeInputFilter
 import me.thanel.recyclerviewutils.viewholder.BaseItemViewBinder
 import me.thanel.recyclerviewutils.viewholder.ContainerViewHolder
@@ -88,7 +87,7 @@ class BookViewBinder(
     private fun ContainerViewHolder.bindProgressView(item: BookWithProgress) {
         with(bookProgressView) {
             maxValue = item.book.numPages
-            currentValue = item.actualPage
+            currentValue = item.page
             bindProgress(item, currentValue)
         }
     }

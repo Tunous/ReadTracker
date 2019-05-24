@@ -27,14 +27,6 @@ internal interface GoodreadsService {
 
     @POST("/user_status.xml")
     @FormUrlEncoded
-    fun updateUserStatusByPercentAsync(
-        @Field("user_status[book_id]") bookId: Long,
-        @Field("user_status[percent]") percent: Int,
-        @Field("user_status[body]") body: String?
-    ): Deferred<ResponseBody>
-
-    @POST("/user_status.xml")
-    @FormUrlEncoded
     fun updateUserStatusByPageNumberAsync(
         @Field("user_status[book_id]") bookId: Long,
         @Field("user_status[page]") page: Int,

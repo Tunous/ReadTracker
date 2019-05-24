@@ -20,12 +20,10 @@ import retrofit2.Retrofit
 import se.akerfeldt.okhttp.signpost.OkHttpOAuthConsumer
 import se.akerfeldt.okhttp.signpost.OkHttpOAuthProvider
 import se.akerfeldt.okhttp.signpost.SigningInterceptor
-
+import kotlin.math.roundToInt
 
 interface GoodreadsApiInterface {
     suspend fun updateProgressByPageNumber(bookId: Long, page: Int, body: String?)
-
-    suspend fun updateProgressByPercent(bookId: Long, percent: Int, body: String?)
 
     suspend fun finishReading(reviewId: Long, rating: Int?, body: String?)
 
@@ -70,8 +68,14 @@ class GoodreadsApi(
     override suspend fun getReadingProgressStatus(userId: Long): ReadingProgressStatusGroup =
         withContext(Dispatchers.Default) {
             val userResponse = service.getUserAsync(userId).await()
-            val statuses = userResponse.user.userStatuses?.map {
-                ReadingProgressStatus(it.id, it.book.id, it.page, it.percent, it.reviewId)
+            val statuses = userResponse.user.userStatuses?.map { userStatus ->
+                val page = userStatus.page ?: userStatus.percent?.let { percent ->
+                    percentToPage(
+                        percent,
+                        userStatus.book.numPages
+                    )
+                } ?: 0
+                ReadingProgressStatus(userStatus.id, userStatus.book.id, page, userStatus.reviewId)
             }
             val books = userResponse.user.userStatuses?.map { status ->
                 val book = status.book
@@ -89,28 +93,28 @@ class GoodreadsApi(
             )
         }
 
-    override suspend fun getBooksInShelf(userId: Long, shelf: String) = withContext(Dispatchers.Default) {
-        val reviewsResponse = service.getBooksInShelfAsync(userId, shelf).await()
-        return@withContext reviewsResponse.reviews?.map { review ->
-            val book = review.book
-            Book(
-                book.id,
-                book.title,
-                book.numPages,
-                book.imageUrl,
-                book.authors.joinToString { it.name }.nullIfBlank()
-            )
-        } ?: emptyList()
+    private fun percentToPage(percent: Int, numPages: Int): Int {
+        val floatPercent = percent / 100f
+        return (floatPercent * numPages).roundToInt()
     }
+
+    override suspend fun getBooksInShelf(userId: Long, shelf: String) =
+        withContext(Dispatchers.Default) {
+            val reviewsResponse = service.getBooksInShelfAsync(userId, shelf).await()
+            return@withContext reviewsResponse.reviews?.map { review ->
+                val book = review.book
+                Book(
+                    book.id,
+                    book.title,
+                    book.numPages,
+                    book.imageUrl,
+                    book.authors.joinToString { it.name }.nullIfBlank()
+                )
+            } ?: emptyList()
+        }
 
     override suspend fun getUserId() = withContext(Dispatchers.Default) {
         service.getUserIdAsync().await().user.id
-    }
-
-    override suspend fun updateProgressByPercent(bookId: Long, percent: Int, body: String?) {
-        withContext(Dispatchers.Default) {
-            service.updateUserStatusByPercentAsync(bookId, percent, body.nullIfBlank()).await()
-        }
     }
 
     override suspend fun updateProgressByPageNumber(bookId: Long, page: Int, body: String?) {

@@ -1,8 +1,7 @@
 CREATE TABLE readProgress (
     id INTEGER NOT NULL PRIMARY KEY ON CONFLICT REPLACE,
     bookId INTEGER NOT NULL,
-    page INTEGER as Int,
-    percent INTEGER as Int,
+    page INTEGER as Int NOT NULL,
     reviewId INTEGER NOT NULL
 );
 
@@ -17,7 +16,6 @@ selectWithBookInformation:
 SELECT
     readProgress.id,
     readProgress.page,
-    readProgress.percent,
     readProgress.reviewId,
     readProgress.bookId,
     book.numPages,
@@ -28,21 +26,12 @@ FROM readProgress
 INNER JOIN book ON readProgress.bookId = book.id;
 
 insert:
-INSERT INTO readProgress(id, bookId, page, percent, reviewId)
-VALUES (?, ?, ?, ?, ?);
+INSERT INTO readProgress(id, bookId, page, reviewId)
+VALUES (?, ?, ?, ?);
 
-updateProgressByPageNumber:
+updateProgress:
 UPDATE readProgress
-SET
-    page = ?,
-    percent = NULL
-WHERE bookId = ?;
-
-updateProgressByPercent:
-UPDATE readProgress
-SET
-    page = NULL,
-    percent = ?
+SET page = ?
 WHERE bookId = ?;
 
 deleteProgressWithoutBook:

@@ -69,7 +69,7 @@ class GoodreadsServiceTest {
         assertNotNull(response.user.userStatuses)
         assertEquals(1, response.user.userStatuses!!.size)
 
-        val userStatus = response.user.userStatuses!![0]
+        val userStatus = response.user.userStatuses[0]
         assertEquals(56, userStatus.id)
         assertEquals(305, userStatus.page)
         assertEquals(35, userStatus.percent)
