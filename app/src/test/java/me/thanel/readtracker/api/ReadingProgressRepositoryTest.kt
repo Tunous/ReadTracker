@@ -37,7 +37,7 @@ class ReadingProgressRepositoryTest {
         database = Database(driver)
 
         database.bookQueries.insert(1L, "Divergent", 100, null, null, null)
-        database.readProgressQueries.insert(1L, 1L, 30, 90, 1L)
+        database.readProgressQueries.insert(1L, 1L, 30, 1L)
     }
 
     @Test

@@ -76,7 +76,7 @@ class ReadingListFragment : BaseFragment(R.layout.fragment_reading_list) {
         val hasFinishedReading = progress == bookWithProgress.book.numPages
         val dialog = if (hasFinishedReading) {
             val reviewId = requireNotNull(bookWithProgress.reviewId) {
-                "TODO: Make it possible to finish reading book had no previous progress" // TODO
+                "TODO: Make it possible to finish reading book with no previous progress" // TODO
             }
             ReviewDialog.createForFinished(reviewId)
         } else {

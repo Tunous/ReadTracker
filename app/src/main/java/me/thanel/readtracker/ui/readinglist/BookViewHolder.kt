@@ -2,6 +2,7 @@ package me.thanel.readtracker.ui.readinglist
 
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.util.Log
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import com.squareup.picasso.Picasso
@@ -86,7 +87,7 @@ class BookViewBinder(
 
     private fun ContainerViewHolder.bindProgressView(item: BookWithProgress) {
         with(bookProgressView) {
-            maxValue = item.book.numPages
+            maxValue = if (item.book.numPages > 0) item.book.numPages else 100 // TODO: Handle this in a better way?
             currentValue = item.page
             bindProgress(item, currentValue)
         }
@@ -94,10 +95,18 @@ class BookViewBinder(
 
     private fun ContainerViewHolder.bindProgress(progressItem: BookWithProgress, page: Int) {
         val numPages = progressItem.book.numPages
-        val percent = pageToPercent(page, numPages)
+        Log.d("BOOK", "Calculating percent: [$progressItem] $page, $numPages")
 
-        pagesTextView.text =
-            itemView.context.getString(R.string.info_book_pages_progress, page, numPages)
+        val percent: Int
+        if (numPages == 0) {
+            // TODO: Add test that covers this case (Book to reproduce is: The Winds of Winter)
+            percent = 0
+            pagesTextView.text = "Unknown number of pages"
+        } else {
+            percent = pageToPercent(page, numPages)
+            pagesTextView.text =
+                itemView.context.getString(R.string.info_book_pages_progress, page, numPages)
+        }
 
         val percentText = percent.toString()
         val currentText = readPercentageEditTextView.text?.toString()?.nullIfBlank() ?: "0"
