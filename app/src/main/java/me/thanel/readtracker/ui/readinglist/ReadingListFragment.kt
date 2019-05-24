@@ -96,8 +96,10 @@ class ReadingListFragment : BaseFragment(R.layout.fragment_reading_list) {
 
     private fun fillBooks() = launch {
         val items = mutableListOf<Any>()
-        items.add("Currently reading")
-        items.addAll(progressBooks)
+        if (progressBooks.isNotEmpty()) {
+            items.add("Currently reading")
+            items.addAll(progressBooks)
+        }
         items.add("To read")
         items.addAll(futureBooks)
         adapterWrapper.updateItems(items)
