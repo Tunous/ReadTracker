@@ -40,11 +40,9 @@ class UpdateProgressViewModel : ViewModel() {
         readingProgressRepository.synchronizeDatabase()
     }
 
-    fun getReadingStatusLiveData() =
-        readProgressQueries.selectWithBookInformation().executeAsListLiveData()
+    fun getReadingStatusLiveData() = readingProgressRepository.getBooksWithProgressAsLiveData()
 
-    fun getBooksToReadLiveData() =
-        bookQueries.selectBooksToRead().executeAsListLiveData()
+    fun getBooksToReadLiveData() = readingProgressRepository.getBooksToReadAsLiveData()
 
     suspend fun updateProgressByPercent(bookId: Long, progress: Int, body: String?) {
         api.updateProgressByPercent(bookId, progress, body)

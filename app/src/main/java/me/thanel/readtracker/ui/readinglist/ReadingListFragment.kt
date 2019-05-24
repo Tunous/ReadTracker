@@ -7,60 +7,38 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.fragment_reading_list.*
-import kotlinx.android.synthetic.main.item_section_header.*
 import kotlinx.coroutines.launch
-import me.thanel.readtracker.Book
 import me.thanel.readtracker.R
-import me.thanel.readtracker.SelectWithBookInformation
 import me.thanel.readtracker.di.ReadTracker
+import me.thanel.readtracker.model.BookWithProgress
 import me.thanel.readtracker.ui.base.BaseFragment
 import me.thanel.readtracker.ui.review.ReviewDialog
 import me.thanel.readtracker.ui.updateprogress.UpdateProgressViewModel
 import me.thanel.recyclerviewutils.adapter.lazyAdapterWrapper
-import me.thanel.recyclerviewutils.viewholder.BaseItemViewBinder
-import me.thanel.recyclerviewutils.viewholder.ContainerViewHolder
-
-class SeactionHeaderViewBinder : BaseItemViewBinder<String, ContainerViewHolder>(R.layout.item_section_header) {
-    override fun onCreateViewHolder(itemView: View): ContainerViewHolder {
-        return ContainerViewHolder(itemView)
-    }
-
-    override fun onBindViewHolder(holder: ContainerViewHolder, item: String) {
-        super.onBindViewHolder(holder, item)
-        holder.sectionHeaderTextView.text = item
-    }
-}
 
 class ReadingListFragment : BaseFragment(R.layout.fragment_reading_list) {
 
     private lateinit var viewModel: UpdateProgressViewModel
 
+    private var progressBooks = listOf<BookWithProgress>()
+    private var futureBooks = listOf<BookWithProgress>()
+
     private val adapterWrapper by lazyAdapterWrapper {
-        register(ProgressBookViewBinder(::onUpdateBookProgress), object: DiffUtil.ItemCallback<SelectWithBookInformation>() {
-            override fun areItemsTheSame(
-                oldItem: SelectWithBookInformation,
-                newItem: SelectWithBookInformation
-            ): Boolean {
-                return oldItem.id == newItem.id
-            }
+        register(
+            BookViewBinder(::onUpdateBookProgress),
+            object : DiffUtil.ItemCallback<BookWithProgress>() {
+                override fun areItemsTheSame(
+                    oldItem: BookWithProgress,
+                    newItem: BookWithProgress
+                ) = oldItem.book.id == newItem.book.id
 
-            override fun areContentsTheSame(
-                oldItem: SelectWithBookInformation,
-                newItem: SelectWithBookInformation
-            ): Boolean {
-                return oldItem as SelectWithBookInformation.Impl == newItem as SelectWithBookInformation.Impl
-            }
-        })
-        register(ToReadBookViewBinder(), object: DiffUtil.ItemCallback<Book>() {
-            override fun areItemsTheSame(oldItem: Book, newItem: Book): Boolean {
-                return oldItem.id == newItem.id
-            }
+                override fun areContentsTheSame(
+                    oldItem: BookWithProgress,
+                    newItem: BookWithProgress
+                ) = oldItem == newItem
+            })
 
-            override fun areContentsTheSame(oldItem: Book, newItem: Book): Boolean {
-                return oldItem as Book.Impl == newItem as Book.Impl
-            }
-        })
-        register(SeactionHeaderViewBinder(), object: DiffUtil.ItemCallback<String>() {
+        register(SectionHeaderViewBinder(), object : DiffUtil.ItemCallback<String>() {
             override fun areItemsTheSame(oldItem: String, newItem: String): Boolean {
                 return oldItem == newItem
             }
@@ -89,28 +67,30 @@ class ReadingListFragment : BaseFragment(R.layout.fragment_reading_list) {
         viewModel.getReadingStatusLiveData().observe(this, Observer(::fillProgressBooks))
         viewModel.getBooksToReadLiveData().observe(this, Observer(::fillBooksToRead))
         launch {
+            // TODO: Extract to work task and make less frequent
+            // TODO: Make possible to request manually
             viewModel.synchronizeDatabase()
         }
     }
 
-    private fun onUpdateBookProgress(progressItem: SelectWithBookInformation, progress: Int) {
-        val hasFinishedReading = progress == progressItem.numPages
+    private fun onUpdateBookProgress(bookWithProgress: BookWithProgress, progress: Int) {
+        val hasFinishedReading = progress == bookWithProgress.book.numPages
         val dialog = if (hasFinishedReading) {
-            ReviewDialog.createForFinished(progressItem.reviewId)
+            val reviewId = requireNotNull(bookWithProgress.reviewId) {
+                "TODO: Make it possible to finish reading book had no previous progress" // TODO
+            }
+            ReviewDialog.createForFinished(reviewId)
         } else {
-            ReviewDialog.createForInProgress(progressItem.bookId, progress)
+            ReviewDialog.createForInProgress(bookWithProgress.book.id, progress)
         }
         dialog.show(fragmentManager, "reviewDialog")
     }
 
-    private fun fillProgressBooks(data: List<SelectWithBookInformation>?) {
-        progressBooks = data ?: emptyList()
+    private fun fillProgressBooks(books: List<BookWithProgress>?) {
+        progressBooks = books ?: emptyList()
     }
 
-    private var progressBooks = listOf<SelectWithBookInformation>()
-    private var futureBooks = listOf<Book>()
-
-    private fun fillBooksToRead(books: List<Book>?) {
+    private fun fillBooksToRead(books: List<BookWithProgress>?) {
         futureBooks = books ?: emptyList()
         fillBooks()
     }

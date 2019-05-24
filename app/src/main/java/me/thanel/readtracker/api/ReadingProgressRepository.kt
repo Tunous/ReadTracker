@@ -1,10 +1,13 @@
 package me.thanel.readtracker.api
 
+import androidx.lifecycle.LiveData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import me.thanel.goodreadsapi.GoodreadsApiInterface
 import me.thanel.goodreadsapi.model.Book
 import me.thanel.readtracker.Database
+import me.thanel.readtracker.model.BookWithProgress
+import me.thanel.readtracker.ui.updateprogress.executeAsListLiveData
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -30,6 +33,42 @@ class ReadingProgressRepository @Inject constructor(
     ) = withContext(Dispatchers.Default) {
         database.readProgressQueries.updateProgressByPercent(percent, bookId)
         api.updateProgressByPercent(bookId, percent, reviewBody)
+    }
+
+    fun getBooksToReadAsLiveData(): LiveData<List<BookWithProgress>> {
+        return database.bookQueries.selectBooksToRead { id, title, numPages, imageUrl, authors ->
+            BookWithProgress(
+                progressId = null,
+                page = null,
+                percent = null,
+                reviewId = null,
+                book = Book(
+                    id = id,
+                    numPages = numPages,
+                    title = title,
+                    imageUrl = imageUrl,
+                    authors = authors
+                )
+            )
+        }.executeAsListLiveData()
+    }
+
+    fun getBooksWithProgressAsLiveData(): LiveData<List<BookWithProgress>> {
+        return database.readProgressQueries.selectWithBookInformation { id, page, percent, reviewId, bookId, numPages, bookTitle, bookImageUrl, bookAuthors ->
+            BookWithProgress(
+                progressId = id,
+                page = page,
+                percent = percent,
+                reviewId = reviewId,
+                book = Book(
+                    id = bookId,
+                    numPages = numPages,
+                    title = bookTitle,
+                    imageUrl = bookImageUrl,
+                    authors = bookAuthors
+                )
+            )
+        }.executeAsListLiveData()
     }
 
     suspend fun finishReading(

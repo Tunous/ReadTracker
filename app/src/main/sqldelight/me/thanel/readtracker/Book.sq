@@ -18,7 +18,12 @@ deleteBooksWithoutPosition:
 DELETE FROM book WHERE position IS NULL;
 
 selectBooksToRead:
-SELECT book.*
+SELECT
+  book.id,
+  book.title,
+  book.numPages,
+  book.imageUrl,
+  book.authors
 FROM book
 LEFT JOIN readProgress ON book.id = readProgress.bookId
 WHERE readProgress.id IS NULL

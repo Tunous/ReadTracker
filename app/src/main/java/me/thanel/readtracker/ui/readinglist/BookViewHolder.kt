@@ -7,46 +7,26 @@ import android.view.inputmethod.EditorInfo
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.item_currently_reading_book.*
 import me.thanel.goodreadsapi.internal.util.nullIfBlank
-import me.thanel.readtracker.Book
 import me.thanel.readtracker.R
-import me.thanel.readtracker.SelectWithBookInformation
+import me.thanel.readtracker.model.BookWithProgress
 import me.thanel.readtracker.model.actualPage
 import me.thanel.readtracker.ui.util.RangeInputFilter
 import me.thanel.recyclerviewutils.viewholder.BaseItemViewBinder
 import me.thanel.recyclerviewutils.viewholder.ContainerViewHolder
 import kotlin.math.roundToInt
 
-class ToReadBookViewBinder : BaseItemViewBinder<Book, ContainerViewHolder>(R.layout.item_currently_reading_book) {
-    override fun onCreateViewHolder(itemView: View): ContainerViewHolder {
-        return ContainerViewHolder(itemView)
-    }
+class BookViewBinder(
+    private val onUpdateProgress: (BookWithProgress, Int) -> Unit
+) : BaseItemViewBinder<BookWithProgress, ContainerViewHolder>(R.layout.item_currently_reading_book) {
 
-    override fun onBindViewHolder(holder: ContainerViewHolder, item: Book) {
-        super.onBindViewHolder(holder, item)
-        holder.bookTitleView.text = item.title
-        holder.bookAuthorView.text = holder.context.getString(R.string.info_authors, item.authors)
-        if (item.imageUrl != null) {
-            Picasso.get()
-                .load(item.imageUrl!!)
-                .placeholder(ColorDrawable(Color.BLACK))
-                .into(holder.bookCoverImageView)
-        } else {
-            holder.bookCoverImageView.setImageDrawable(ColorDrawable(Color.BLACK))
-        }
-    }
-}
+    private val ContainerViewHolder.bookWithProgress: BookWithProgress
+        get() = itemView.getTag(R.id.bound_item) as BookWithProgress
 
-class ProgressBookViewBinder(
-    private val onUpdateProgress: (SelectWithBookInformation, Int) -> Unit
-) : BaseItemViewBinder<SelectWithBookInformation, ContainerViewHolder>(R.layout.item_currently_reading_book) {
     override fun onCreateViewHolder(itemView: View): ContainerViewHolder {
         return ContainerViewHolder(itemView).also {
             initViewHolder(it)
         }
     }
-
-    private val ContainerViewHolder.progressItem: SelectWithBookInformation
-        get() = itemView.tag as SelectWithBookInformation
 
     private fun initViewHolder(holder: ContainerViewHolder) {
         holder.bookProgressView.onProgressChangeListener = {
@@ -57,7 +37,8 @@ class ProgressBookViewBinder(
         }
         holder.readPercentageEditTextView.afterUserTextChanged = {
             val progress = it?.toIntOrNull() ?: 0
-            holder.bookProgressView.currentValue = percentToPage(progress, holder.progressItem.numPages)
+            holder.bookProgressView.currentValue =
+                percentToPage(progress, holder.bookWithProgress.book.numPages)
         }
         holder.readPercentageEditTextView.filters = arrayOf(RangeInputFilter(0..100))
         holder.readPercentageEditTextView.setOnEditorActionListener { _, actionId, _ ->
@@ -74,12 +55,11 @@ class ProgressBookViewBinder(
 
     private fun ContainerViewHolder.notifyUpdateProgress() {
         val progress = bookProgressView.currentValue
-        onUpdateProgress(progressItem, progress)
+        onUpdateProgress(bookWithProgress, progress)
     }
 
-    override fun onBindViewHolder(holder: ContainerViewHolder, item: SelectWithBookInformation) {
+    override fun onBindViewHolder(holder: ContainerViewHolder, item: BookWithProgress) {
         super.onBindViewHolder(holder, item)
-        holder.itemView.tag = item
 
         holder.bindBookInformation(item)
         holder.bindImage(item)
@@ -89,15 +69,15 @@ class ProgressBookViewBinder(
         holder.updateProgressButton.alpha = 0f
     }
 
-    private fun ContainerViewHolder.bindBookInformation(item: SelectWithBookInformation) {
-        bookTitleView.text = item.bookTitle
-        bookAuthorView.text = itemView.context.getString(R.string.info_authors, item.bookAuthors)
+    private fun ContainerViewHolder.bindBookInformation(item: BookWithProgress) {
+        bookTitleView.text = item.book.title
+        bookAuthorView.text = itemView.context.getString(R.string.info_authors, item.book.authors)
     }
 
-    private fun ContainerViewHolder.bindImage(item: SelectWithBookInformation) {
-        if (item.bookImageUrl != null) {
+    private fun ContainerViewHolder.bindImage(item: BookWithProgress) {
+        if (item.book.imageUrl != null) {
             Picasso.get()
-                .load(item.bookImageUrl!!)
+                .load(item.book.imageUrl!!)
                 .placeholder(ColorDrawable(Color.BLACK))
                 .into(bookCoverImageView)
         } else {
@@ -105,16 +85,16 @@ class ProgressBookViewBinder(
         }
     }
 
-    private fun ContainerViewHolder.bindProgressView(item: SelectWithBookInformation) {
+    private fun ContainerViewHolder.bindProgressView(item: BookWithProgress) {
         with(bookProgressView) {
-            maxValue = item.numPages
+            maxValue = item.book.numPages
             currentValue = item.actualPage
             bindProgress(item, currentValue)
         }
     }
 
-    private fun ContainerViewHolder.bindProgress(progressItem: SelectWithBookInformation, page: Int) {
-        val numPages = progressItem.numPages
+    private fun ContainerViewHolder.bindProgress(progressItem: BookWithProgress, page: Int) {
+        val numPages = progressItem.book.numPages
         val percent = pageToPercent(page, numPages)
 
         pagesTextView.text =
@@ -138,7 +118,7 @@ class ProgressBookViewBinder(
     }
 
     private fun ContainerViewHolder.handleProgressChanged(progress: Int) {
-        bindProgress(progressItem, progress)
+        bindProgress(bookWithProgress, progress)
         animateShowSaveButton()
     }
 
