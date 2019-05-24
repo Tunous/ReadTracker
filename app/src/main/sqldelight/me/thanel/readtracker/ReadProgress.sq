@@ -44,3 +44,10 @@ SET
     page = NULL,
     percent = ?
 WHERE bookId = ?;
+
+deleteProgressWithoutBook:
+DELETE FROM readProgress
+WHERE NOT EXISTS (
+  SELECT 1 FROM book
+  WHERE id = bookId
+);

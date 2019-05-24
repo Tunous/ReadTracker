@@ -8,7 +8,7 @@ import com.tickaroo.tikxml.annotation.Xml
 @Xml(name = "GoodreadsResponse")
 internal data class ReviewResponse(
     @Element(name = "Request") val request: Request,
-    @Path("reviews") @Element val reviews: List<Review>
+    @Path("reviews") @Element val reviews: List<Review>?
 )
 
 @Xml(name = "review")

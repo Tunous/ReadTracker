@@ -2,7 +2,7 @@ package me.thanel.readtracker.ui.updateprogress
 
 import androidx.lifecycle.ViewModel
 import dagger.Lazy
-import me.thanel.goodreadsapi.GoodreadsApi
+import me.thanel.goodreadsapi.GoodreadsApiInterface
 import me.thanel.readtracker.BookQueries
 import me.thanel.readtracker.Database
 import me.thanel.readtracker.ReadProgressQueries
@@ -14,7 +14,7 @@ import javax.inject.Inject
 class UpdateProgressViewModel : ViewModel() {
 
     @Inject
-    internal lateinit var lazyApi: Lazy<GoodreadsApi>
+    internal lateinit var lazyApi: Lazy<GoodreadsApiInterface>
     private val api get() = lazyApi.get()
 
     @Inject

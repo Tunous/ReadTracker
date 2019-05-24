@@ -29,6 +29,11 @@ android {
     packagingOptions {
         exclude("META-INF/library_release.kotlin_module")
     }
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+        }
+    }
 }
 
 androidExtensions {
@@ -63,4 +68,8 @@ dependencies {
     kapt "com.google.dagger:dagger-compiler:2.16"
 
     testImplementation 'junit:junit:4.12'
+    testImplementation 'androidx.test:core:1.1.0'
+    testImplementation 'androidx.test.ext:junit:1.1.0'
+    testImplementation 'org.robolectric:robolectric:4.2.1'
+    testImplementation 'org.mockito:mockito-core:2.23.0'
 }

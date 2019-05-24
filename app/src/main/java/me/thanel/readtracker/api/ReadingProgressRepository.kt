@@ -2,7 +2,7 @@ package me.thanel.readtracker.api
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import me.thanel.goodreadsapi.GoodreadsApi
+import me.thanel.goodreadsapi.GoodreadsApiInterface
 import me.thanel.goodreadsapi.model.Book
 import me.thanel.readtracker.Database
 import javax.inject.Inject
@@ -10,7 +10,7 @@ import javax.inject.Singleton
 
 @Singleton
 class ReadingProgressRepository @Inject constructor(
-    private val api: GoodreadsApi,
+    private val api: GoodreadsApiInterface,
     private val database: Database,
     private val userRepository: UserRepository
 ) {
@@ -38,6 +38,7 @@ class ReadingProgressRepository @Inject constructor(
         reviewBody: String? = null
     ) = withContext(Dispatchers.Default) {
         api.finishReading(reviewId, rating, reviewBody)
+        // TODO: Remove from local database
     }
 
     suspend fun synchronizeDatabase() = withContext(Dispatchers.Default) {
@@ -60,9 +61,12 @@ class ReadingProgressRepository @Inject constructor(
             }
         }
 
-
         val currentlyReadingBooks = api.getBooksInShelf(userId, "currently-reading")
         database.transaction {
+            // TODO: This might remove too many books if request for books in currently-reading
+            //  shelf has another page
+            database.bookQueries.deleteBooksWithoutPosition()
+            database.readProgressQueries.deleteProgressWithoutBook()
             currentlyReadingBooks.forEach { book ->
                 insertBook(book, null)
             }

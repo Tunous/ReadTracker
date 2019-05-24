@@ -21,12 +21,27 @@ import se.akerfeldt.okhttp.signpost.OkHttpOAuthConsumer
 import se.akerfeldt.okhttp.signpost.OkHttpOAuthProvider
 import se.akerfeldt.okhttp.signpost.SigningInterceptor
 
+
+interface GoodreadsApiInterface {
+    suspend fun updateProgressByPageNumber(bookId: Long, page: Int, body: String?)
+
+    suspend fun updateProgressByPercent(bookId: Long, percent: Int, body: String?)
+
+    suspend fun finishReading(reviewId: Long, rating: Int?, body: String?)
+
+    suspend fun getReadingProgressStatus(userId: Long): ReadingProgressStatusGroup
+
+    suspend fun getBooksInShelf(userId: Long, shelf: String): List<Book>
+
+    suspend fun getUserId(): Long
+}
+
 class GoodreadsApi(
     consumerKey: String,
     consumerSecret: String,
     private val token: String,
     private val tokenSecret: String
-) {
+) : GoodreadsApiInterface {
     private val oAuthConsumer = OkHttpOAuthConsumer(consumerKey, consumerSecret).apply {
         setTokenWithSecret(this@GoodreadsApi.token, this@GoodreadsApi.tokenSecret)
     }
@@ -52,7 +67,7 @@ class GoodreadsApi(
         .build()
         .create(GoodreadsService::class.java)
 
-    suspend fun getReadingProgressStatus(userId: Long): ReadingProgressStatusGroup =
+    override suspend fun getReadingProgressStatus(userId: Long): ReadingProgressStatusGroup =
         withContext(Dispatchers.Default) {
             val userResponse = service.getUserAsync(userId).await()
             val statuses = userResponse.user.userStatuses?.map {
@@ -74,10 +89,10 @@ class GoodreadsApi(
             )
         }
 
-    suspend fun getBooksInShelf(userId: Long, shelf: String) = withContext(Dispatchers.Default) {
+    override suspend fun getBooksInShelf(userId: Long, shelf: String) = withContext(Dispatchers.Default) {
         val reviewsResponse = service.getBooksInShelfAsync(userId, shelf).await()
-        return@withContext reviewsResponse.reviews.map {
-            val book = it.book
+        return@withContext reviewsResponse.reviews?.map { review ->
+            val book = review.book
             Book(
                 book.id,
                 book.title,
@@ -85,24 +100,26 @@ class GoodreadsApi(
                 book.imageUrl,
                 book.authors.joinToString { it.name }.nullIfBlank()
             )
-        }
+        } ?: emptyList()
     }
 
-    suspend fun getUserId() = withContext(Dispatchers.Default) {
+    override suspend fun getUserId() = withContext(Dispatchers.Default) {
         service.getUserIdAsync().await().user.id
     }
 
-    suspend fun updateProgressByPercent(bookId: Long, percent: Int, body: String?) =
+    override suspend fun updateProgressByPercent(bookId: Long, percent: Int, body: String?) {
         withContext(Dispatchers.Default) {
             service.updateUserStatusByPercentAsync(bookId, percent, body.nullIfBlank()).await()
         }
+    }
 
-    suspend fun updateProgressByPageNumber(bookId: Long, page: Int, body: String?) =
+    override suspend fun updateProgressByPageNumber(bookId: Long, page: Int, body: String?) {
         withContext(Dispatchers.Default) {
             service.updateUserStatusByPageNumberAsync(bookId, page, body.nullIfBlank()).await()
         }
+    }
 
-    suspend fun finishReading(reviewId: Long, rating: Int?, body: String?) =
+    override suspend fun finishReading(reviewId: Long, rating: Int?, body: String?) {
         withContext(Dispatchers.Default) {
             service.editReviewAsync(
                 reviewId = reviewId,
@@ -113,6 +130,7 @@ class GoodreadsApi(
                 finished = true
             ).await()
         }
+    }
 
     companion object {
         private const val BASE_URL = "https://www.goodreads.com/"
