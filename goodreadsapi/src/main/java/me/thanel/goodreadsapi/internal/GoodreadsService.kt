@@ -13,8 +13,8 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 internal interface GoodreadsService {
-    @GET("/user/show/{id}.xml")
-    fun getUserAsync(@Path("id") id: Long): Deferred<UserResponse>
+
+    /// GET
 
     @GET("/api/auth_user")
     fun getUserIdAsync(): Deferred<UserResponse>
@@ -22,8 +22,13 @@ internal interface GoodreadsService {
     @GET("/review/list/{userId}.xml?v=2&order=a&sort=position")
     fun getBooksInShelfAsync(
         @Path("userId") userId: Long,
-        @Query("shelf") shelf: String?
+        @Query("shelf") shelf: String
     ): Deferred<ReviewResponse>
+
+    @GET("/user/show/{userId}.xml")
+    fun getUserAsync(@Path("userId") userId: Long): Deferred<UserResponse>
+
+    /// POST
 
     @POST("/user_status.xml")
     @FormUrlEncoded

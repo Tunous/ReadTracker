@@ -2,10 +2,10 @@
 <GoodreadsResponse>
     <Request>
         <authentication>true</authentication>
-        <key><![CDATA[abc123]]></key>
+        <key><![CDATA[horcrux]]></key>
         <method><![CDATA[auth_user]]></method>
     </Request>
-    <user id="1234">
-        <name>User</name>
+    <user id="7">
+        <name>Harry Potter</name>
     </user>
 </GoodreadsResponse>

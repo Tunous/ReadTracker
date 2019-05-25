@@ -3,7 +3,7 @@ package me.thanel.readtracker.api
 import androidx.lifecycle.LiveData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import me.thanel.goodreadsapi.GoodreadsApiInterface
+import me.thanel.goodreadsapi.GoodreadsApi
 import me.thanel.goodreadsapi.model.Book
 import me.thanel.readtracker.Database
 import me.thanel.readtracker.model.BookWithProgress
@@ -13,7 +13,7 @@ import javax.inject.Singleton
 
 @Singleton
 class ReadingProgressRepository @Inject constructor(
-    private val api: GoodreadsApiInterface,
+    private val api: GoodreadsApi,
     private val database: Database,
     private val userRepository: UserRepository
 ) {

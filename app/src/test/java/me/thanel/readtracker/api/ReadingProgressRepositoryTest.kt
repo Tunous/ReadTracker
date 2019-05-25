@@ -6,7 +6,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.chibatching.kotpref.Kotpref
 import com.squareup.sqldelight.android.AndroidSqliteDriver
 import kotlinx.coroutines.runBlocking
-import me.thanel.goodreadsapi.GoodreadsApiInterface
+import me.thanel.goodreadsapi.GoodreadsApi
 import me.thanel.goodreadsapi.model.ReadingProgressStatusGroup
 import me.thanel.readtracker.Database
 import org.hamcrest.CoreMatchers.equalTo
@@ -20,16 +20,11 @@ import org.mockito.Mockito.`when`
 import org.mockito.Mockito.never
 import org.mockito.Mockito.verify
 
-/**
- * Example local unit test, which will execute on the development machine (host).
- *
- * See [testing documentation](http://d.android.com/tools/testing).
- */
 @RunWith(AndroidJUnit4::class)
 class ReadingProgressRepositoryTest {
 
     private lateinit var database: Database
-    private lateinit var goodreadsApi: GoodreadsApiInterface
+    private lateinit var goodreadsApi: GoodreadsApi
     private lateinit var readingProgressRepository: ReadingProgressRepository
 
     @Before
@@ -39,19 +34,14 @@ class ReadingProgressRepositoryTest {
 
         val driver = AndroidSqliteDriver(Database.Schema, context)
         database = Database(driver)
-        goodreadsApi = Mockito.mock(GoodreadsApiInterface::class.java)
+        goodreadsApi = Mockito.mock(GoodreadsApi::class.java)
         val userRepository = UserRepository(goodreadsApi)
         readingProgressRepository =
             ReadingProgressRepository(goodreadsApi, database, userRepository)
     }
 
-    private fun stubBookWithProgress() {
-        database.bookQueries.insert(1L, "Divergent", 100, null, null, null, true)
-        database.readProgressQueries.insert(1L, 1L, 30, 1L)
-    }
-
     @Test
-    fun updating_progress_by_page_number_should_update_local_database() = runBlocking {
+    fun `updating progress by page number should update local database`() = runBlocking {
         stubBookWithProgress()
 
         readingProgressRepository.updateProgressByPageNumber(1L, 200)
@@ -62,7 +52,7 @@ class ReadingProgressRepositoryTest {
     }
 
     @Test
-    fun updating_progress_by_page_number_should_make_api_call() = runBlocking {
+    fun `updating progress by page number should make api call`() = runBlocking {
         stubBookWithProgress()
 
         readingProgressRepository.updateProgressByPageNumber(1L, 200)
@@ -71,7 +61,7 @@ class ReadingProgressRepositoryTest {
     }
 
     @Test
-    fun synchronize_database_should_remove_no_longer_existing_books() = runBlocking {
+    fun `synchronize database should remove no longer existing books`() = runBlocking {
         stubBookWithProgress()
         `when`(goodreadsApi.getUserId()).thenReturn(1L)
         `when`(goodreadsApi.getReadingProgressStatus(1L))
@@ -88,7 +78,7 @@ class ReadingProgressRepositoryTest {
     }
 
     @Test
-    fun finishing_reading_should_make_api_call() = runBlocking {
+    fun `finishing reading should make api call`() = runBlocking {
         stubBookWithProgress()
 
         readingProgressRepository.finishReading(1L, 3, "Nice book!")
@@ -97,7 +87,7 @@ class ReadingProgressRepositoryTest {
     }
 
     @Test
-    fun finishing_reading_should_remove_book_from_local_database() = runBlocking {
+    fun `finishing reading should remove book from local database`() = runBlocking {
         stubBookWithProgress()
 
         readingProgressRepository.finishReading(1L, 3, "Nice book!")
@@ -107,7 +97,7 @@ class ReadingProgressRepositoryTest {
     }
 
     @Test
-    fun initial_progress_update_on_book_moves_it_to_currently_reading_shelf() = runBlocking {
+    fun `initial progress update on book moves it to currently reading shelf`() = runBlocking {
         database.bookQueries.insert(1L, "Divergent", 100, null, null, null, false)
 
         readingProgressRepository.updateProgressByPageNumber(1L, 10)
@@ -116,7 +106,7 @@ class ReadingProgressRepositoryTest {
     }
 
     @Test
-    fun progress_update_does_not_move_book_to_currently_reading_shelf_if_it_had_previous_progress() =
+    fun `progress update does not move book to currently reading shelf if it had previous progress`() =
         runBlocking {
             stubBookWithProgress()
 
@@ -124,4 +114,9 @@ class ReadingProgressRepositoryTest {
 
             verify(goodreadsApi, never()).startReadingBook(1L)
         }
+
+    private fun stubBookWithProgress() {
+        database.bookQueries.insert(1L, "Divergent", 100, null, null, null, true)
+        database.readProgressQueries.insert(1L, 1L, 30, 1L)
+    }
 }

@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GoodreadsResponse>
+    <Request>
+        <authentication>true</authentication>
+        <key><![CDATA[horcrux]]></key>
+        <method><![CDATA[user_show]]></method>
+    </Request>
+    <user>
+        <id>7</id>
+        <name>Harry Potter</name>
+        <user_name></user_name>
+        <link><![CDATA[https://www.goodreads.com/user/show/7-harry_potter]]></link>
+        <image_url>
+            <![CDATA[https://s.gr-assets.com/assets/nophoto/user/u_111x148-9394ebedbb3c6c218f64be9549657029.png]]></image_url>
+        <small_image_url>
+            <![CDATA[https://s.gr-assets.com/assets/nophoto/user/u_50x66-632230dc9882b4352d753eedf9396530.png]]></small_image_url>
+        <about></about>
+        <age></age>
+        <gender></gender>
+        <location>England</location>
+        <website></website>
+        <joined>11/2018</joined>
+        <last_active>05/2019</last_active>
+        <interests></interests>
+        <favorite_books></favorite_books>
+        <favorite_authors></favorite_authors>
+        <updates_rss_url>
+            <![CDATA[https://www.goodreads.com/user/updates_rss/7?key=horcrux]]></updates_rss_url>
+        <reviews_rss_url>
+            <![CDATA[https://www.goodreads.com/review/list_rss/7?key=horcrux&shelf=%23ALL%23]]></reviews_rss_url>
+        <friends_count type="integer">0</friends_count>
+        <groups_count>0</groups_count>
+        <reviews_count type="integer">7</reviews_count>
+        <user_shelves type="array">
+            <!-- ... unused ... -->
+        </user_shelves>
+        <updates type="array">
+            <!-- ... unused ... -->
+        </updates>
+        <user_statuses>
+            <user_status>
+                <id type="integer">1234</id>
+                <page type="integer">78</page>
+                <chapter nil="true" type="integer" />
+                <comments_count type="integer">0</comments_count>
+                <body></body>
+                <created_at type="datetime">2019-05-25T15:55:46+00:00</created_at>
+                <updated_at type="datetime">2019-05-25T15:55:46+00:00</updated_at>
+                <last_comment_at nil="true" type="datetime" />
+                <ratings_count type="integer">0</ratings_count>
+                <percent nil="true" type="integer" />
+                <work_id type="integer">8757</work_id>
+                <note_uri nil="true" />
+                <note_updated_at nil="true" type="datetime" />
+                <review_id type="integer">5678</review_id>
+                <book>
+                    <id type="integer">5</id>
+                    <title>Harry Potter and the Prisoner of Azkaban (Harry Potter, #3)</title>
+                    <num_pages type="integer">435</num_pages>
+                    <image_url>https://images.gr-assets.com/books/1499277281m/5.jpg</image_url>
+                    <small_image_url>https://images.gr-assets.com/books/1499277281s/5.jpg
+                    </small_image_url>
+                    <authors>
+                        <author>
+                            <id>1077326</id>
+                            <name>J.K. Rowling</name>
+                        </author>
+                        <author>
+                            <id>2927</id>
+                            <name>Mary GrandPré</name>
+                        </author>
+                    </authors>
+                </book>
+            </user_status>
+            <user_status>
+                <id type="integer">1235</id>
+                <page nil="true" type="integer" />
+                <chapter nil="true" type="integer" />
+                <comments_count type="integer">0</comments_count>
+                <body></body>
+                <created_at type="datetime">2019-05-25T15:55:21+00:00</created_at>
+                <updated_at type="datetime">2019-05-25T15:55:21+00:00</updated_at>
+                <last_comment_at nil="true" type="datetime" />
+                <ratings_count type="integer">0</ratings_count>
+                <percent type="integer">90</percent>
+                <work_id type="integer">79642</work_id>
+                <note_uri nil="true" />
+                <note_updated_at nil="true" type="datetime" />
+                <review_id type="integer">5679</review_id>
+                <book>
+                    <id type="integer">15881</id>
+                    <title>Harry Potter and the Chamber of Secrets (Harry Potter, #2)</title>
+                    <num_pages type="integer">341</num_pages>
+                    <image_url>https://images.gr-assets.com/books/1474169725m/15881.jpg</image_url>
+                    <small_image_url>https://images.gr-assets.com/books/1474169725s/15881.jpg
+                    </small_image_url>
+                    <authors>
+                        <author>
+                            <id>1077326</id>
+                            <name>J.K. Rowling</name>
+                        </author>
+                        <author>
+                            <id>2927</id>
+                            <name>Mary GrandPré</name>
+                        </author>
+                    </authors>
+                </book>
+            </user_status>
+        </user_statuses>
+    </user>
+
+</GoodreadsResponse>
