@@ -43,7 +43,8 @@ class ReadingProgressRepository @Inject constructor(
                     numPages = numPages,
                     title = title,
                     imageUrl = imageUrl,
-                    authors = authors
+                    authors = authors,
+                    isCurrentlyReading = false
                 )
             )
         }.executeAsListLiveData()
@@ -53,14 +54,15 @@ class ReadingProgressRepository @Inject constructor(
         return database.readProgressQueries.selectWithBookInformation { id, page, reviewId, bookId, numPages, bookTitle, bookImageUrl, bookAuthors ->
             BookWithProgress(
                 progressId = id,
-                page = page,
+                page = page ?: 0,
                 reviewId = reviewId,
                 book = Book(
                     id = bookId,
                     numPages = numPages,
                     title = bookTitle,
                     imageUrl = bookImageUrl,
-                    authors = bookAuthors
+                    authors = bookAuthors,
+                    isCurrentlyReading = true
                 )
             )
         }.executeAsListLiveData()
@@ -80,6 +82,12 @@ class ReadingProgressRepository @Inject constructor(
         val (statuses, books) = api.getReadingProgressStatus(userId)
 
         database.transaction {
+            // In local database we might have potentially no longer valid data, here we are
+            // removing as much as possible. It is safe to do that as the performed api call
+            // should have returned more up-to date data.
+            database.readProgressQueries.deleteAll()
+            database.bookQueries.deleteBooksWithProgress()
+
             books.forEach { book ->
                 insertBook(book, null)
             }
@@ -96,13 +104,9 @@ class ReadingProgressRepository @Inject constructor(
 
         val currentlyReadingBooks = api.getBooksInShelf(userId, "currently-reading")
         database.transaction {
-            // TODO: This might remove too many books if request for books in currently-reading
-            //  shelf has another page
-            database.bookQueries.deleteBooksWithoutPosition()
             currentlyReadingBooks.forEach { book ->
                 insertBook(book, null)
             }
-            database.readProgressQueries.deleteProgressWithoutBook()
         }
 
         val booksToRead = api.getBooksInShelf(userId, "to-read")
@@ -120,7 +124,8 @@ class ReadingProgressRepository @Inject constructor(
             book.numPages,
             book.imageUrl,
             book.authors,
-            position = position
+            position,
+            book.isCurrentlyReading
         )
     }
 }

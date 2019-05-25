@@ -86,7 +86,8 @@ class GoodreadsApi(
                     book.title,
                     book.numPages,
                     book.imageUrl,
-                    book.authors.joinToString { it.name }.nullIfBlank()
+                    book.authors.joinToString { it.name }.nullIfBlank(),
+                    isCurrentlyReading = true
                 )
             }
             return@withContext ReadingProgressStatusGroup(
@@ -105,12 +106,14 @@ class GoodreadsApi(
             val reviewsResponse = service.getBooksInShelfAsync(userId, shelf).await()
             return@withContext reviewsResponse.reviews?.map { review ->
                 val book = review.book
+                val shelves = review.shelves ?: emptyList()
                 Book(
                     book.id,
                     book.title,
                     book.numPages,
                     book.imageUrl,
-                    book.authors.joinToString { it.name }.nullIfBlank()
+                    book.authors.joinToString { it.name }.nullIfBlank(),
+                    shelves.any { it.name == "currently-reading" }
                 )
             } ?: emptyList()
         }

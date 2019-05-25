@@ -1,6 +1,6 @@
 CREATE TABLE readProgress (
     id INTEGER NOT NULL PRIMARY KEY ON CONFLICT REPLACE,
-    bookId INTEGER NOT NULL,
+    bookId INTEGER NOT NULL UNIQUE ON CONFLICT REPLACE,
     page INTEGER as Int NOT NULL,
     reviewId INTEGER NOT NULL
 );
@@ -17,13 +17,14 @@ SELECT
     readProgress.id,
     readProgress.page,
     readProgress.reviewId,
-    readProgress.bookId,
+    book.id AS bookId,
     book.numPages,
     book.title AS bookTitle,
     book.imageUrl AS bookImageUrl,
     book.authors AS bookAuthors
-FROM readProgress
-INNER JOIN book ON readProgress.bookId = book.id;
+FROM book
+LEFT JOIN readProgress ON readProgress.bookId = book.id
+WHERE book.isCurrentlyReading = 1;
 
 insert:
 INSERT INTO readProgress(id, bookId, page, reviewId)

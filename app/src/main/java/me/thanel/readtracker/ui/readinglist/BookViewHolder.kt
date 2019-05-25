@@ -2,7 +2,6 @@ package me.thanel.readtracker.ui.readinglist
 
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
-import android.util.Log
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import com.squareup.picasso.Picasso
@@ -95,7 +94,6 @@ class BookViewBinder(
 
     private fun ContainerViewHolder.bindProgress(progressItem: BookWithProgress, page: Int) {
         val numPages = progressItem.book.numPages
-        Log.d("BOOK", "Calculating percent: [$progressItem] $page, $numPages")
 
         val percent: Int
         if (numPages == 0) {
