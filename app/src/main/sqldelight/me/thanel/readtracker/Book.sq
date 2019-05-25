@@ -28,3 +28,6 @@ FROM book
 LEFT JOIN readProgress ON book.id = readProgress.bookId
 WHERE readProgress.id IS NULL
 ORDER BY book.position ASC;
+
+selectAll:
+SELECT * FROM book;

@@ -32,6 +32,8 @@ interface GoodreadsApiInterface {
     suspend fun getBooksInShelf(userId: Long, shelf: String): List<Book>
 
     suspend fun getUserId(): Long
+
+    suspend fun startReadingBook(bookId: Long)
 }
 
 class GoodreadsApi(
@@ -133,6 +135,12 @@ class GoodreadsApi(
                 shelf = "read",
                 finished = true
             ).await()
+        }
+    }
+
+    override suspend fun startReadingBook(bookId: Long) {
+        withContext(Dispatchers.Default) {
+            service.addBookToShelfAsync("currently-reading", bookId).await()
         }
     }
 

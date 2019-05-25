@@ -22,7 +22,13 @@ class ReadingProgressRepository @Inject constructor(
         pageNumber: Int,
         reviewBody: String? = null
     ) = withContext(Dispatchers.Default) {
-        database.readProgressQueries.updateProgress(pageNumber, bookId)
+        val hasProgress = database.readProgressQueries.hasProgress(bookId).executeAsOneOrNull() == 1L
+        if (hasProgress) {
+            database.readProgressQueries.updateProgress(pageNumber, bookId)
+        } else {
+            // TODO: Save new progress in database (what to do with reviewId)
+            api.startReadingBook(bookId)
+        }
         api.updateProgressByPageNumber(bookId, pageNumber, reviewBody)
     }
 
@@ -93,10 +99,10 @@ class ReadingProgressRepository @Inject constructor(
             // TODO: This might remove too many books if request for books in currently-reading
             //  shelf has another page
             database.bookQueries.deleteBooksWithoutPosition()
-            database.readProgressQueries.deleteProgressWithoutBook()
             currentlyReadingBooks.forEach { book ->
                 insertBook(book, null)
             }
+            database.readProgressQueries.deleteProgressWithoutBook()
         }
 
         val booksToRead = api.getBooksInShelf(userId, "to-read")

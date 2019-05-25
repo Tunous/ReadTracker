@@ -43,4 +43,11 @@ internal interface GoodreadsService {
         @Field("finished") finished: Boolean?,
         @Field("shelf") shelf: String?
     ): Deferred<ResponseBody>
+
+    @POST("/shelf/add_to_shelf.xml")
+    @FormUrlEncoded
+    fun addBookToShelfAsync(
+        @Field("name") shelfName: String,
+        @Field("book_id") bookId: Long
+    ): Deferred<ResponseBody>
 }
