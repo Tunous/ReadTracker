@@ -6,17 +6,26 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import com.chibatching.kotpref.bulk
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import me.thanel.readtracker.ui.authorize.AuthorizeFragment
 import me.thanel.readtracker.ui.authorize.AuthorizeViewModel
 import me.thanel.readtracker.ui.readinglist.ReadingListFragment
+import kotlin.coroutines.CoroutineContext
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), CoroutineScope {
+
+    private lateinit var uiJob: Job
+
+    override val coroutineContext: CoroutineContext
+        get() = uiJob + Dispatchers.Main
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        uiJob = Job()
 
         if (savedInstanceState == null) {
             if (Preferences.isAuthorized) {
@@ -27,12 +36,15 @@ class MainActivity : AppCompatActivity() {
         }
 
         if (intent?.action == Intent.ACTION_VIEW) {
-            if (handleAuthorizedIntent()) {
-                displayReadingListFragment()
-            } else {
+            if (!handleAuthorizedIntent()) {
                 displayAuthorizeFragment("Something went wrong")
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        uiJob.cancel()
     }
 
     private fun displayAuthorizeFragment(error: String? = null) {
@@ -69,7 +81,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         val viewModel = ViewModelProviders.of(this).get(AuthorizeViewModel::class.java)
-        GlobalScope.launch(Dispatchers.Main) {
+        launch {
             viewModel.finishAuthorization()
             displayReadingListFragment()
         }
