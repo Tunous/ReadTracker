@@ -72,7 +72,7 @@ class ReadingProgressRepository @Inject constructor(
         reviewBody: String? = null
     ) = withContext(Dispatchers.Default) {
         api.finishReading(reviewId, rating, reviewBody)
-        // TODO: Remove from local database
+        database.readProgressQueries.deleteBookForReview(reviewId)
     }
 
     suspend fun synchronizeDatabase() = withContext(Dispatchers.Default) {

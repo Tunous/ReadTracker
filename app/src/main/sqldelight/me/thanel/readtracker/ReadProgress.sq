@@ -43,3 +43,12 @@ WHERE NOT EXISTS (
   SELECT 1 FROM book
   WHERE id = bookId
 );
+
+deleteBookForReview:
+DELETE FROM book
+WHERE id = (
+  SELECT bookId
+  FROM readProgress
+  WHERE reviewId = ?
+  LIMIT 1
+);
