@@ -52,7 +52,7 @@ internal interface GoodreadsService {
     @POST("/shelf/add_to_shelf.xml")
     @FormUrlEncoded
     fun addBookToShelfAsync(
-        @Field("name") shelfName: String,
-        @Field("book_id") bookId: Long
+        @Field("book_id") bookId: Long,
+        @Field("name") shelfName: String
     ): Deferred<ResponseBody>
 }

@@ -5,14 +5,16 @@ import java.util.Date
 
 internal class ShortDate(date: Date) {
     private val formattedDate by lazy {
-        DateFormat.format("yyyy-MM-dd", date).toString()
+        formatter(date)
     }
 
-    override fun toString(): String {
-        return formattedDate
-    }
+    override fun toString() = formattedDate
 
     companion object {
+        internal var formatter: (Date) -> String = {
+            DateFormat.format("yyyy-MM-dd", it).toString()
+        }
+
         fun now() = ShortDate(Date())
     }
 }

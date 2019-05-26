@@ -11,6 +11,7 @@ import me.thanel.goodreadsapi.model.Book
 import me.thanel.goodreadsapi.model.ReadingProgressStatus
 import me.thanel.goodreadsapi.model.ReadingProgressStatusGroup
 import kotlin.math.roundToInt
+import me.thanel.goodreadsapi.internal.model.Book as InternalBook
 
 internal class GoodreadsApiImpl(secrets: GoodreadsSecrets, baseUrl: String) : GoodreadsApi {
 
@@ -20,12 +21,12 @@ internal class GoodreadsApiImpl(secrets: GoodreadsSecrets, baseUrl: String) : Go
 
     /// Requests
 
-    override suspend fun getUserId() = withContext(Dispatchers.Default) {
+    override suspend fun getUserId() = withContext(Dispatchers.IO) {
         service.getUserIdAsync().await().user.id
     }
 
     override suspend fun getReadingProgressStatus(userId: Long): ReadingProgressStatusGroup =
-        withContext(Dispatchers.Default) {
+        withContext(Dispatchers.IO) {
             val response = service.getUserAsync(userId).await()
             val internalStatuses = response.user.userStatuses
             val statuses = internalStatuses?.map { status ->
@@ -45,7 +46,7 @@ internal class GoodreadsApiImpl(secrets: GoodreadsSecrets, baseUrl: String) : Go
         }
 
     override suspend fun getBooksInShelf(userId: Long, shelf: String) =
-        withContext(Dispatchers.Default) {
+        withContext(Dispatchers.IO) {
             val response = service.getBooksInShelfAsync(userId, shelf).await()
             val reviews = response.reviews?.map { review ->
                 val shelves = review.shelves ?: emptyList()
@@ -58,19 +59,19 @@ internal class GoodreadsApiImpl(secrets: GoodreadsSecrets, baseUrl: String) : Go
     /// Actions
 
     override suspend fun updateProgressByPageNumber(bookId: Long, page: Int, body: String?) {
-        withContext(Dispatchers.Default) {
+        withContext(Dispatchers.IO) {
             service.updateUserStatusByPageNumberAsync(bookId, page, body.nullIfBlank()).await()
         }
     }
 
     override suspend fun startReadingBook(bookId: Long) {
-        withContext(Dispatchers.Default) {
-            service.addBookToShelfAsync("currently-reading", bookId).await()
+        withContext(Dispatchers.IO) {
+            service.addBookToShelfAsync(bookId, "currently-reading").await()
         }
     }
 
     override suspend fun finishReading(reviewId: Long, rating: Int?, body: String?) {
-        withContext(Dispatchers.Default) {
+        withContext(Dispatchers.IO) {
             service.editReviewAsync(
                 reviewId = reviewId,
                 reviewText = body.nullIfBlank(),
@@ -96,13 +97,12 @@ internal class GoodreadsApiImpl(secrets: GoodreadsSecrets, baseUrl: String) : Go
         return (floatPercent * numPages).roundToInt()
     }
 
-    private fun me.thanel.goodreadsapi.internal.model.Book.toPublicBook(isCurrentlyReading: Boolean) =
-        Book(
-            id,
-            title,
-            numPages,
-            imageUrl,
-            authors.joinToString { it.name }.nullIfBlank(),
-            isCurrentlyReading = isCurrentlyReading
-        )
+    private fun InternalBook.toPublicBook(isCurrentlyReading: Boolean) = Book(
+        id,
+        title,
+        numPages,
+        imageUrl,
+        authors.joinToString { it.name }.nullIfBlank(),
+        isCurrentlyReading = isCurrentlyReading
+    )
 }

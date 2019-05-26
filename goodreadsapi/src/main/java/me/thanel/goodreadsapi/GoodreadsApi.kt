@@ -71,7 +71,7 @@ interface GoodreadsApi {
             token: String,
             tokenSecret: String,
             baseUrl: String = DEFAULT_BASE_URL
-        ) = withContext(Dispatchers.Default) {
+        ) = withContext(Dispatchers.IO) {
             val consumer = OkHttpOAuthConsumer(consumerKey, consumerSecret)
             consumer.setTokenWithSecret(token, tokenSecret)
             createAuthProvider(baseUrl).retrieveAccessToken(consumer, null)

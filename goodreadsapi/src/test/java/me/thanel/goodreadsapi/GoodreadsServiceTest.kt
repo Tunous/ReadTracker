@@ -1,8 +1,12 @@
 package me.thanel.goodreadsapi
 
 import kotlinx.coroutines.runBlocking
+import me.thanel.goodreadsapi.internal.model.ShortDate
+import me.thanel.goodreadsapi.internal.util.applyIf
+import me.thanel.goodreadsapi.internal.util.urlDecode
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
+import okhttp3.mockwebserver.RecordedRequest
 import org.hamcrest.CoreMatchers.equalTo
 import org.junit.After
 import org.junit.Assert.assertThat
@@ -28,7 +32,7 @@ class GoodreadsServiceTest {
     }
 
     @Test
-    fun `should return id of authenticated user`() {
+    fun `getUserId should return id of authenticated user`() {
         stubResponse("api_auth_user.xml")
 
         val userId = runBlocking { api.getUserId() }
@@ -37,7 +41,7 @@ class GoodreadsServiceTest {
     }
 
     @Test
-    fun `should return all books in currently-reading shelf`() {
+    fun `getBooksInShelf should return all books in currently-reading shelf`() {
         stubResponse("books_currently_reading.xml")
 
         val books = runBlocking { api.getBooksInShelf(7L, "currently-reading") }
@@ -67,7 +71,7 @@ class GoodreadsServiceTest {
     }
 
     @Test
-    fun `should return all books in to-read shelf`() {
+    fun `getBooksInShelf should return all books in to-read shelf`() {
         stubResponse("books_to_read.xml")
 
         val books = runBlocking { api.getBooksInShelf(7L, "to-read") }
@@ -75,7 +79,10 @@ class GoodreadsServiceTest {
         assertThat(books.size, equalTo(3))
         val b0 = books[0]
         assertThat(b0.id, equalTo(2L))
-        assertThat(b0.title, equalTo("Harry Potter and the Order of the Phoenix (Harry Potter, #5)"))
+        assertThat(
+            b0.title,
+            equalTo("Harry Potter and the Order of the Phoenix (Harry Potter, #5)")
+        )
         assertThat(b0.numPages, equalTo(870))
         assertThat(b0.imageUrl, equalTo("https://images.gr-assets.com/books/1546910265m/2.jpg"))
         assertThat(b0.authors, equalTo("J.K. Rowling"))
@@ -91,13 +98,16 @@ class GoodreadsServiceTest {
         assertThat(b2.id, equalTo(136251L))
         assertThat(b2.title, equalTo("Harry Potter and the Deathly Hallows (Harry Potter, #7)"))
         assertThat(b2.numPages, equalTo(759))
-        assertThat(b2.imageUrl, equalTo("https://images.gr-assets.com/books/1474171184m/136251.jpg"))
+        assertThat(
+            b2.imageUrl,
+            equalTo("https://images.gr-assets.com/books/1474171184m/136251.jpg")
+        )
         assertThat(b2.authors, equalTo("J.K. Rowling"))
         assertThat(b2.isCurrentlyReading, equalTo(false))
     }
 
     @Test
-    fun `should return currently read books with their progress`() {
+    fun `getReadingProgressStatus should return currently read books with their progress`() {
         stubResponse("user_show.xml")
 
         val readingProgress = runBlocking { api.getReadingProgressStatus(7L) }
@@ -131,11 +141,82 @@ class GoodreadsServiceTest {
         assertThat(b1.isCurrentlyReading, equalTo(true))
     }
 
-    private fun stubResponse(filename: String, code: Int = 200) {
+    @Test
+    fun `updateProgressByPageNumber should make request with correct parameters`() {
+        stubResponse(code = 200)
+
+        runBlocking { api.updateProgressByPageNumber(5L, 128, "Test") }
+
+        val request = server.takeRequest()
+        assertThat(request.path, equalTo("/user_status.xml"))
+        val parameters = request.extractFormUrlEncodedParameters()
+        assertThat(parameters.size, equalTo(3))
+        assertThat(parameters[0], equalTo("user_status[book_id]" to "5"))
+        assertThat(parameters[1], equalTo("user_status[page]" to "128"))
+        assertThat(parameters[2], equalTo("user_status[body]" to "Test"))
+    }
+
+    @Test
+    fun `updateProgressByPageNumber should not set body parameter when it is blank`() {
+        stubResponse()
+
+        runBlocking { api.updateProgressByPageNumber(9L, 234, " ") }
+
+        val request = server.takeRequest()
+        val parameters = request.extractFormUrlEncodedParameters()
+        assertThat(parameters.size, equalTo(2))
+        assertThat(parameters[0], equalTo("user_status[book_id]" to "9"))
+        assertThat(parameters[1], equalTo("user_status[page]" to "234"))
+    }
+
+    @Test
+    fun `startReadingBook should make request with correct parameters`() {
+        stubResponse()
+
+        runBlocking { api.startReadingBook(9L) }
+
+        val request = server.takeRequest()
+        assertThat(request.path, equalTo("/shelf/add_to_shelf.xml"))
+        val parameters = request.extractFormUrlEncodedParameters()
+        assertThat(parameters.size, equalTo(2))
+        assertThat(parameters[0], equalTo("book_id" to "9"))
+        assertThat(parameters[1], equalTo("name" to "currently-reading"))
+    }
+
+    @Test
+    fun `finishReading should make request with correct parameters`() {
+        stubResponse()
+        ShortDate.formatter =  { "2019-06-09" }
+
+        runBlocking { api.finishReading(1245L, 5, "Cool") }
+
+        val request = server.takeRequest()
+        assertThat(request.path, equalTo("/review/1245.xml"))
+        val parameters = request.extractFormUrlEncodedParameters()
+        assertThat(parameters.size, equalTo(5))
+        assertThat(parameters[0], equalTo("review[review]" to "Cool"))
+        assertThat(parameters[1], equalTo("review[rating]" to "5"))
+        assertThat(parameters[2], equalTo("review[read_at]" to "2019-06-09"))
+        assertThat(parameters[3], equalTo("finished" to "true"))
+        assertThat(parameters[4], equalTo("shelf" to "read"))
+    }
+
+    private fun RecordedRequest.extractFormUrlEncodedParameters(): List<Pair<String, String>> {
+        val body = body.readString(Charsets.UTF_8)
+        val parameters = body.split('&')
+        return parameters.map {
+            val pair = it.split('=')
+            pair[0].urlDecode() to pair[1].urlDecode()
+        }
+    }
+
+    private fun stubResponse(filename: String? = null, code: Int = 200) {
         server.enqueue(
             MockResponse()
                 .setResponseCode(code)
-                .setBody(getXml("responses/$filename"))
+                .applyIf(filename != null) {
+                    setBody(getXml("responses/$filename"))
+                }
         )
     }
 
