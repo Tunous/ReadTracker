@@ -3,21 +3,22 @@ package me.thanel.readtracker.ui.readinglist
 import android.os.Bundle
 import android.view.View
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.fragment_reading_list.*
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.thanel.readtracker.R
 import me.thanel.readtracker.di.ReadTracker
 import me.thanel.readtracker.model.BookWithProgress
 import me.thanel.readtracker.ui.base.BaseFragment
 import me.thanel.readtracker.ui.review.ReviewDialog
+import me.thanel.readtracker.ui.util.viewModel
 import me.thanel.recyclerviewutils.adapter.lazyAdapterWrapper
 
 class ReadingListFragment : BaseFragment(R.layout.fragment_reading_list) {
 
-    private lateinit var viewModel: ReadingListViewModel
+    private val viewModel: ReadingListViewModel by viewModel()
 
     private var progressBooks = listOf<BookWithProgress>()
     private var futureBooks = listOf<BookWithProgress>()
@@ -62,11 +63,10 @@ class ReadingListFragment : BaseFragment(R.layout.fragment_reading_list) {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProviders.of(this).get(ReadingListViewModel::class.java)
-        viewModel.getReadingStatusLiveData().observe(this, Observer(::fillProgressBooks))
-        viewModel.getBooksToReadLiveData().observe(this, Observer(::fillBooksToRead))
+        viewModel.readingStatusLiveData.observe(this, Observer(::fillProgressBooks))
+        viewModel.booksToReadLiveData.observe(this, Observer(::fillBooksToRead))
         launch {
-            // TODO: Extract to work task and make less frequent
+            // TODO: Extract to work task
             // TODO: Make possible to request manually
             viewModel.synchronizeDatabase()
         }
@@ -87,6 +87,7 @@ class ReadingListFragment : BaseFragment(R.layout.fragment_reading_list) {
 
     private fun fillProgressBooks(books: List<BookWithProgress>?) {
         progressBooks = books ?: emptyList()
+        fillBooks()
     }
 
     private fun fillBooksToRead(books: List<BookWithProgress>?) {
@@ -94,7 +95,7 @@ class ReadingListFragment : BaseFragment(R.layout.fragment_reading_list) {
         fillBooks()
     }
 
-    private fun fillBooks() = launch {
+    private fun fillBooks() = launch(Dispatchers.Default) {
         val items = mutableListOf<Any>()
         if (progressBooks.isNotEmpty()) {
             items.add("Currently reading")

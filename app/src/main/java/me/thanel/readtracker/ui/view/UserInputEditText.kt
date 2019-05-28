@@ -1,11 +1,10 @@
 package me.thanel.readtracker.ui.view
 
 import android.content.Context
-import android.text.Editable
-import android.text.TextWatcher
 import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatEditText
 import me.thanel.readtracker.R
+import me.thanel.readtracker.ui.util.addAfterTextChangedListener
 
 class UserInputEditText @JvmOverloads constructor(
     context: Context,
@@ -14,24 +13,16 @@ class UserInputEditText @JvmOverloads constructor(
 ) : AppCompatEditText(context, attrs, defStyleAttr) {
     private var isInputFromCode = false
 
-    var afterUserTextChanged: (String?) -> Unit = {}
+    var onAfterUserTextChangeListener: (String?) -> Unit = {}
 
     init {
-        addTextChangedListener(object: TextWatcher {
-            override fun afterTextChanged(s: Editable?) {
-                if (isInputFromCode) {
-                    isInputFromCode = false
-                    return
-                }
-                afterUserTextChanged(s?.toString())
+        addAfterTextChangedListener {
+            if (isInputFromCode) {
+                isInputFromCode = false
+            } else {
+                onAfterUserTextChangeListener(it?.toString())
             }
-
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-            }
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            }
-        })
+        }
     }
 
     override fun setText(text: CharSequence?, type: BufferType?) {

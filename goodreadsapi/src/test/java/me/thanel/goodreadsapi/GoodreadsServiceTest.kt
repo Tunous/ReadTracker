@@ -4,6 +4,7 @@ import kotlinx.coroutines.runBlocking
 import me.thanel.goodreadsapi.internal.model.ShortDate
 import me.thanel.goodreadsapi.internal.util.applyIf
 import me.thanel.goodreadsapi.internal.util.urlDecode
+import me.thanel.goodreadsapi.model.GoodreadsSecrets
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest

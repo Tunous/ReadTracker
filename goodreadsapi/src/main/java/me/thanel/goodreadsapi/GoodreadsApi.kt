@@ -5,6 +5,7 @@ import kotlinx.coroutines.withContext
 import me.thanel.goodreadsapi.internal.GoodreadsApiImpl
 import me.thanel.goodreadsapi.model.AccessTokenData
 import me.thanel.goodreadsapi.model.Book
+import me.thanel.goodreadsapi.model.GoodreadsSecrets
 import me.thanel.goodreadsapi.model.ReadingProgressStatusGroup
 import me.thanel.goodreadsapi.model.RequestTokenData
 import se.akerfeldt.okhttp.signpost.OkHttpOAuthConsumer

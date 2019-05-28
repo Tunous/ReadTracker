@@ -1,40 +1,26 @@
 package me.thanel.readtracker.api
 
-import android.content.Context
-import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.chibatching.kotpref.Kotpref
-import com.squareup.sqldelight.android.AndroidSqliteDriver
 import kotlinx.coroutines.runBlocking
-import me.thanel.goodreadsapi.GoodreadsApi
 import me.thanel.goodreadsapi.model.ReadingProgressStatusGroup
-import me.thanel.readtracker.Database
+import me.thanel.readtracker.testbase.BaseRepositoryTest
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.Matchers.hasSize
 import org.junit.Assert.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.never
 import org.mockito.Mockito.verify
 
 @RunWith(AndroidJUnit4::class)
-class ReadingProgressRepositoryTest {
+class ReadingProgressRepositoryTest : BaseRepositoryTest() {
 
-    private lateinit var database: Database
-    private lateinit var goodreadsApi: GoodreadsApi
     private lateinit var readingProgressRepository: ReadingProgressRepository
 
     @Before
     fun setup() {
-        val context: Context = ApplicationProvider.getApplicationContext()
-        Kotpref.init(context)
-
-        val driver = AndroidSqliteDriver(Database.Schema, context)
-        database = Database(driver)
-        goodreadsApi = Mockito.mock(GoodreadsApi::class.java)
         val userRepository = UserRepository(goodreadsApi)
         readingProgressRepository =
             ReadingProgressRepository(goodreadsApi, database, userRepository)

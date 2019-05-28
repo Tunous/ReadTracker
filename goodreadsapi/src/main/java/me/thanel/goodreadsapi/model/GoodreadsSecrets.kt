@@ -1,4 +1,4 @@
-package me.thanel.goodreadsapi
+package me.thanel.goodreadsapi.model
 
 data class GoodreadsSecrets(
     val consumerKey: String,

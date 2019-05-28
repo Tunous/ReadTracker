@@ -4,8 +4,8 @@ import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterF
 import com.tickaroo.tikxml.TikXml
 import com.tickaroo.tikxml.retrofit.TikXmlConverterFactory
 import me.thanel.goodreadsapi.BuildConfig
-import me.thanel.goodreadsapi.GoodreadsSecrets
 import me.thanel.goodreadsapi.internal.util.applyIf
+import me.thanel.goodreadsapi.model.GoodreadsSecrets
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit

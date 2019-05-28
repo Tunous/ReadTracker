@@ -10,22 +10,19 @@ import me.thanel.goodreadsapi.internal.util.nullIfBlank
 import me.thanel.readtracker.R
 import me.thanel.readtracker.model.BookWithProgress
 import me.thanel.readtracker.ui.util.RangeInputFilter
-import me.thanel.recyclerviewutils.viewholder.BaseItemViewBinder
 import me.thanel.recyclerviewutils.viewholder.ContainerViewHolder
+import me.thanel.recyclerviewutils.viewholder.SimpleItemViewBinder
 import kotlin.math.roundToInt
 
 class BookViewBinder(
     private val onUpdateProgress: (BookWithProgress, Int) -> Unit
-) : BaseItemViewBinder<BookWithProgress, ContainerViewHolder>(R.layout.item_currently_reading_book) {
+) : SimpleItemViewBinder<BookWithProgress>(R.layout.item_currently_reading_book) {
 
     private val ContainerViewHolder.bookWithProgress: BookWithProgress
         get() = itemView.getTag(R.id.bound_item) as BookWithProgress
 
-    override fun onCreateViewHolder(itemView: View): ContainerViewHolder {
-        return ContainerViewHolder(itemView).also {
-            initViewHolder(it)
-        }
-    }
+    override fun onCreateViewHolder(itemView: View) = super.onCreateViewHolder(itemView)
+        .also(::initViewHolder)
 
     private fun initViewHolder(holder: ContainerViewHolder) {
         holder.bookProgressView.onProgressChangeListener = {
@@ -34,7 +31,7 @@ class BookViewBinder(
         holder.updateProgressButton.setOnClickListener {
             holder.notifyUpdateProgress()
         }
-        holder.readPercentageEditTextView.afterUserTextChanged = {
+        holder.readPercentageEditTextView.onAfterUserTextChangeListener = {
             val progress = it?.toIntOrNull() ?: 0
             holder.bookProgressView.currentValue =
                 percentToPage(progress, holder.bookWithProgress.book.numPages)
@@ -86,7 +83,8 @@ class BookViewBinder(
 
     private fun ContainerViewHolder.bindProgressView(item: BookWithProgress) {
         with(bookProgressView) {
-            maxValue = if (item.book.numPages > 0) item.book.numPages else 100 // TODO: Handle this in a better way?
+            maxValue =
+                if (item.book.numPages > 0) item.book.numPages else 100 // TODO: Handle this in a better way?
             currentValue = item.page
             bindProgress(item, currentValue)
         }

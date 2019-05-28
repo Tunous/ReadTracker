@@ -3,7 +3,7 @@ package me.thanel.readtracker.di
 import dagger.Module
 import dagger.Provides
 import me.thanel.goodreadsapi.GoodreadsApi
-import me.thanel.goodreadsapi.GoodreadsSecrets
+import me.thanel.goodreadsapi.model.GoodreadsSecrets
 import me.thanel.readtracker.BuildConfig
 import me.thanel.readtracker.Preferences
 import javax.inject.Singleton

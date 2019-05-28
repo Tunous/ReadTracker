@@ -3,14 +3,15 @@ package me.thanel.readtracker.ui.authorize
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import androidx.lifecycle.ViewModelProviders
 import kotlinx.android.synthetic.main.authorize_fragment.*
 import kotlinx.coroutines.launch
 import me.thanel.readtracker.R
 import me.thanel.readtracker.ui.base.BaseFragment
+import me.thanel.readtracker.ui.util.viewModel
+import me.thanel.readtracker.ui.util.withArguments
 
 class AuthorizeFragment : BaseFragment(R.layout.authorize_fragment) {
-    private lateinit var viewModel: AuthorizeViewModel
+    private val viewModel: AuthorizeViewModel by viewModel()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -19,8 +20,6 @@ class AuthorizeFragment : BaseFragment(R.layout.authorize_fragment) {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProviders.of(this).get(AuthorizeViewModel::class.java)
-
         loginButton.setOnClickListener {
             beginAuthorization()
         }
@@ -48,10 +47,8 @@ class AuthorizeFragment : BaseFragment(R.layout.authorize_fragment) {
     companion object {
         private const val ARG_ERROR = "error"
 
-        fun newInstance(error: String?) = AuthorizeFragment().apply {
-            arguments = Bundle().apply {
-                putString(ARG_ERROR, error)
-            }
+        fun newInstance(error: String?) = AuthorizeFragment().withArguments {
+            putString(ARG_ERROR, error)
         }
     }
 }

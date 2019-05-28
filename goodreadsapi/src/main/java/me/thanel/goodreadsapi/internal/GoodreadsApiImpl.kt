@@ -3,11 +3,11 @@ package me.thanel.goodreadsapi.internal
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import me.thanel.goodreadsapi.GoodreadsApi
-import me.thanel.goodreadsapi.GoodreadsSecrets
 import me.thanel.goodreadsapi.internal.model.ShortDate
 import me.thanel.goodreadsapi.internal.model.UserStatus
 import me.thanel.goodreadsapi.internal.util.nullIfBlank
 import me.thanel.goodreadsapi.model.Book
+import me.thanel.goodreadsapi.model.GoodreadsSecrets
 import me.thanel.goodreadsapi.model.ReadingProgressStatus
 import me.thanel.goodreadsapi.model.ReadingProgressStatusGroup
 import kotlin.math.roundToInt
