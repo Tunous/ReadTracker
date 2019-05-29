@@ -1,12 +1,12 @@
 package me.thanel.readtracker.di
 
 import android.app.Application
-import com.squareup.sqldelight.android.AndroidSqliteDriver
 import dagger.Module
 import dagger.Provides
-import me.thanel.readtracker.BookQueries
-import me.thanel.readtracker.Database
-import me.thanel.readtracker.ReadProgressQueries
+import me.thanel.readtracker.database.BookQueries
+import me.thanel.readtracker.database.Database
+import me.thanel.readtracker.database.DatabaseFactory
+import me.thanel.readtracker.database.ReadProgressQueries
 import javax.inject.Singleton
 
 @Module
@@ -14,7 +14,7 @@ class StorageModule {
     @Provides
     @Singleton
     fun provideDatabase(appContext: Application): Database {
-        return Database(AndroidSqliteDriver(Database.Schema, appContext, "readTracker.db"))
+        return DatabaseFactory.createDatabase(appContext, "readTracker.db")
     }
 
     @Provides

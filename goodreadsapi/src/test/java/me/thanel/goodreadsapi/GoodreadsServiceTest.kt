@@ -20,7 +20,7 @@ class GoodreadsServiceTest {
     private lateinit var api: GoodreadsApi
 
     @Before
-    fun setUp() {
+    fun setup() {
         server = MockWebServer()
         server.start()
         val secrets = GoodreadsSecrets("", "", "", "")

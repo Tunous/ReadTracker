@@ -3,10 +3,10 @@ package me.thanel.readtracker.testbase
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import com.chibatching.kotpref.Kotpref
-import com.squareup.sqldelight.android.AndroidSqliteDriver
 import me.thanel.goodreadsapi.GoodreadsApi
-import me.thanel.readtracker.Database
 import me.thanel.readtracker.Preferences
+import me.thanel.readtracker.database.Database
+import me.thanel.readtracker.database.DatabaseFactory
 import org.junit.Before
 import org.mockito.Mockito
 
@@ -28,8 +28,7 @@ abstract class BaseRepositoryTest {
     }
 
     private fun setupDatabase(context: Context) {
-        val driver = AndroidSqliteDriver(Database.Schema, context)
-        database = Database(driver)
+        database = DatabaseFactory.createDatabase(context)
     }
 
     private fun setupApi() {

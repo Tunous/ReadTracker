@@ -5,9 +5,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import me.thanel.goodreadsapi.GoodreadsApi
 import me.thanel.goodreadsapi.model.Book
-import me.thanel.readtracker.Database
+import me.thanel.readtracker.database.Database
+import me.thanel.readtracker.database.executeAsListLiveData
 import me.thanel.readtracker.model.BookWithProgress
-import me.thanel.readtracker.util.executeAsListLiveData
 import javax.inject.Inject
 import javax.inject.Singleton
 

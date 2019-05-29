@@ -1,4 +1,4 @@
-package me.thanel.readtracker.util
+package me.thanel.readtracker.database
 
 import androidx.lifecycle.LiveData
 import com.squareup.sqldelight.Query

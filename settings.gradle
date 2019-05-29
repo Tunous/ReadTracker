@@ -1,1 +1,1 @@
-include ':app', ':goodreadsapi'
+include ':app', ':goodreadsapi', ':database'

@@ -6,8 +6,6 @@ apply plugin: 'kotlin-android-extensions'
 
 apply plugin: 'kotlin-kapt'
 
-apply plugin: 'com.squareup.sqldelight'
-
 android {
     compileSdkVersion 28
     defaultConfig {
@@ -55,16 +53,16 @@ dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation "androidx.lifecycle:lifecycle-extensions:2.0.0"
     implementation 'com.chibatching.kotpref:kotpref:2.8.0'
-    implementation 'com.chibatching.kotpref:initializer:2.6.0'
     implementation 'com.google.android.material:material:1.0.0'
     implementation 'com.squareup.picasso:picasso:2.71828'
     implementation 'info.hoang8f:android-segmented:1.0.6'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.2.1'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.2.1'
-    implementation "com.squareup.sqldelight:android-driver:1.1.3"
     implementation "com.google.dagger:dagger:2.16"
     implementation "com.github.Tunous:RecyclerViewUtils:c6e595ab0f"
+
     implementation project(":goodreadsapi")
+    implementation project(":database")
 
     kapt "com.google.dagger:dagger-compiler:2.16"
 
