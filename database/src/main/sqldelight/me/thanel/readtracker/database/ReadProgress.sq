@@ -30,8 +30,8 @@ insert:
 INSERT INTO readProgress(id, bookId, page, reviewId)
 VALUES (?, ?, ?, ?);
 
-hasProgress:
-SELECT 1 FROM readProgress WHERE bookId = ? LIMIT 1;
+selectProgressForBook:
+SELECT * FROM readProgress WHERE bookId = ?;
 
 updateProgress:
 UPDATE readProgress

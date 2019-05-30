@@ -22,8 +22,7 @@ class ReadingProgressRepository @Inject constructor(
         pageNumber: Int,
         reviewBody: String? = null
     ) = withContext(Dispatchers.Default) {
-        val hasProgress = database.readProgressQueries.hasProgress(bookId).executeAsOneOrNull() == 1L
-        if (hasProgress) {
+        if (hasProgressForBook(bookId)) {
             database.readProgressQueries.updateProgress(pageNumber, bookId)
         } else {
             // TODO: Save new progress in database (what to do with reviewId)
@@ -116,6 +115,9 @@ class ReadingProgressRepository @Inject constructor(
             }
         }
     }
+
+    private fun hasProgressForBook(bookId: Long) =
+        database.readProgressQueries.selectProgressForBook(bookId).executeAsOneOrNull() != null
 
     private fun insertBook(book: Book, position: Int?) {
         database.bookQueries.insert(
