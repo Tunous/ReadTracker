@@ -34,6 +34,11 @@ interface GoodreadsApi {
      */
     suspend fun getReadingProgressStatus(userId: Long): ReadingProgressStatusGroup
 
+    /**
+     * Gets review for a book with the specified [bookId].
+     */
+    suspend fun getReviewIdForBook(userId: Long, bookId: Long): Long?
+
     /// Actions
 
     suspend fun updateProgressByPageNumber(bookId: Long, page: Int, body: String?)

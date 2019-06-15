@@ -21,7 +21,7 @@ class ReadingProgressRepository @Inject constructor(
         bookId: Long,
         pageNumber: Int,
         reviewBody: String? = null
-    ) = withContext(Dispatchers.Default) {
+    ) = withContext(Dispatchers.IO) {
         if (hasProgressForBook(bookId)) {
             database.readProgressQueries.updateProgress(pageNumber, bookId)
         } else {
@@ -68,15 +68,37 @@ class ReadingProgressRepository @Inject constructor(
     }
 
     suspend fun finishReading(
+        bookId: Long,
+        reviewId: Long?,
+        rating: Int? = null,
+        reviewText: String? = null
+    ) = withContext(Dispatchers.Default) {
+        if (reviewId != null) {
+            finishReadingInternal(bookId, reviewId, rating, reviewText)
+            return@withContext
+        }
+
+        val userId = userRepository.getUserId()
+        val newReviewId = api.getReviewIdForBook(userId, bookId)
+        if (newReviewId != null) {
+            finishReadingInternal(bookId, newReviewId, rating, reviewText)
+        } else {
+            TODO("Handle error when trying to fetch review id")
+        }
+    }
+
+    private suspend fun finishReadingInternal(
+        bookId: Long,
         reviewId: Long,
         rating: Int? = null,
         reviewBody: String? = null
-    ) = withContext(Dispatchers.Default) {
+    ) {
         api.finishReading(reviewId, rating, reviewBody)
-        database.readProgressQueries.deleteBookForReview(reviewId)
+        database.bookQueries.deleteBookWithId(bookId)
+        database.readProgressQueries.deleteProgressWithoutBook() // TODO: Replace with foreign key
     }
 
-    suspend fun synchronizeDatabase() = withContext(Dispatchers.Default) {
+    suspend fun synchronizeDatabase() = withContext(Dispatchers.IO) {
         val userId = userRepository.getUserId()
         val (statuses, books) = api.getReadingProgressStatus(userId)
 

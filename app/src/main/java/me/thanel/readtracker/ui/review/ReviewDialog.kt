@@ -14,6 +14,8 @@ import kotlinx.coroutines.launch
 import me.thanel.readtracker.R
 import me.thanel.readtracker.api.ReadingProgressRepository
 import me.thanel.readtracker.di.ReadTracker
+import me.thanel.readtracker.ui.util.getLongOptional
+import me.thanel.readtracker.ui.util.putLongOptional
 import me.thanel.readtracker.ui.util.requireArguments
 import me.thanel.readtracker.ui.util.withArguments
 import javax.inject.Inject
@@ -47,7 +49,7 @@ class ReviewDialog : DialogFragment() {
         }
     }
 
-    private fun hasFinishedReading() = requireArguments().containsKey(ARG_REVIEW_ID)
+    private fun hasFinishedReading() = !requireArguments().containsKey(ARG_PROGRESS)
 
     private fun getReviewBody() = dialog.reviewBodyTextInputLayout.editText?.text?.toString()
 
@@ -74,12 +76,14 @@ class ReviewDialog : DialogFragment() {
     }
 
     private fun submitFinishedReview() {
-        val reviewId = requireArguments().getLong(ARG_REVIEW_ID)
+        val bookId = requireArguments().getLong(ARG_BOOK_ID)
+        val reviewId = requireArguments().getLongOptional(ARG_REVIEW_ID)
         val rating = getRating()
         val reviewBody = getReviewBody()
 
+        // TODO: Create worker for this task
         GlobalScope.launch {
-            readingProgressRepository.get().finishReading(reviewId, rating, reviewBody)
+            readingProgressRepository.get().finishReading(bookId, reviewId, rating, reviewBody)
         }
     }
 
@@ -91,14 +95,14 @@ class ReviewDialog : DialogFragment() {
         fun createForInProgress(
             bookId: Long,
             progress: Int
-        ): ReviewDialog =
-            ReviewDialog().withArguments {
-                putLong(ARG_BOOK_ID, bookId)
-                putInt(ARG_PROGRESS, progress)
-            }
+        ) = ReviewDialog().withArguments {
+            putLong(ARG_BOOK_ID, bookId)
+            putInt(ARG_PROGRESS, progress)
+        }
 
-        fun createForFinished(reviewId: Long): ReviewDialog = ReviewDialog().withArguments {
-            putLong(ARG_REVIEW_ID, reviewId)
+        fun createForFinished(bookId: Long, reviewId: Long?) = ReviewDialog().withArguments {
+            putLong(ARG_BOOK_ID, bookId)
+            putLongOptional(ARG_REVIEW_ID, reviewId)
         }
     }
 }

@@ -2,6 +2,7 @@ package me.thanel.goodreadsapi.internal
 
 import kotlinx.coroutines.Deferred
 import me.thanel.goodreadsapi.internal.model.ReviewResponse
+import me.thanel.goodreadsapi.internal.model.ReviewsResponse
 import me.thanel.goodreadsapi.internal.model.ShortDate
 import me.thanel.goodreadsapi.internal.model.UserResponse
 import okhttp3.ResponseBody
@@ -23,10 +24,16 @@ internal interface GoodreadsService {
     fun getBooksInShelfAsync(
         @Path("userId") userId: Long,
         @Query("shelf") shelf: String
-    ): Deferred<ReviewResponse>
+    ): Deferred<ReviewsResponse>
 
     @GET("/user/show/{userId}.xml")
     fun getUserAsync(@Path("userId") userId: Long): Deferred<UserResponse>
+
+    @GET("/review/show_by_user_and_book.xml")
+    fun getBookReviewAsync(
+        @Query("user_id") userId: Long,
+        @Query("book_id") bookId: Long
+    ): Deferred<ReviewResponse>
 
     /// POST
 

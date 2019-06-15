@@ -202,6 +202,30 @@ class GoodreadsServiceTest {
         assertThat(parameters[4], equalTo("shelf" to "read"))
     }
 
+    @Test
+    fun `getReviewIdForBook should make request with correct parameters`() {
+        stubResponse("review_by_user_and_book.xml")
+
+        val reviewId = runBlocking { api.getReviewIdForBook(1L, 2L) }
+
+        assertThat(reviewId, equalTo(54648L))
+
+        val request = server.takeRequest()
+        val uri = request.requestUrl
+        assertThat(uri.encodedPath(), equalTo("/review/show_by_user_and_book.xml"))
+        assertThat(uri.queryParameter("user_id"), equalTo("1"))
+        assertThat(uri.queryParameter("book_id"), equalTo("2"))
+    }
+
+    @Test
+    fun `getReviewIdForBook should return review id`() {
+        stubResponse("review_by_user_and_book.xml")
+
+        val reviewId = runBlocking { api.getReviewIdForBook(1L, 2L) }
+
+        assertThat(reviewId, equalTo(54648L))
+    }
+
     private fun RecordedRequest.extractFormUrlEncodedParameters(): List<Pair<String, String>> {
         val body = body.readString(Charsets.UTF_8)
         val parameters = body.split('&')

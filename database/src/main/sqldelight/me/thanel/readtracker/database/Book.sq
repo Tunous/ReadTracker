@@ -41,3 +41,7 @@ AND id IN (
   SELECT bookId
   FROM readProgress
 );
+
+deleteBookWithId:
+DELETE FROM book
+WHERE id = ?;

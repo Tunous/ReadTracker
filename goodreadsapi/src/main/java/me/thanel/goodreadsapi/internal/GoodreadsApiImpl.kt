@@ -56,6 +56,12 @@ internal class GoodreadsApiImpl(secrets: GoodreadsSecrets, baseUrl: String) : Go
             reviews ?: emptyList()
         }
 
+    override suspend fun getReviewIdForBook(userId: Long, bookId: Long): Long? =
+        withContext(Dispatchers.IO) {
+            val response = service.getBookReviewAsync(userId, bookId).await()
+            response.review?.id
+        }
+
     /// Actions
 
     override suspend fun updateProgressByPageNumber(bookId: Long, page: Int, body: String?) {
