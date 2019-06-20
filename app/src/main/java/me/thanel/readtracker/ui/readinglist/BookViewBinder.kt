@@ -10,8 +10,10 @@ import me.thanel.goodreadsapi.internal.util.nullIfBlank
 import me.thanel.readtracker.R
 import me.thanel.readtracker.model.BookWithProgress
 import me.thanel.readtracker.ui.util.RangeInputFilter
+import me.thanel.readtracker.ui.util.getColorFromAttr
 import me.thanel.recyclerviewutils.viewholder.ContainerViewHolder
 import me.thanel.recyclerviewutils.viewholder.SimpleItemViewBinder
+import me.thanel.swipeprogressview.setProgressColor
 import kotlin.math.roundToInt
 
 class BookViewBinder(
@@ -25,7 +27,9 @@ class BookViewBinder(
         .also(::initViewHolder)
 
     private fun initViewHolder(holder: ContainerViewHolder) {
-        holder.bookProgressView.onProgressChangeListener = {
+        val color = holder.context.getColorFromAttr(R.attr.colorControlActivated, alpha = 0.2f)
+        holder.bookProgressView.setProgressColor(color)
+        holder.bookProgressView.setOnProgressChangeListener {
             holder.handleProgressChanged(it)
         }
         holder.updateProgressButton.setOnClickListener {
@@ -33,7 +37,7 @@ class BookViewBinder(
         }
         holder.readPercentageEditTextView.onAfterUserTextChangeListener = {
             val progress = it?.toIntOrNull() ?: 0
-            holder.bookProgressView.currentValue =
+            holder.bookProgressView.progress =
                 percentToPage(progress, holder.bookWithProgress.book.numPages)
         }
         holder.readPercentageEditTextView.filters = arrayOf(RangeInputFilter(0..100))
@@ -50,7 +54,7 @@ class BookViewBinder(
     }
 
     private fun ContainerViewHolder.notifyUpdateProgress() {
-        val progress = bookProgressView.currentValue
+        val progress = bookProgressView.progress
         onUpdateProgress(bookWithProgress, progress)
     }
 
@@ -83,10 +87,10 @@ class BookViewBinder(
 
     private fun ContainerViewHolder.bindProgressView(item: BookWithProgress) {
         with(bookProgressView) {
-            maxValue =
+            maxProgress =
                 if (item.book.numPages > 0) item.book.numPages else 100 // TODO: Handle this in a better way?
-            currentValue = item.page
-            bindProgress(item, currentValue)
+            progress = item.page
+            bindProgress(item, progress)
         }
     }
 
