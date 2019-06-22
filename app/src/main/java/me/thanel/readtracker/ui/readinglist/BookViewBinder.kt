@@ -11,6 +11,7 @@ import me.thanel.readtracker.R
 import me.thanel.readtracker.model.BookWithProgress
 import me.thanel.readtracker.ui.util.RangeInputFilter
 import me.thanel.readtracker.ui.util.getColorFromAttr
+import me.thanel.readtracker.ui.util.showKeyboard
 import me.thanel.recyclerviewutils.viewholder.ContainerViewHolder
 import me.thanel.recyclerviewutils.viewholder.SimpleItemViewBinder
 import me.thanel.swipeprogressview.setProgressColor
@@ -48,8 +49,9 @@ class BookViewBinder(
             }
             false
         }
-        holder.readPercentageTextView.setOnClickListener {
+        holder.bookContainer.setOnClickListener {
             holder.readPercentageEditTextView.requestFocus()
+            holder.readPercentageEditTextView.showKeyboard()
         }
     }
 

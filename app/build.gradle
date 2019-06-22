@@ -60,7 +60,7 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.2.1'
     implementation "com.google.dagger:dagger:2.16"
     implementation "com.github.Tunous:RecyclerViewUtils:c6e595ab0f"
-    implementation "com.github.Tunous:SwipeProgressView:d29643829b"
+    implementation "com.github.Tunous:SwipeProgressView:90089897e1"
     implementation "androidx.core:core-ktx:1.0.2"
 
     implementation project(":goodreadsapi")
