@@ -9,6 +9,10 @@ import kotlinx.android.synthetic.main.item_currently_reading_book.*
 import me.thanel.goodreadsapi.internal.util.nullIfBlank
 import me.thanel.readtracker.R
 import me.thanel.readtracker.model.BookWithProgress
+import me.thanel.readtracker.model.BookWithProgressChange
+import me.thanel.readtracker.model.BookWithProgressChange.BookInformation
+import me.thanel.readtracker.model.BookWithProgressChange.CoverImage
+import me.thanel.readtracker.model.BookWithProgressChange.ProgressInformation
 import me.thanel.readtracker.ui.util.RangeInputFilter
 import me.thanel.readtracker.ui.util.getColorFromAttr
 import me.thanel.readtracker.ui.util.showKeyboard
@@ -71,6 +75,21 @@ class BookViewBinder(
         holder.updateProgressButton.alpha = 0f
     }
 
+    override fun onBindViewHolder(
+        holder: ContainerViewHolder,
+        item: BookWithProgress,
+        payloads: List<Any>
+    ) {
+        super.onBindViewHolder(holder, item, payloads)
+        handleEnumPayloadChanges<BookWithProgressChange>(payloads) {
+            when (it) {
+                BookInformation -> holder.bindBookInformation(item)
+                CoverImage -> holder.bindImage(item)
+                ProgressInformation -> holder.bindProgressView(item)
+            }
+        }
+    }
+
     private fun ContainerViewHolder.bindBookInformation(item: BookWithProgress) {
         bookTitleView.text = item.book.title
         bookAuthorView.text = itemView.context.getString(R.string.info_authors, item.book.authors)
@@ -89,16 +108,15 @@ class BookViewBinder(
 
     private fun ContainerViewHolder.bindProgressView(item: BookWithProgress) {
         with(bookProgressView) {
-            maxProgress =
-                if (item.book.numPages > 0) item.book.numPages else 100 // TODO: Handle this in a better way?
+            // TODO: Handle this in a better way?
+            val numPages = item.book.numPages
+            maxProgress = if (numPages > 0) numPages else 100
             progress = item.page
-            bindProgress(item, progress)
+            bindProgress(progress, numPages)
         }
     }
 
-    private fun ContainerViewHolder.bindProgress(progressItem: BookWithProgress, page: Int) {
-        val numPages = progressItem.book.numPages
-
+    private fun ContainerViewHolder.bindProgress(page: Int, numPages: Int) {
         val percent: Int
         if (numPages == 0) {
             // TODO: Add test that covers this case (Book to reproduce is: The Winds of Winter)
@@ -128,7 +146,7 @@ class BookViewBinder(
     }
 
     private fun ContainerViewHolder.handleProgressChanged(progress: Int) {
-        bindProgress(bookWithProgress, progress)
+        bindProgress(progress, bookWithProgress.book.numPages)
         animateShowSaveButton()
     }
 

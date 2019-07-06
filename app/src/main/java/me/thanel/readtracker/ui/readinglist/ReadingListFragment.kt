@@ -24,28 +24,12 @@ class ReadingListFragment : BaseFragment(R.layout.fragment_reading_list) {
     private var futureBooks = listOf<BookWithProgress>()
 
     private val adapterWrapper by lazyAdapterWrapper {
-        register(
-            BookViewBinder(::onUpdateBookProgress),
-            object : DiffUtil.ItemCallback<BookWithProgress>() {
-                override fun areItemsTheSame(
-                    oldItem: BookWithProgress,
-                    newItem: BookWithProgress
-                ) = oldItem.book.id == newItem.book.id
-
-                override fun areContentsTheSame(
-                    oldItem: BookWithProgress,
-                    newItem: BookWithProgress
-                ) = oldItem == newItem
-            })
+        register(BookViewBinder(::onUpdateBookProgress), BookWithProgress.DIFF_CALLBACK)
 
         register(SectionHeaderViewBinder(), object : DiffUtil.ItemCallback<String>() {
-            override fun areItemsTheSame(oldItem: String, newItem: String): Boolean {
-                return oldItem == newItem
-            }
+            override fun areItemsTheSame(oldItem: String, newItem: String) = oldItem == newItem
 
-            override fun areContentsTheSame(oldItem: String, newItem: String): Boolean {
-                return true
-            }
+            override fun areContentsTheSame(oldItem: String, newItem: String) = true
         })
     }
 
