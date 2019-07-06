@@ -14,12 +14,14 @@ import me.thanel.readtracker.model.BookWithProgressChange.BookInformation
 import me.thanel.readtracker.model.BookWithProgressChange.CoverImage
 import me.thanel.readtracker.model.BookWithProgressChange.ProgressInformation
 import me.thanel.readtracker.ui.util.RangeInputFilter
+import me.thanel.readtracker.ui.util.animateShow
 import me.thanel.readtracker.ui.util.getColorFromAttr
 import me.thanel.readtracker.ui.util.showKeyboard
+import me.thanel.readtracker.util.fromIntPercentOf
+import me.thanel.readtracker.util.toIntPercentOf
 import me.thanel.recyclerviewutils.viewholder.ContainerViewHolder
 import me.thanel.recyclerviewutils.viewholder.SimpleItemViewBinder
 import me.thanel.swipeprogressview.setProgressColor
-import kotlin.math.roundToInt
 
 class BookViewBinder(
     private val onUpdateProgress: (BookWithProgress, Int) -> Unit
@@ -35,7 +37,7 @@ class BookViewBinder(
         val color = holder.context.getColorFromAttr(R.attr.colorControlActivated, alpha = 0.2f)
         holder.bookProgressView.setProgressColor(color)
         holder.bookProgressView.setOnProgressChangeListener {
-            holder.handleProgressChanged(it)
+            handleProgressChanged(holder, it)
         }
         holder.updateProgressButton.setOnClickListener {
             holder.notifyUpdateProgress()
@@ -43,7 +45,7 @@ class BookViewBinder(
         holder.readPercentageEditTextView.onAfterUserTextChangeListener = {
             val progress = it?.toIntOrNull() ?: 0
             holder.bookProgressView.progress =
-                percentToPage(progress, holder.bookWithProgress.book.numPages)
+                progress.fromIntPercentOf(holder.bookWithProgress.book.numPages)
         }
         holder.readPercentageEditTextView.filters = arrayOf(RangeInputFilter(0..100))
         holder.readPercentageEditTextView.setOnEditorActionListener { _, actionId, _ ->
@@ -69,7 +71,7 @@ class BookViewBinder(
 
         holder.bindBookInformation(item)
         holder.bindImage(item)
-        holder.bindProgressView(item)
+        holder.bindProgressInformation(item)
 
         holder.updateProgressButton.visibility = View.GONE
         holder.updateProgressButton.alpha = 0f
@@ -85,7 +87,7 @@ class BookViewBinder(
             when (it) {
                 BookInformation -> holder.bindBookInformation(item)
                 CoverImage -> holder.bindImage(item)
-                ProgressInformation -> holder.bindProgressView(item)
+                ProgressInformation -> holder.bindProgressInformation(item)
             }
         }
     }
@@ -106,24 +108,23 @@ class BookViewBinder(
         }
     }
 
-    private fun ContainerViewHolder.bindProgressView(item: BookWithProgress) {
+    private fun ContainerViewHolder.bindProgressInformation(item: BookWithProgress) =
         with(bookProgressView) {
             // TODO: Handle this in a better way?
             val numPages = item.book.numPages
             maxProgress = if (numPages > 0) numPages else 100
             progress = item.page
-            bindProgress(progress, numPages)
+            updateProgressView(progress, numPages)
         }
-    }
 
-    private fun ContainerViewHolder.bindProgress(page: Int, numPages: Int) {
+    private fun ContainerViewHolder.updateProgressView(page: Int, numPages: Int) {
         val percent: Int
         if (numPages == 0) {
             // TODO: Add test that covers this case (Book to reproduce is: The Winds of Winter)
             percent = 0
             pagesTextView.text = "Unknown number of pages"
         } else {
-            percent = pageToPercent(page, numPages)
+            percent = page.toIntPercentOf(numPages)
             pagesTextView.text =
                 itemView.context.getString(R.string.info_book_pages_progress, page, numPages)
         }
@@ -135,25 +136,8 @@ class BookViewBinder(
         }
     }
 
-    private fun pageToPercent(page: Int, numPages: Int): Int {
-        val floatPercent = page / numPages.toFloat()
-        return (floatPercent * 100).roundToInt()
-    }
-
-    private fun percentToPage(percent: Int, numPages: Int): Int {
-        val floatPercent = percent / 100f
-        return (floatPercent * numPages).roundToInt()
-    }
-
-    private fun ContainerViewHolder.handleProgressChanged(progress: Int) {
-        bindProgress(progress, bookWithProgress.book.numPages)
-        animateShowSaveButton()
-    }
-
-    private fun ContainerViewHolder.animateShowSaveButton() = with(updateProgressButton) {
-        if (visibility != View.GONE) return
-        alpha = 0f
-        visibility = View.VISIBLE
-        animate().alpha(1f).setDuration(1000).start()
+    private fun handleProgressChanged(holder: ContainerViewHolder, progress: Int) {
+        holder.updateProgressView(progress, holder.bookWithProgress.book.numPages)
+        holder.updateProgressButton.animateShow()
     }
 }
