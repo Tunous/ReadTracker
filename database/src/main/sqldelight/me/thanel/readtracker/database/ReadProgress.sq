@@ -2,7 +2,8 @@ CREATE TABLE readProgress (
     id INTEGER NOT NULL PRIMARY KEY ON CONFLICT REPLACE,
     bookId INTEGER NOT NULL UNIQUE ON CONFLICT REPLACE,
     page INTEGER as Int NOT NULL,
-    reviewId INTEGER NOT NULL
+    reviewId INTEGER NOT NULL,
+    FOREIGN KEY (bookId) REFERENCES book(id) ON DELETE CASCADE
 );
 
 selectAll:
@@ -37,13 +38,6 @@ updateProgress:
 UPDATE readProgress
 SET page = ?
 WHERE bookId = ?;
-
-deleteProgressWithoutBook:
-DELETE FROM readProgress
-WHERE NOT EXISTS (
-  SELECT 1 FROM book
-  WHERE id = bookId
-);
 
 deleteBookForReview:
 DELETE FROM book

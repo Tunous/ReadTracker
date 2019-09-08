@@ -95,7 +95,6 @@ class ReadingProgressRepository @Inject constructor(
     ) {
         api.finishReading(reviewId, rating, reviewBody)
         database.bookQueries.deleteBookWithId(bookId)
-        database.readProgressQueries.deleteProgressWithoutBook() // TODO: Replace with foreign key
     }
 
     suspend fun synchronizeDatabase() = withContext(Dispatchers.IO) {

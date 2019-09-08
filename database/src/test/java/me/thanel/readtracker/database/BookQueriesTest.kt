@@ -2,7 +2,6 @@ package me.thanel.readtracker.database
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.hamcrest.CoreMatchers.equalTo
-import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.empty
 import org.hamcrest.Matchers.hasSize
@@ -12,86 +11,61 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class BookQueriesTest : DatabaseTest() {
 
-    private val bookQueries get() = database.bookQueries
-
     @Test
-    fun `insertion sets all properties`() {
-        insertTestBook()
+    fun `insertion should set all properties`() {
+        bookQueries.insert(SampleData.bookToRead)
 
-        val book = bookQueries.selectAll().executeAsOne()
-        assertThat(book.id, equalTo(6L))
-        assertThat(book.title, equalTo("Harry Potter and the Goblet of Fire (Harry Potter, #4)"))
-        assertThat(book.numPages, equalTo(734))
-        assertThat(book.imageUrl, equalTo("https://images.gr-assets.com/books/1554006152m/6.jpg"))
-        assertThat(book.authors, equalTo("J.K. Rowling"))
-        assertThat(book.position, equalTo(7))
-        assertThat(book.isCurrentlyReading, equalTo(true))
+        assertThat(bookQueries.selectAll().executeAsOne(), equalTo(SampleData.bookToRead))
     }
 
     @Test
-    fun `insertion replaces old data on id conflict`() {
-        insertTestBook()
+    fun `insertion should replace old data on id conflict`() {
+        val originalBook = SampleData.bookToRead
+        bookQueries.insert(originalBook)
 
-        bookQueries.insert(
-            id = 6L,
-            title = "Harry Potter and the Goblet of Fire",
-            numPages = 734,
-            imageUrl = null,
-            authors = "J.K. Rowling",
-            position = 9,
-            isCurrentlyReading = false
-        )
+        val modifiedBook = (originalBook as Book.Impl)
+            .copy(
+                title = "Modified title",
+                numPages = 34,
+                imageUrl = "http://example.com/image.png",
+                authors = "Unknown",
+                position = 12,
+                isCurrentlyReading = true
+            ) as Book
+        bookQueries.insert(modifiedBook)
 
-        val book = bookQueries.selectAll().executeAsOne()
-        assertThat(book.id, equalTo(6L))
-        assertThat(book.title, equalTo("Harry Potter and the Goblet of Fire"))
-        assertThat(book.numPages, equalTo(734))
-        assertThat(book.imageUrl, nullValue())
-        assertThat(book.authors, equalTo("J.K. Rowling"))
-        assertThat(book.position, equalTo(9))
-        assertThat(book.isCurrentlyReading, equalTo(false))
+        assertThat(bookQueries.selectAll().executeAsOne(), equalTo(modifiedBook))
     }
 
     @Test
-    fun `insertion replaces old data on position conflict`() {
-        insertTestBook()
+    fun `insertion should replace old data on position conflict`() {
+        val originalBook = SampleData.bookToRead
+        bookQueries.insert(originalBook)
 
-        bookQueries.insert(
-            id = 12L,
-            title = "Harry Potter, #4",
-            numPages = 734,
-            imageUrl = null,
-            authors = "Rowling",
-            position = 7,
-            isCurrentlyReading = true
-        )
+        val modifiedBook = (originalBook as Book.Impl)
+            .copy(
+                id = 789L,
+                title = "Modified title",
+                numPages = 34,
+                imageUrl = "http://example.com/image.png",
+                authors = "Unknown",
+                isCurrentlyReading = true
+            ) as Book
+        bookQueries.insert(modifiedBook)
 
-        val book = bookQueries.selectAll().executeAsOne()
-        assertThat(book.id, equalTo(12L))
-        assertThat(book.title, equalTo("Harry Potter, #4"))
-        assertThat(book.numPages, equalTo(734))
-        assertThat(book.imageUrl, nullValue())
-        assertThat(book.authors, equalTo("Rowling"))
-        assertThat(book.position, equalTo(7))
-        assertThat(book.isCurrentlyReading, equalTo(true))
+        assertThat(bookQueries.selectAll().executeAsOne(), equalTo(modifiedBook))
     }
 
     @Test
-    fun `selectAll returns all books`() {
-        val count = 5
-        insertMultipleBooks(count)
+    fun `selectAll should return all books`() {
+        val books = SampleData.generateBooks()
+        bookQueries.insert(books)
 
-        val books = bookQueries.selectAll().executeAsList()
-
-        assertThat(books, hasSize(count))
-        for (id in 0 until count) {
-            assertThat(books[id].id, equalTo(id.toLong()))
-            assertThat(books[id].title, equalTo("Book #$id"))
-        }
+        assertThat(bookQueries.selectAll().executeAsList(), equalTo(books))
     }
 
     @Test
-    fun `selectBooksToRead returns book that aren't currently being read`() {
+    fun `selectBooksToRead should return book that aren't currently being read`() {
         bookQueries.insert(
             id = 1L,
             title = "Not reading",
@@ -128,7 +102,7 @@ class BookQueriesTest : DatabaseTest() {
     }
 
     @Test
-    fun `selectBooksToRead returns books ordered by position`() {
+    fun `selectBooksToRead should return books ordered by position`() {
         bookQueries.insert(
             id = 1L,
             title = "Second",
@@ -164,77 +138,26 @@ class BookQueriesTest : DatabaseTest() {
     }
 
     @Test
-    fun `deleteAll deletes all books`() {
-        insertMultipleBooks(10)
+    fun `deleteAll should delete all books`() {
+        bookQueries.insert(SampleData.generateBooks())
 
         bookQueries.deleteAll()
 
-        val books = bookQueries.selectAll().executeAsList()
-        assertThat(books, empty())
+        assertThat(bookQueries.selectAll().executeAsList(), empty())
     }
 
     @Test
     fun `deleteBooksWithoutPosition deletes book without position`() {
-        bookQueries.insert(
-            id = 1,
-            title = "Book #1",
-            numPages = 10,
-            imageUrl = null,
-            authors = null,
-            position = 4,
-            isCurrentlyReading = false
-        )
-        bookQueries.insert(
-            id = 2,
-            title = "Book #2",
-            numPages = 10,
-            imageUrl = null,
-            authors = null,
-            position = null,
-            isCurrentlyReading = false
-        )
-        bookQueries.insert(
-            id = 3,
-            title = "Book #3",
-            numPages = 10,
-            imageUrl = null,
-            authors = null,
-            position = null,
-            isCurrentlyReading = false
-        )
+        val booksWithPosition = SampleData.generateBooks(count = 5)
+        val booksWithoutPosition = SampleData.generateBooks(startNumber = 6, count = 5)
+            .map { (it as Book.Impl).copy(position = null) }
+        bookQueries.insert(booksWithPosition)
+        bookQueries.insert(booksWithoutPosition)
 
         bookQueries.deleteBooksWithoutPosition()
 
-        val books = bookQueries.selectAll().executeAsList()
-        val bookIds = books.map { it.id }
-        assertThat(bookIds, equalTo(listOf(1L)))
+        assertThat(bookQueries.selectAll().executeAsList(), equalTo(booksWithPosition))
     }
 
     // TODO: bookQueries.deleteBooksWithProgress()
-
-    private fun insertMultipleBooks(count: Int) {
-        for (id in 0 until count) {
-            bookQueries.insert(
-                id = id.toLong(),
-                title = "Book #$id",
-                numPages = id * 10,
-                imageUrl = null,
-                authors = null,
-                position = null,
-                isCurrentlyReading = false
-            )
-        }
-    }
-
-    private fun insertTestBook() {
-        bookQueries.insert(
-            id = 6L,
-            title = "Harry Potter and the Goblet of Fire (Harry Potter, #4)",
-            numPages = 734,
-            imageUrl = "https://images.gr-assets.com/books/1554006152m/6.jpg",
-            authors = "J.K. Rowling",
-            position = 7,
-            isCurrentlyReading = true
-        )
-    }
 }
