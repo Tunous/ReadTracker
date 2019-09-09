@@ -2,12 +2,12 @@ package me.thanel.readtracker.api
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import kotlinx.coroutines.runBlocking
-import me.thanel.goodreadsapi.model.ReadingProgressStatusGroup
 import me.thanel.readtracker.testbase.BaseRepositoryTest
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.Matchers.hasSize
 import org.junit.Assert.assertThat
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito.`when`
@@ -47,23 +47,6 @@ class ReadingProgressRepositoryTest : BaseRepositoryTest() {
     }
 
     @Test
-    fun `synchronize database should remove no longer existing books`() = runBlocking {
-        stubBookWithProgress()
-        `when`(goodreadsApi.getUserId()).thenReturn(1L)
-        `when`(goodreadsApi.getReadingProgressStatus(1L))
-            .thenReturn(ReadingProgressStatusGroup(emptyList(), emptyList()))
-        `when`(goodreadsApi.getBooksInShelf(1L, "currently-reading"))
-            .thenReturn(emptyList())
-        `when`(goodreadsApi.getBooksInShelf(1L, "to-read"))
-            .thenReturn(emptyList())
-
-        readingProgressRepository.synchronizeDatabase()
-
-        val data = database.readProgressQueries.selectAll().executeAsList()
-        assertThat(data, hasSize(0))
-    }
-
-    @Test
     fun `finishing reading should make api call`() = runBlocking {
         stubBookWithProgress()
 
@@ -93,10 +76,20 @@ class ReadingProgressRepositoryTest : BaseRepositoryTest() {
         verify(goodreadsApi).finishReading(12L, 3, "Nice book!")
     }
 
-    // TODO: Test situation where getReviewIdForBook returns null
+    @Test
+    @Ignore("Figure out a way to handle this situation")
+    fun `error when fetching review id for finishing reading a book should be handled`() = runBlocking {
+        stubBookWithProgress()
+        `when`(goodreadsApi.getUserId()).thenReturn(1L)
+        `when`(goodreadsApi.getReviewIdForBook(1L, 1L)).thenReturn(null)
+
+        readingProgressRepository.finishReading(1L, null)
+
+        // TODO: What should happen here?
+    }
 
     @Test
-    fun `initial progress update on book moves it to currently reading shelf`() = runBlocking {
+    fun `initial progress update on a book should move it to currently reading shelf`() = runBlocking {
         database.bookQueries.insert(1L, "Divergent", 100, null, null, null, false)
 
         readingProgressRepository.updateProgressByPageNumber(1L, 10)
@@ -105,7 +98,7 @@ class ReadingProgressRepositoryTest : BaseRepositoryTest() {
     }
 
     @Test
-    fun `progress update does not move book to currently reading shelf if it had previous progress`() =
+    fun `progress update should not move book to currently reading shelf if it had previous progress`() =
         runBlocking {
             stubBookWithProgress()
 

@@ -102,10 +102,9 @@ class ReadingProgressRepository @Inject constructor(
         val (statuses, books) = api.getReadingProgressStatus(userId)
 
         database.transaction {
-            // In local database we might have potentially no longer valid data, here we are
-            // removing as much as possible. It is safe to do that as the performed api call
-            // should have returned more up-to date data.
-            database.readProgressQueries.deleteAll()
+            // In local database we might have potentially no longer valid data. Here we are
+            // removing all books with progress which should be contained in the result of
+            // this API call.
             database.bookQueries.deleteBooksWithProgress()
 
             books.forEach { book ->
@@ -131,7 +130,7 @@ class ReadingProgressRepository @Inject constructor(
 
         val booksToRead = api.getBooksInShelf(userId, "to-read")
         database.transaction {
-            booksToRead.withIndex().forEach { (position, book) ->
+            booksToRead.forEachIndexed { position, book ->
                 insertBook(book, position)
             }
         }
