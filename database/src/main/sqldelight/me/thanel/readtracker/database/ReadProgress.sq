@@ -3,8 +3,17 @@ CREATE TABLE readProgress (
     bookId INTEGER NOT NULL UNIQUE ON CONFLICT REPLACE,
     page INTEGER as Int NOT NULL,
     reviewId INTEGER NOT NULL,
-    FOREIGN KEY (bookId) REFERENCES book(id) ON DELETE CASCADE
+    FOREIGN KEY (bookId) REFERENCES book(id)
 );
+
+-- Trigger which deletes read progress when referenced book is deleted. We are
+-- using it instead of ON DELETE CASCADE to prevent read progresses from being
+-- deleted while books are being updated on conflicts.
+CREATE TRIGGER onDelete_book__delete_readProgress_trigger
+AFTER DELETE ON book
+BEGIN
+  DELETE FROM readProgress WHERE readProgress.bookId = old.id;
+END;
 
 selectAll:
 SELECT *

@@ -87,6 +87,32 @@ class SynchronizeDatabaseTest : BaseRepositoryTest() {
         assertThat(getBooks(), equalTo(expectedBooksInOrder))
     }
 
+    @Test
+    fun `should not delete progress for books updated on conflict`() = runBlocking {
+        val expectedStatus = ReadingProgressStatus(
+            id = 1L,
+            bookId = 1L,
+            page = 100,
+            reviewId = 1L
+        )
+        val book = Book(
+            id = 1L,
+            title = "Book",
+            numPages = 200,
+            imageUrl = null,
+            authors = null,
+            isCurrentlyReading = false
+        )
+        stubReadingProgressStatus(listOf(expectedStatus), listOf(book))
+        stubCurrentlyReadBooks(listOf(book))
+        stubBooksToRead(emptyList())
+
+        readingProgressRepository.synchronizeDatabase()
+
+        assertThat(getStatuses(), equalTo(listOf(expectedStatus.toDbStatus())))
+        assertThat(getBooks(), equalTo(listOf(book.toDbBook())))
+    }
+
     private fun getStatuses() = database.readProgressQueries.selectAll().executeAsList()
 
     private fun getBooks() = database.bookQueries.selectAll().executeAsList()

@@ -150,6 +150,18 @@ class ReadProgressQueriesTest : DatabaseTest() {
         assertThat(readProgressQueries.selectAll().executeAsOne(), equalTo(SampleData.progressForBookBeingRead))
     }
 
+    @Test
+    fun `conflict during book insertion should not remove progress`() {
+        bookQueries.insert(SampleData.bookBeingRead)
+        readProgressQueries.insert(SampleData.progressForBookBeingRead)
+
+        val modifiedBook = (SampleData.bookBeingRead as Book.Impl)
+            .copy(title = "Book update") as Book
+        bookQueries.insert(modifiedBook)
+
+        assertThat(readProgressQueries.selectAll().executeAsOneOrNull(), equalTo(SampleData.progressForBookBeingRead))
+    }
+
     // TODO:
     //  deleteBookForReview
     //  selectWithBookInformation
