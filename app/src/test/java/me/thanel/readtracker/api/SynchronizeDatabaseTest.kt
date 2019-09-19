@@ -60,7 +60,7 @@ class SynchronizeDatabaseTest : BaseRepositoryTest() {
 
     @Test
     fun `should store currently read books without progress`() = runBlocking {
-        val expectedBooks = generateBooks(isCurrentlyReading = false)
+        val expectedBooks = generateBooks()
         stubReadingProgressStatus(emptyList(), emptyList())
         stubCurrentlyReadBooks(expectedBooks)
         stubBooksToRead(emptyList())
@@ -73,7 +73,7 @@ class SynchronizeDatabaseTest : BaseRepositoryTest() {
 
     @Test
     fun `should store books to read in order`() = runBlocking {
-        val expectedBooks = generateBooks(isCurrentlyReading = false)
+        val expectedBooks = generateBooks()
         stubReadingProgressStatus(emptyList(), emptyList())
         stubCurrentlyReadBooks(emptyList())
         stubBooksToRead(expectedBooks)
@@ -100,8 +100,7 @@ class SynchronizeDatabaseTest : BaseRepositoryTest() {
             title = "Book",
             numPages = 200,
             imageUrl = null,
-            authors = null,
-            isCurrentlyReading = false
+            authors = null
         )
         stubReadingProgressStatus(listOf(expectedStatus), listOf(book))
         stubCurrentlyReadBooks(listOf(book))
@@ -117,15 +116,14 @@ class SynchronizeDatabaseTest : BaseRepositoryTest() {
 
     private fun getBooks() = database.bookQueries.selectAll().executeAsList()
 
-    private fun generateBooks(isCurrentlyReading: Boolean = true): List<Book> {
+    private fun generateBooks(): List<Book> {
         return (1..10).map {
             Book(
                 id = it.toLong(),
                 title = "Book #$it",
                 numPages = it * 200,
                 imageUrl = null,
-                authors = null,
-                isCurrentlyReading = isCurrentlyReading
+                authors = null
             )
         }
     }
@@ -150,17 +148,20 @@ class SynchronizeDatabaseTest : BaseRepositoryTest() {
     }
 
     private suspend fun stubCurrentlyReadBooks(books: List<Book>) {
-        `when`(goodreadsApi.getBooksInShelf(1L, "currently-reading"))
-            .thenReturn(books)
+        stubBooksInShelf("currently-reading", books)
     }
 
     private suspend fun stubBooksToRead(books: List<Book>) {
-        `when`(goodreadsApi.getBooksInShelf(1L, "to-read"))
-            .thenReturn(books)
+        stubBooksInShelf("to-read", books)
+    }
+
+    private suspend fun stubBooksInShelf(shelf: String, books: List<Book>) {
+        `when`(goodreadsApi.getBooksInShelf(1L, shelf))
+            .thenReturn(ReadingProgressStatusGroup(emptyList(), books))
     }
 
     private fun stubBookWithProgress() {
-        database.bookQueries.insert(1L, "Divergent", 100, null, null, null, true)
+        database.bookQueries.insert(1L, "Divergent", 100, null, null, null)
         database.readProgressQueries.insert(1L, 1L, 30, 1L)
     }
 }
@@ -172,12 +173,11 @@ fun Book.toDbBook(position: Int? = null): me.thanel.readtracker.database.Book =
         numPages = numPages,
         imageUrl = imageUrl,
         authors = authors,
-        position = position,
-        isCurrentlyReading = isCurrentlyReading
+        position = position
     )
 
 fun ReadingProgressStatus.toDbStatus(): ReadProgress = ReadProgress.Impl(
-    id = id,
+    id = id ?: 0,
     bookId = bookId,
     page = page,
     reviewId = reviewId

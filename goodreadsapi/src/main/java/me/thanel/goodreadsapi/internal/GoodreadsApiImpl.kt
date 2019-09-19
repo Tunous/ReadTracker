@@ -37,7 +37,7 @@ internal class GoodreadsApiImpl(secrets: GoodreadsSecrets, baseUrl: String) : Go
                 ReadingProgressStatus(status.id, status.book.id, page, status.reviewId)
             }
             val books = internalStatuses?.map {
-                it.book.toPublicBook(true)
+                it.book.toPublicBook()
             }
             return@withContext ReadingProgressStatusGroup(
                 statuses ?: emptyList(),
@@ -45,15 +45,29 @@ internal class GoodreadsApiImpl(secrets: GoodreadsSecrets, baseUrl: String) : Go
             )
         }
 
-    override suspend fun getBooksInShelf(userId: Long, shelf: String) =
+    override suspend fun getBooksInShelf(userId: Long, shelf: String): ReadingProgressStatusGroup =
         withContext(Dispatchers.IO) {
             val response = service.getBooksInShelfAsync(userId, shelf).await()
-            val reviews = response.reviews?.map { review ->
-                val shelves = review.shelves ?: emptyList()
-                val isCurrentlyReading = shelves.any { it.name == "currently-reading" }
-                review.book.toPublicBook(isCurrentlyReading)
+            val statuses = response.reviews
+                ?.filter { review ->
+                    val shelves = review.shelves ?: emptyList()
+                    shelves.any { it.name == "currently-reading" }
+                }
+                ?.map { review ->
+                    ReadingProgressStatus(
+                        id = null,
+                        bookId = review.book.id,
+                        page = 0,
+                        reviewId = review.id
+                    )
+                }
+            val books = response.reviews?.map {
+                it.book.toPublicBook()
             }
-            reviews ?: emptyList()
+            ReadingProgressStatusGroup(
+                statuses ?: emptyList(),
+                books ?: emptyList()
+            )
         }
 
     override suspend fun getReviewIdForBook(userId: Long, bookId: Long): Long? =
@@ -103,12 +117,11 @@ internal class GoodreadsApiImpl(secrets: GoodreadsSecrets, baseUrl: String) : Go
         return (floatPercent * numPages).roundToInt()
     }
 
-    private fun InternalBook.toPublicBook(isCurrentlyReading: Boolean) = Book(
+    private fun InternalBook.toPublicBook() = Book(
         id,
         title,
         numPages,
         imageUrl,
-        authors.joinToString { it.name }.nullIfBlank(),
-        isCurrentlyReading = isCurrentlyReading
+        authors.joinToString { it.name }.nullIfBlank()
     )
 }

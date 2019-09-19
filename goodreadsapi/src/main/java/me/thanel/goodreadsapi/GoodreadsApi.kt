@@ -4,7 +4,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import me.thanel.goodreadsapi.internal.GoodreadsApiImpl
 import me.thanel.goodreadsapi.model.AccessTokenData
-import me.thanel.goodreadsapi.model.Book
 import me.thanel.goodreadsapi.model.GoodreadsSecrets
 import me.thanel.goodreadsapi.model.ReadingProgressStatusGroup
 import me.thanel.goodreadsapi.model.RequestTokenData
@@ -26,7 +25,7 @@ interface GoodreadsApi {
     /**
      * Gets books in the [shelf] of user with id equal to [userId].
      */
-    suspend fun getBooksInShelf(userId: Long, shelf: String): List<Book>
+    suspend fun getBooksInShelf(userId: Long, shelf: String): ReadingProgressStatusGroup
 
     /**
      * Gets currently read books together with their progress for the user with id equal to

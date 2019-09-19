@@ -30,8 +30,7 @@ fun BookQueries.insert(book: Book) {
         numPages = book.numPages,
         imageUrl = book.imageUrl,
         authors = book.authors,
-        position = book.position,
-        isCurrentlyReading = book.isCurrentlyReading
+        position = book.position
     )
 }
 

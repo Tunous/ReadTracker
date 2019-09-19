@@ -29,8 +29,7 @@ class BookQueriesTest : DatabaseTest() {
                 numPages = 34,
                 imageUrl = "http://example.com/image.png",
                 authors = "Unknown",
-                position = 12,
-                isCurrentlyReading = true
+                position = 12
             ) as Book
         bookQueries.insert(modifiedBook)
 
@@ -48,8 +47,7 @@ class BookQueriesTest : DatabaseTest() {
                 title = "Modified title",
                 numPages = 34,
                 imageUrl = "http://example.com/image.png",
-                authors = "Unknown",
-                isCurrentlyReading = true
+                authors = "Unknown"
             ) as Book
         bookQueries.insert(modifiedBook)
 
@@ -72,8 +70,7 @@ class BookQueriesTest : DatabaseTest() {
             numPages = 1355,
             imageUrl = null,
             authors = null,
-            position = null,
-            isCurrentlyReading = false
+            position = null
         )
         bookQueries.insert(
             id = 2L,
@@ -81,17 +78,22 @@ class BookQueriesTest : DatabaseTest() {
             numPages = 57,
             imageUrl = null,
             authors = null,
-            position = null,
-            isCurrentlyReading = true
+            position = null
         )
         bookQueries.insert(
             id = 3L,
-            title = "Reading nr 2",
+            title = "Not reading nr 2",
             numPages = 8312,
             imageUrl = null,
             authors = null,
-            position = null,
-            isCurrentlyReading = false
+            position = null
+        )
+
+        readProgressQueries.insert(
+            id = 1L,
+            bookId = 2L,
+            page = 12,
+            reviewId = 1L
         )
 
         val books = bookQueries.selectBooksToRead().executeAsList()
@@ -109,8 +111,7 @@ class BookQueriesTest : DatabaseTest() {
             numPages = 1355,
             imageUrl = null,
             authors = null,
-            position = 2,
-            isCurrentlyReading = false
+            position = 2
         )
         bookQueries.insert(
             id = 2L,
@@ -118,8 +119,7 @@ class BookQueriesTest : DatabaseTest() {
             numPages = 57,
             imageUrl = null,
             authors = null,
-            position = 1,
-            isCurrentlyReading = false
+            position = 1
         )
         bookQueries.insert(
             id = 3L,
@@ -127,8 +127,7 @@ class BookQueriesTest : DatabaseTest() {
             numPages = 8312,
             imageUrl = null,
             authors = null,
-            position = 3,
-            isCurrentlyReading = false
+            position = 3
         )
 
         val books = bookQueries.selectBooksToRead().executeAsList()

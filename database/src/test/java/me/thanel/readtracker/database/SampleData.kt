@@ -7,8 +7,7 @@ object SampleData {
         numPages = 734,
         imageUrl = "https://images.gr-assets.com/books/1554006152m/6.jpg",
         authors = "J.K. Rowling",
-        position = 1,
-        isCurrentlyReading = true
+        position = 1
     )
 
     val bookToRead: Book = Book.Impl(
@@ -17,8 +16,7 @@ object SampleData {
         numPages = 435,
         imageUrl = null,
         authors = "J.K. Rowling",
-        position = 2,
-        isCurrentlyReading = false
+        position = 2
     )
 
     val progressForBookBeingRead: ReadProgress = ReadProgress.Impl(
@@ -44,8 +42,7 @@ object SampleData {
                 numPages = number * 100,
                 imageUrl = null,
                 authors = "Author #$number",
-                position = number,
-                isCurrentlyReading = false
+                position = number
             )
         }
     }

@@ -42,8 +42,7 @@ class ReadingProgressRepository @Inject constructor(
                     numPages = numPages,
                     title = title,
                     imageUrl = imageUrl,
-                    authors = authors,
-                    isCurrentlyReading = false
+                    authors = authors
                 )
             )
         }.executeAsListLiveData()
@@ -60,8 +59,7 @@ class ReadingProgressRepository @Inject constructor(
                     numPages = numPages,
                     title = bookTitle,
                     imageUrl = bookImageUrl,
-                    authors = bookAuthors,
-                    isCurrentlyReading = true
+                    authors = bookAuthors
                 )
             )
         }.executeAsListLiveData()
@@ -121,14 +119,23 @@ class ReadingProgressRepository @Inject constructor(
             }
         }
 
-        val currentlyReadingBooks = api.getBooksInShelf(userId, "currently-reading")
+        val (currentlyReadingStatuses, currentlyReadingBooks) = api.getBooksInShelf(userId, "currently-reading")
         database.transaction {
             currentlyReadingBooks.forEach { book ->
                 insertBook(book, null)
             }
+
+            currentlyReadingStatuses.forEach { status ->
+                database.readProgressQueries.insert(
+                    id = status.id,
+                    bookId = status.bookId,
+                    page = status.page,
+                    reviewId = status.reviewId
+                )
+            }
         }
 
-        val booksToRead = api.getBooksInShelf(userId, "to-read")
+        val (_, booksToRead) = api.getBooksInShelf(userId, "to-read")
         database.transaction {
             booksToRead.forEachIndexed { position, book ->
                 insertBook(book, position)
@@ -146,8 +153,7 @@ class ReadingProgressRepository @Inject constructor(
             book.numPages,
             book.imageUrl,
             book.authors,
-            position,
-            book.isCurrentlyReading
+            position
         )
     }
 }

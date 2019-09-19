@@ -5,6 +5,5 @@ data class Book(
     val title: String,
     val numPages: Int,
     val imageUrl: String?,
-    val authors: String?,
-    val isCurrentlyReading: Boolean
+    val authors: String?
 )

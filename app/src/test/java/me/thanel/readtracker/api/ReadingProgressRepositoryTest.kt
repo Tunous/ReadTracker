@@ -90,7 +90,7 @@ class ReadingProgressRepositoryTest : BaseRepositoryTest() {
 
     @Test
     fun `initial progress update on a book should move it to currently reading shelf`() = runBlocking {
-        database.bookQueries.insert(1L, "Divergent", 100, null, null, null, false)
+        database.bookQueries.insert(1L, "Divergent", 100, null, null, null)
 
         readingProgressRepository.updateProgressByPageNumber(1L, 10)
 
@@ -108,7 +108,7 @@ class ReadingProgressRepositoryTest : BaseRepositoryTest() {
         }
 
     private fun stubBookWithProgress() {
-        database.bookQueries.insert(1L, "Divergent", 100, null, null, null, true)
+        database.bookQueries.insert(1L, "Divergent", 100, null, null, null)
         database.readProgressQueries.insert(1L, 1L, 30, 1L)
     }
 }

@@ -4,7 +4,9 @@ import kotlinx.coroutines.runBlocking
 import me.thanel.goodreadsapi.internal.model.ShortDate
 import me.thanel.goodreadsapi.internal.util.applyIf
 import me.thanel.goodreadsapi.internal.util.urlDecode
+import me.thanel.goodreadsapi.model.Book
 import me.thanel.goodreadsapi.model.GoodreadsSecrets
+import me.thanel.goodreadsapi.model.ReadingProgressStatus
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
@@ -45,66 +47,88 @@ class GoodreadsServiceTest {
     fun `getBooksInShelf should return all books in currently-reading shelf`() {
         stubResponse("books_currently_reading.xml")
 
-        val books = runBlocking { api.getBooksInShelf(7L, "currently-reading") }
+        val (statuses, books) = runBlocking { api.getBooksInShelf(7L, "currently-reading") }
 
-        assertThat(books.size, equalTo(3))
-        val b0 = books[0]
-        assertThat(b0.id, equalTo(6L))
-        assertThat(b0.title, equalTo("Harry Potter and the Goblet of Fire (Harry Potter, #4)"))
-        assertThat(b0.numPages, equalTo(734))
-        assertThat(b0.imageUrl, equalTo("https://images.gr-assets.com/books/1554006152m/6.jpg"))
-        assertThat(b0.authors, equalTo("J.K. Rowling"))
-        assertThat(b0.isCurrentlyReading, equalTo(true))
-        val b1 = books[1]
-        assertThat(b1.id, equalTo(5L))
-        assertThat(b1.title, equalTo("Harry Potter and the Prisoner of Azkaban (Harry Potter, #3)"))
-        assertThat(b1.numPages, equalTo(435))
-        assertThat(b1.imageUrl, equalTo("https://images.gr-assets.com/books/1499277281m/5.jpg"))
-        assertThat(b1.authors, equalTo("J.K. Rowling"))
-        assertThat(b1.isCurrentlyReading, equalTo(true))
-        val b2 = books[2]
-        assertThat(b2.id, equalTo(15881L))
-        assertThat(b2.title, equalTo("Harry Potter and the Chamber of Secrets (Harry Potter, #2)"))
-        assertThat(b2.numPages, equalTo(341))
-        assertThat(b2.imageUrl, equalTo("https://images.gr-assets.com/books/1474169725m/15881.jpg"))
-        assertThat(b2.authors, equalTo("J.K. Rowling"))
-        assertThat(b2.isCurrentlyReading, equalTo(true))
+        val expectedBooks = listOf(
+            Book(
+                id = 6L,
+                title = "Harry Potter and the Goblet of Fire (Harry Potter, #4)",
+                numPages = 734,
+                imageUrl = "https://images.gr-assets.com/books/1554006152m/6.jpg",
+                authors = "J.K. Rowling"
+            ),
+            Book(
+                id = 5L,
+                title = "Harry Potter and the Prisoner of Azkaban (Harry Potter, #3)",
+                numPages = 435,
+                imageUrl = "https://images.gr-assets.com/books/1499277281m/5.jpg",
+                authors = "J.K. Rowling"
+            ),
+            Book(
+                id = 15881L,
+                title = "Harry Potter and the Chamber of Secrets (Harry Potter, #2)",
+                numPages = 341,
+                imageUrl = "https://images.gr-assets.com/books/1474169725m/15881.jpg",
+                authors = "J.K. Rowling"
+            )
+        )
+        assertThat(books, equalTo(expectedBooks))
+
+        val expectedStatuses = listOf(
+            ReadingProgressStatus(
+                id = null,
+                bookId = 6L,
+                page = 0,
+                reviewId = 2833631637L
+            ),
+            ReadingProgressStatus(
+                id = null,
+                bookId = 5L,
+                page = 0,
+                reviewId = 2833631179L
+            ),
+            ReadingProgressStatus(
+                id = null,
+                bookId = 15881L,
+                page = 0,
+                reviewId = 2833630698L
+            )
+        )
+        assertThat(statuses, equalTo(expectedStatuses))
     }
 
     @Test
     fun `getBooksInShelf should return all books in to-read shelf`() {
         stubResponse("books_to_read.xml")
 
-        val books = runBlocking { api.getBooksInShelf(7L, "to-read") }
+        val (statuses, books) = runBlocking { api.getBooksInShelf(7L, "to-read") }
 
-        assertThat(books.size, equalTo(3))
-        val b0 = books[0]
-        assertThat(b0.id, equalTo(2L))
-        assertThat(
-            b0.title,
-            equalTo("Harry Potter and the Order of the Phoenix (Harry Potter, #5)")
+        val expectedBooks = listOf(
+            Book(
+                id = 2L,
+                title = "Harry Potter and the Order of the Phoenix (Harry Potter, #5)",
+                numPages = 870,
+                imageUrl = "https://images.gr-assets.com/books/1546910265m/2.jpg",
+                authors = "J.K. Rowling"
+            ),
+            Book(
+                id = 1L,
+                title = "Harry Potter and the Half-Blood Prince (Harry Potter, #6)",
+                numPages = 652,
+                imageUrl = "https://images.gr-assets.com/books/1361039191m/1.jpg",
+                authors = "J.K. Rowling"
+            ),
+            Book(
+                id = 136251L,
+                title = "Harry Potter and the Deathly Hallows (Harry Potter, #7)",
+                numPages = 759,
+                imageUrl = "https://images.gr-assets.com/books/1474171184m/136251.jpg",
+                authors = "J.K. Rowling"
+            )
         )
-        assertThat(b0.numPages, equalTo(870))
-        assertThat(b0.imageUrl, equalTo("https://images.gr-assets.com/books/1546910265m/2.jpg"))
-        assertThat(b0.authors, equalTo("J.K. Rowling"))
-        assertThat(b0.isCurrentlyReading, equalTo(false))
-        val b1 = books[1]
-        assertThat(b1.id, equalTo(1L))
-        assertThat(b1.title, equalTo("Harry Potter and the Half-Blood Prince (Harry Potter, #6)"))
-        assertThat(b1.numPages, equalTo(652))
-        assertThat(b1.imageUrl, equalTo("https://images.gr-assets.com/books/1361039191m/1.jpg"))
-        assertThat(b1.authors, equalTo("J.K. Rowling"))
-        assertThat(b1.isCurrentlyReading, equalTo(false))
-        val b2 = books[2]
-        assertThat(b2.id, equalTo(136251L))
-        assertThat(b2.title, equalTo("Harry Potter and the Deathly Hallows (Harry Potter, #7)"))
-        assertThat(b2.numPages, equalTo(759))
-        assertThat(
-            b2.imageUrl,
-            equalTo("https://images.gr-assets.com/books/1474171184m/136251.jpg")
-        )
-        assertThat(b2.authors, equalTo("J.K. Rowling"))
-        assertThat(b2.isCurrentlyReading, equalTo(false))
+        assertThat(books, equalTo(expectedBooks))
+
+        assertThat(statuses.size, equalTo(0))
     }
 
     @Test
@@ -132,14 +156,12 @@ class GoodreadsServiceTest {
         assertThat(b0.numPages, equalTo(435))
         assertThat(b0.imageUrl, equalTo("https://images.gr-assets.com/books/1499277281m/5.jpg"))
         assertThat(b0.authors, equalTo("J.K. Rowling, Mary GrandPré"))
-        assertThat(b0.isCurrentlyReading, equalTo(true))
         val b1 = readingProgress.books[1]
         assertThat(b1.id, equalTo(15881L))
         assertThat(b1.title, equalTo("Harry Potter and the Chamber of Secrets (Harry Potter, #2)"))
         assertThat(b1.numPages, equalTo(341))
         assertThat(b1.imageUrl, equalTo("https://images.gr-assets.com/books/1474169725m/15881.jpg"))
         assertThat(b1.authors, equalTo("J.K. Rowling, Mary GrandPré"))
-        assertThat(b1.isCurrentlyReading, equalTo(true))
     }
 
     @Test
@@ -187,7 +209,7 @@ class GoodreadsServiceTest {
     @Test
     fun `finishReading should make request with correct parameters`() {
         stubResponse()
-        ShortDate.formatter =  { "2019-06-09" }
+        ShortDate.formatter = { "2019-06-09" }
 
         runBlocking { api.finishReading(1245L, 5, "Cool") }
 

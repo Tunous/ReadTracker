@@ -6,13 +6,12 @@ CREATE TABLE book (
     numPages INTEGER as Int NOT NULL,
     imageUrl TEXT,
     authors TEXT,
-    position INTEGER as Int UNIQUE ON CONFLICT REPLACE,
-    isCurrentlyReading INTEGER as Boolean NOT NULL
+    position INTEGER as Int UNIQUE ON CONFLICT REPLACE
 );
 
 insert:
-INSERT INTO book(id, title, numPages, imageUrl, authors, position, isCurrentlyReading)
-VALUES (?, ?, ?, ?, ?, ?, ?);
+INSERT INTO book(id, title, numPages, imageUrl, authors, position)
+VALUES (?, ?, ?, ?, ?, ?);
 
 deleteAll:
 DELETE FROM book;
@@ -28,7 +27,10 @@ SELECT
   book.imageUrl,
   book.authors
 FROM book
-WHERE isCurrentlyReading = 0
+WHERE id NOT IN (
+  SELECT bookId
+  FROM readProgress
+)
 ORDER BY position ASC;
 
 selectAll:
@@ -36,10 +38,10 @@ SELECT * FROM book;
 
 deleteBooksWithProgress:
 DELETE FROM book
-WHERE isCurrentlyReading = 1
-AND id IN (
+WHERE id IN (
   SELECT bookId
   FROM readProgress
+  WHERE page > 0
 );
 
 deleteBookWithId:

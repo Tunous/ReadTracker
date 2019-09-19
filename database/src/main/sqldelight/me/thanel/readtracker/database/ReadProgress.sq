@@ -1,6 +1,6 @@
 CREATE TABLE readProgress (
     id INTEGER NOT NULL PRIMARY KEY ON CONFLICT REPLACE,
-    bookId INTEGER NOT NULL UNIQUE ON CONFLICT REPLACE,
+    bookId INTEGER NOT NULL UNIQUE ON CONFLICT IGNORE,
     page INTEGER as Int NOT NULL,
     reviewId INTEGER NOT NULL,
     FOREIGN KEY (bookId) REFERENCES book(id)
@@ -34,7 +34,7 @@ SELECT
     book.authors AS bookAuthors
 FROM book
 LEFT JOIN readProgress ON readProgress.bookId = book.id
-WHERE book.isCurrentlyReading = 1;
+WHERE readProgress.page > 0;
 
 insert:
 INSERT INTO readProgress(id, bookId, page, reviewId)
