@@ -16,7 +16,6 @@ import me.thanel.readtracker.api.ReadingProgressRepository
 import me.thanel.readtracker.di.ReadTracker
 import me.thanel.readtracker.ui.util.getLongOptional
 import me.thanel.readtracker.ui.util.putLongOptional
-import me.thanel.readtracker.ui.util.requireArguments
 import me.thanel.readtracker.ui.util.withArguments
 import javax.inject.Inject
 
@@ -51,9 +50,9 @@ class ReviewDialog : DialogFragment() {
 
     private fun hasFinishedReading() = !requireArguments().containsKey(ARG_PROGRESS)
 
-    private fun getReviewBody() = dialog.reviewBodyTextInputLayout.editText?.text?.toString()
+    private fun getReviewBody() = requireDialog().reviewBodyTextInputLayout.editText?.text?.toString()
 
-    private fun getRating() = dialog.ratingBar.rating.toInt()
+    private fun getRating() = requireDialog().ratingBar.rating.toInt()
 
     private fun submitReview() {
         if (hasFinishedReading()) {

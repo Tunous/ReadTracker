@@ -62,7 +62,7 @@ class ReadingListFragment : BaseFragment(R.layout.fragment_reading_list) {
         } else {
             ReviewDialog.createForInProgress(bookWithProgress.book.id, progress)
         }
-        dialog.show(fragmentManager, "reviewDialog")
+        dialog.show(requireFragmentManager(), "reviewDialog")
     }
 
     private fun fillProgressBooks(books: List<BookWithProgress>?) {

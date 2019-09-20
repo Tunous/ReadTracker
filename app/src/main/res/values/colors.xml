@@ -7,6 +7,7 @@
     <color name="judge_gray">#4C482D</color>
     <color name="bison_hide">#C3BDA3</color>
     <color name="ivory">#FDFDE9</color>
+    <color name="kokoda">#817C54</color>
 
     <!-- Main -->
     <color name="primary">@color/niagara</color>
@@ -19,4 +20,5 @@
 
     <!-- Texts -->
     <color name="text_primary">@color/judge_gray</color>
+    <color name="text_secondary">@color/kokoda</color>
 </resources>

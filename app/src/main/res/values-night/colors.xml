@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Backgrounds -->
+    <color name="background">@color/judge_gray</color>
+
+    <!-- Texts -->
+    <color name="text_primary">@color/ivory</color>
+    <color name="text_secondary">@color/bison_hide</color>
+</resources>

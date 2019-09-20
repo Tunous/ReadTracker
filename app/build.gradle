@@ -53,7 +53,7 @@ dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation "androidx.lifecycle:lifecycle-extensions:2.0.0"
     implementation 'com.chibatching.kotpref:kotpref:2.8.0'
-    implementation 'com.google.android.material:material:1.0.0'
+    implementation 'com.google.android.material:material:1.1.0-alpha10'
     implementation 'com.squareup.picasso:picasso:2.71828'
     implementation 'info.hoang8f:android-segmented:1.0.6'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.2.1'
