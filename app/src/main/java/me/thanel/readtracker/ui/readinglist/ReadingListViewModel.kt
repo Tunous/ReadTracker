@@ -7,19 +7,11 @@ import javax.inject.Inject
 
 class ReadingListViewModel : ViewModel() {
 
-    private var hasSynchronized = false
-
     @Inject
     lateinit var readingProgressRepository: ReadingProgressRepository
 
     init {
         ReadTracker.dependencyInjector.inject(this)
-    }
-
-    suspend fun synchronizeDatabase(force: Boolean = false) {
-        if (hasSynchronized && !force) return
-        hasSynchronized = true
-        readingProgressRepository.synchronizeDatabase()
     }
 
     val readingStatusLiveData = readingProgressRepository.getBooksWithProgressAsLiveData()

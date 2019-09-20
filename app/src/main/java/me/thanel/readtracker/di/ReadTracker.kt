@@ -4,7 +4,7 @@ import android.app.Application
 
 object ReadTracker {
     lateinit var dependencyInjector: RootComponent
-        private set
+        internal set
 
     fun initDependencies(application: Application) {
         dependencyInjector = DaggerRootComponent.builder()
