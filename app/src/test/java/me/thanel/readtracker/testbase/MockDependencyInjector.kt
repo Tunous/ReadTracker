@@ -2,7 +2,7 @@ package me.thanel.readtracker.testbase
 
 import me.thanel.readtracker.api.ReadingProgressRepository
 import me.thanel.readtracker.di.RootComponent
-import me.thanel.readtracker.sync.ProgressSynchronizationService
+import me.thanel.readtracker.sync.ProgressSynchronizationWorker
 import me.thanel.readtracker.ui.readinglist.ReadingListFragment
 import me.thanel.readtracker.ui.readinglist.ReadingListViewModel
 import me.thanel.readtracker.ui.review.ReviewDialog
@@ -25,7 +25,7 @@ class MockDependencyInjector : RootComponent {
         throw NotImplementedError("not used")
     }
 
-    override fun inject(progressSynchronizationService: ProgressSynchronizationService) {
-        progressSynchronizationService.readingProgressRepository = readingProgressRepositoryMock
+    override fun inject(progressSynchronizationWorker: ProgressSynchronizationWorker) {
+        progressSynchronizationWorker.readingProgressRepository = readingProgressRepositoryMock
     }
 }

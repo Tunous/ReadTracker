@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 import me.thanel.readtracker.R
 import me.thanel.readtracker.di.ReadTracker
 import me.thanel.readtracker.model.BookWithProgress
-import me.thanel.readtracker.sync.ProgressSynchronizationService
+import me.thanel.readtracker.sync.ProgressSynchronizationWorker
 import me.thanel.readtracker.ui.base.BaseFragment
 import me.thanel.readtracker.ui.review.ReviewDialog
 import me.thanel.readtracker.ui.util.viewModel
@@ -50,7 +50,7 @@ class ReadingListFragment : BaseFragment(R.layout.fragment_reading_list) {
         super.onActivityCreated(savedInstanceState)
         viewModel.readingStatusLiveData.observe(this, Observer(::fillProgressBooks))
         viewModel.booksToReadLiveData.observe(this, Observer(::fillBooksToRead))
-        ProgressSynchronizationService.schedule(requireContext())
+        ProgressSynchronizationWorker.enqueue(requireContext())
         // TODO: Add refresh action
         // TODO: Add refreshing indicator
     }
