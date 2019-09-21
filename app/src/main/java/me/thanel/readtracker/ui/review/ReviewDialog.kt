@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 import me.thanel.readtracker.R
 import me.thanel.readtracker.api.ReadingProgressRepository
 import me.thanel.readtracker.di.ReadTracker
-import me.thanel.readtracker.sync.UpdateProgressWorker
+import me.thanel.readtracker.sync.WorkScheduler
 import me.thanel.readtracker.ui.util.getLongOptional
 import me.thanel.readtracker.ui.util.putLongOptional
 import me.thanel.readtracker.ui.util.withArguments
@@ -24,6 +24,9 @@ class ReviewDialog : DialogFragment() {
 
     @Inject
     internal lateinit var readingProgressRepository: Lazy<ReadingProgressRepository>
+
+    @Inject
+    internal lateinit var workScheduler: WorkScheduler
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,7 +72,7 @@ class ReviewDialog : DialogFragment() {
         val progress = arguments.getInt(ARG_PROGRESS)
         val reviewBody = getReviewBody()
 
-        UpdateProgressWorker.enqueue(requireContext(), bookId, progress, reviewBody)
+        workScheduler.updateProgress(requireContext(), bookId, progress, reviewBody)
     }
 
     private fun submitFinishedReview() {

@@ -1,13 +1,8 @@
 package me.thanel.readtracker.sync
 
 import android.content.Context
-import androidx.work.Constraints
 import androidx.work.CoroutineWorker
-import androidx.work.NetworkType
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
 import androidx.work.WorkerParameters
-import androidx.work.workDataOf
 import me.thanel.readtracker.api.ReadingProgressRepository
 import me.thanel.readtracker.di.ReadTracker
 import timber.log.Timber
@@ -21,6 +16,9 @@ class UpdateProgressWorker(
 
     @Inject
     lateinit var readingProgressRepository: ReadingProgressRepository
+
+    @Inject
+    lateinit var workScheduler: WorkScheduler
 
     init {
         ReadTracker.dependencyInjector.inject(this)
@@ -40,6 +38,8 @@ class UpdateProgressWorker(
             return Result.retry()
         }
 
+        workScheduler.synchronizeDatabase(applicationContext)
+
         return Result.success()
     }
 
@@ -47,22 +47,5 @@ class UpdateProgressWorker(
         internal const val INPUT_BOOK_ID = "bookId"
         internal const val INPUT_PAGE_NUMBER = "pageNumber"
         internal const val INPUT_REVIEW_BODY = "reviewBody"
-
-        fun enqueue(context: Context, bookId: Long, pageNumber: Int, reviewBody: String?) {
-            Timber.d("Enqueuing progress update for book with id=$bookId")
-            val constraints = Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .build()
-            val inputData = workDataOf(
-                INPUT_BOOK_ID to bookId,
-                INPUT_PAGE_NUMBER to pageNumber,
-                INPUT_REVIEW_BODY to reviewBody
-            )
-            val request = OneTimeWorkRequestBuilder<UpdateProgressWorker>()
-                .setConstraints(constraints)
-                .setInputData(inputData)
-                .build()
-            WorkManager.getInstance(context).enqueue(request)
-        }
     }
 }

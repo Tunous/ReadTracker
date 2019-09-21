@@ -1,12 +1,7 @@
 package me.thanel.readtracker.sync
 
 import android.content.Context
-import androidx.work.Constraints
 import androidx.work.CoroutineWorker
-import androidx.work.ExistingWorkPolicy
-import androidx.work.NetworkType
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import me.thanel.readtracker.api.ReadingProgressRepository
 import me.thanel.readtracker.di.ReadTracker
@@ -27,29 +22,15 @@ class ProgressSynchronizationWorker(
     }
 
     override suspend fun doWork(): Result {
-        Timber.d("Synchronizing reading progress...")
+        Timber.d("Synchronizing database...")
         try {
             readingProgressRepository.synchronizeDatabase()
-            Timber.d("Reading progress synchronization finished with success")
+            Timber.d("Database synchronization finished with success")
         } catch (exception: IOException) {
-            Timber.e(exception, "Reading progress synchronization failed")
+            Timber.e(exception, "Database synchronization failed")
             return Result.retry()
         }
 
         return Result.success()
-    }
-
-    companion object {
-        fun enqueue(context: Context) {
-            Timber.d("Enqueuing reading progress update")
-            val constraints = Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .build()
-            val request = OneTimeWorkRequestBuilder<ProgressSynchronizationWorker>()
-                .setConstraints(constraints)
-                .build()
-            WorkManager.getInstance(context)
-                .enqueueUniqueWork("progress.synchronization", ExistingWorkPolicy.KEEP, request)
-        }
     }
 }

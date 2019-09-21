@@ -4,6 +4,7 @@ import me.thanel.readtracker.api.ReadingProgressRepository
 import me.thanel.readtracker.di.RootComponent
 import me.thanel.readtracker.sync.ProgressSynchronizationWorker
 import me.thanel.readtracker.sync.UpdateProgressWorker
+import me.thanel.readtracker.sync.WorkScheduler
 import me.thanel.readtracker.ui.readinglist.ReadingListFragment
 import me.thanel.readtracker.ui.readinglist.ReadingListViewModel
 import me.thanel.readtracker.ui.review.ReviewDialog
@@ -13,6 +14,7 @@ class MockDependencyInjector : RootComponent {
 
     val readingProgressRepositoryMock: ReadingProgressRepository =
         Mockito.mock(ReadingProgressRepository::class.java)
+    val workSchedulerMock: WorkScheduler = Mockito.mock(WorkScheduler::class.java)
 
     override fun inject(viewModel: ReadingListViewModel) {
         throw NotImplementedError("not used")
@@ -32,5 +34,6 @@ class MockDependencyInjector : RootComponent {
 
     override fun inject(updateProgressWorker: UpdateProgressWorker) {
         updateProgressWorker.readingProgressRepository = readingProgressRepositoryMock
+        updateProgressWorker.workScheduler = workSchedulerMock
     }
 }

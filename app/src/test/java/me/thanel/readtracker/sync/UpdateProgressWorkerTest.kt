@@ -12,11 +12,20 @@ import org.mockito.ArgumentMatchers.anyInt
 import org.mockito.ArgumentMatchers.anyLong
 import org.mockito.ArgumentMatchers.nullable
 import org.mockito.Mockito.`when`
+import org.mockito.Mockito.never
 import org.mockito.Mockito.verify
 import java.io.IOException
 
 @RunWith(AndroidJUnit4::class)
 class UpdateProgressWorkerTest : BaseWorkerTest() {
+
+    private suspend fun whenUpdatesProgress() = `when`(
+        mockInjector.readingProgressRepositoryMock.updateProgressByPageNumber(
+            anyLong(),
+            anyInt(),
+            nullable(String::class.java)
+        )
+    )
 
     @Test
     fun `worker should update book progress with correct parameters`() {
@@ -40,7 +49,7 @@ class UpdateProgressWorkerTest : BaseWorkerTest() {
     }
 
     @Test
-    fun `operation success should finish worker with success`() =
+    fun `on success should finish worker with success`() =
         runWithWorker<UpdateProgressWorker> {
             val result = it.doWork()
 
@@ -50,18 +59,27 @@ class UpdateProgressWorkerTest : BaseWorkerTest() {
     @Test
     fun `error while updating progress should finish worker with retry`() =
         runWithWorker<UpdateProgressWorker> {
-            `when`(
-                mockInjector.readingProgressRepositoryMock.updateProgressByPageNumber(
-                    anyLong(),
-                    anyInt(),
-                    nullable(String::class.java)
-                )
-            ).thenAnswer {
-                throw IOException()
-            }
+            whenUpdatesProgress().thenAnswer { throw IOException() }
 
             val result = it.doWork()
 
             assertThat(result, equalTo(Result.retry()))
         }
+
+    @Test
+    fun `on success should schedule database synchronization`() =
+        runWithWorker<UpdateProgressWorker> {
+            it.doWork()
+
+            verify(mockInjector.workSchedulerMock).synchronizeDatabase(context)
+        }
+
+    @Test
+    fun `on error should not schedule database synchronization`() {
+        runWithWorker<UpdateProgressWorker> {
+            whenUpdatesProgress().thenAnswer { throw IOException() }
+
+            verify(mockInjector.workSchedulerMock, never()).synchronizeDatabase(context)
+        }
+    }
 }
