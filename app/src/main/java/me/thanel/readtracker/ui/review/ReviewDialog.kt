@@ -14,6 +14,7 @@ import kotlinx.coroutines.launch
 import me.thanel.readtracker.R
 import me.thanel.readtracker.api.ReadingProgressRepository
 import me.thanel.readtracker.di.ReadTracker
+import me.thanel.readtracker.sync.UpdateProgressWorker
 import me.thanel.readtracker.ui.util.getLongOptional
 import me.thanel.readtracker.ui.util.putLongOptional
 import me.thanel.readtracker.ui.util.withArguments
@@ -68,10 +69,7 @@ class ReviewDialog : DialogFragment() {
         val progress = arguments.getInt(ARG_PROGRESS)
         val reviewBody = getReviewBody()
 
-        GlobalScope.launch {
-            val repository = readingProgressRepository.get()
-            repository.updateProgressByPageNumber(bookId, progress, reviewBody)
-        }
+        UpdateProgressWorker.enqueue(requireContext(), bookId, progress, reviewBody)
     }
 
     private fun submitFinishedReview() {

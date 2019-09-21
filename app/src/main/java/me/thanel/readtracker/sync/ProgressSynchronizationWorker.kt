@@ -8,8 +8,6 @@ import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import me.thanel.readtracker.api.ReadingProgressRepository
 import me.thanel.readtracker.di.ReadTracker
 import timber.log.Timber
@@ -28,17 +26,17 @@ class ProgressSynchronizationWorker(
         ReadTracker.dependencyInjector.inject(this)
     }
 
-    override suspend fun doWork() = withContext(Dispatchers.IO) {
+    override suspend fun doWork(): Result {
         Timber.d("Synchronizing reading progress...")
         try {
             readingProgressRepository.synchronizeDatabase()
             Timber.d("Reading progress synchronization finished with success")
         } catch (exception: IOException) {
             Timber.e(exception, "Reading progress synchronization failed")
-            return@withContext Result.retry()
+            return Result.retry()
         }
 
-        return@withContext Result.success()
+        return Result.success()
     }
 
     companion object {
