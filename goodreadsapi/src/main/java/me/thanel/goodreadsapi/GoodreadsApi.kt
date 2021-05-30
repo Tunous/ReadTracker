@@ -45,6 +45,8 @@ interface GoodreadsApi {
 
     suspend fun finishReading(reviewId: Long, rating: Int?, body: String?)
 
+    suspend fun finishReadingBook(bookId: Long, rating: Int?, reviewText: String?)
+
     suspend fun startReadingBook(bookId: Long)
 
     companion object {

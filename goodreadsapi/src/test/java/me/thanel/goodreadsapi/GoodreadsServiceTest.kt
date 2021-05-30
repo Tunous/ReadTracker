@@ -203,6 +203,24 @@ class GoodreadsServiceTest {
     }
 
     @Test
+    fun `finishReadingBook should make request with correct parameters`() {
+        stubResponse()
+        ShortDate.formatter = { "2019-06-09" }
+
+        runBlocking { api.finishReadingBook(2L, 4, "Liked it") }
+
+        val request = server.takeRequest()
+        assertThat(request.path, equalTo("/review.xml"))
+        val parameters = request.extractFormUrlEncodedParameters()
+        assertThat(parameters.size, equalTo(5))
+        assertThat(parameters[0], equalTo("book_id" to "2"))
+        assertThat(parameters[1], equalTo("review[review]" to "Liked it"))
+        assertThat(parameters[2], equalTo("review[rating]" to "4"))
+        assertThat(parameters[3], equalTo("review[read_at]" to "2019-06-09"))
+        assertThat(parameters[4], equalTo("shelf" to "read"))
+    }
+
+    @Test
     fun `getReviewIdForBook should make request with correct parameters`() {
         stubResponse("review_by_user_and_book.xml")
 

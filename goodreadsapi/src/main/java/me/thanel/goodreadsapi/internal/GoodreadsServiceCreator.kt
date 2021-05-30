@@ -28,7 +28,7 @@ internal class GoodreadsServiceCreator(
             .addInterceptor(SigningInterceptor(oAuthConsumer))
             .applyIf(BuildConfig.DEBUG) {
                 addInterceptor(HttpLoggingInterceptor().apply {
-                    level = HttpLoggingInterceptor.Level.BASIC
+                    level = HttpLoggingInterceptor.Level.BODY
                 })
             }
             .build()

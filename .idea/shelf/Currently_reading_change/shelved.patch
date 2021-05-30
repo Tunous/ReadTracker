@@ -1,0 +1,733 @@
+Index: database/src/test/java/me/thanel/readtracker/database/BookQueriesTest.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package me.thanel.readtracker.database\r\n\r\nimport androidx.test.ext.junit.runners.AndroidJUnit4\r\nimport org.hamcrest.CoreMatchers.equalTo\r\nimport org.hamcrest.MatcherAssert.assertThat\r\nimport org.hamcrest.Matchers.empty\r\nimport org.hamcrest.Matchers.hasSize\r\nimport org.junit.Test\r\nimport org.junit.runner.RunWith\r\n\r\n@RunWith(AndroidJUnit4::class)\r\nclass BookQueriesTest : DatabaseTest() {\r\n\r\n    @Test\r\n    fun `insertion should set all properties`() {\r\n        bookQueries.insert(SampleData.bookToRead)\r\n\r\n        assertThat(bookQueries.selectAll().executeAsOne(), equalTo(SampleData.bookToRead))\r\n    }\r\n\r\n    @Test\r\n    fun `insertion should replace old data on id conflict`() {\r\n        val originalBook = SampleData.bookToRead\r\n        bookQueries.insert(originalBook)\r\n\r\n        val modifiedBook = (originalBook as Book.Impl)\r\n            .copy(\r\n                title = \"Modified title\",\r\n                numPages = 34,\r\n                imageUrl = \"http://example.com/image.png\",\r\n                authors = \"Unknown\",\r\n                position = 12,\r\n                isCurrentlyReading = true\r\n            ) as Book\r\n        bookQueries.insert(modifiedBook)\r\n\r\n        assertThat(bookQueries.selectAll().executeAsOne(), equalTo(modifiedBook))\r\n    }\r\n\r\n    @Test\r\n    fun `insertion should replace old data on position conflict`() {\r\n        val originalBook = SampleData.bookToRead\r\n        bookQueries.insert(originalBook)\r\n\r\n        val modifiedBook = (originalBook as Book.Impl)\r\n            .copy(\r\n                id = 789L,\r\n                title = \"Modified title\",\r\n                numPages = 34,\r\n                imageUrl = \"http://example.com/image.png\",\r\n                authors = \"Unknown\",\r\n                isCurrentlyReading = true\r\n            ) as Book\r\n        bookQueries.insert(modifiedBook)\r\n\r\n        assertThat(bookQueries.selectAll().executeAsOne(), equalTo(modifiedBook))\r\n    }\r\n\r\n    @Test\r\n    fun `selectAll should return all books`() {\r\n        val books = SampleData.generateBooks()\r\n        bookQueries.insert(books)\r\n\r\n        assertThat(bookQueries.selectAll().executeAsList(), equalTo(books))\r\n    }\r\n\r\n    @Test\r\n    fun `selectBooksToRead should return book that aren't currently being read`() {\r\n        bookQueries.insert(\r\n            id = 1L,\r\n            title = \"Not reading\",\r\n            numPages = 1355,\r\n            imageUrl = null,\r\n            authors = null,\r\n            position = null,\r\n            isCurrentlyReading = false\r\n        )\r\n        bookQueries.insert(\r\n            id = 2L,\r\n            title = \"Reading\",\r\n            numPages = 57,\r\n            imageUrl = null,\r\n            authors = null,\r\n            position = null,\r\n            isCurrentlyReading = true\r\n        )\r\n        bookQueries.insert(\r\n            id = 3L,\r\n            title = \"Reading nr 2\",\r\n            numPages = 8312,\r\n            imageUrl = null,\r\n            authors = null,\r\n            position = null,\r\n            isCurrentlyReading = false\r\n        )\r\n\r\n        val books = bookQueries.selectBooksToRead().executeAsList()\r\n\r\n        assertThat(books, hasSize(2))\r\n        assertThat(books[0].id, equalTo(1L))\r\n        assertThat(books[1].id, equalTo(3L))\r\n    }\r\n\r\n    @Test\r\n    fun `selectBooksToRead should return books ordered by position`() {\r\n        bookQueries.insert(\r\n            id = 1L,\r\n            title = \"Second\",\r\n            numPages = 1355,\r\n            imageUrl = null,\r\n            authors = null,\r\n            position = 2,\r\n            isCurrentlyReading = false\r\n        )\r\n        bookQueries.insert(\r\n            id = 2L,\r\n            title = \"First\",\r\n            numPages = 57,\r\n            imageUrl = null,\r\n            authors = null,\r\n            position = 1,\r\n            isCurrentlyReading = false\r\n        )\r\n        bookQueries.insert(\r\n            id = 3L,\r\n            title = \"Third\",\r\n            numPages = 8312,\r\n            imageUrl = null,\r\n            authors = null,\r\n            position = 3,\r\n            isCurrentlyReading = false\r\n        )\r\n\r\n        val books = bookQueries.selectBooksToRead().executeAsList()\r\n\r\n        val bookIds = books.map { it.id }\r\n        assertThat(bookIds, equalTo(listOf(2L, 1L, 3L)))\r\n    }\r\n\r\n    @Test\r\n    fun `deleteAll should delete all books`() {\r\n        bookQueries.insert(SampleData.generateBooks())\r\n\r\n        bookQueries.deleteAll()\r\n\r\n        assertThat(bookQueries.selectAll().executeAsList(), empty())\r\n    }\r\n\r\n    @Test\r\n    fun `deleteBooksWithoutPosition deletes book without position`() {\r\n        val booksWithPosition = SampleData.generateBooks(count = 5)\r\n        val booksWithoutPosition = SampleData.generateBooks(startNumber = 6, count = 5)\r\n            .map { (it as Book.Impl).copy(position = null) }\r\n        bookQueries.insert(booksWithPosition)\r\n        bookQueries.insert(booksWithoutPosition)\r\n\r\n        bookQueries.deleteBooksWithoutPosition()\r\n\r\n        assertThat(bookQueries.selectAll().executeAsList(), equalTo(booksWithPosition))\r\n    }\r\n\r\n    // TODO: bookQueries.deleteBooksWithProgress()\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- database/src/test/java/me/thanel/readtracker/database/BookQueriesTest.kt	(date 1568047959000)
++++ database/src/test/java/me/thanel/readtracker/database/BookQueriesTest.kt	(date 1568049928523)
+@@ -29,8 +29,7 @@
+                 numPages = 34,
+                 imageUrl = "http://example.com/image.png",
+                 authors = "Unknown",
+-                position = 12,
+-                isCurrentlyReading = true
++                position = 12
+             ) as Book
+         bookQueries.insert(modifiedBook)
+ 
+@@ -48,8 +47,7 @@
+                 title = "Modified title",
+                 numPages = 34,
+                 imageUrl = "http://example.com/image.png",
+-                authors = "Unknown",
+-                isCurrentlyReading = true
++                authors = "Unknown"
+             ) as Book
+         bookQueries.insert(modifiedBook)
+ 
+@@ -72,8 +70,7 @@
+             numPages = 1355,
+             imageUrl = null,
+             authors = null,
+-            position = null,
+-            isCurrentlyReading = false
++            position = null
+         )
+         bookQueries.insert(
+             id = 2L,
+@@ -81,17 +78,22 @@
+             numPages = 57,
+             imageUrl = null,
+             authors = null,
+-            position = null,
+-            isCurrentlyReading = true
++            position = null
+         )
+         bookQueries.insert(
+             id = 3L,
+-            title = "Reading nr 2",
++            title = "Not reading nr 2",
+             numPages = 8312,
+             imageUrl = null,
+             authors = null,
+-            position = null,
+-            isCurrentlyReading = false
++            position = null
++        )
++
++        readProgressQueries.insert(
++            id = 1L,
++            bookId = 2L,
++            page = 12,
++            reviewId = 1L
+         )
+ 
+         val books = bookQueries.selectBooksToRead().executeAsList()
+@@ -109,8 +111,7 @@
+             numPages = 1355,
+             imageUrl = null,
+             authors = null,
+-            position = 2,
+-            isCurrentlyReading = false
++            position = 2
+         )
+         bookQueries.insert(
+             id = 2L,
+@@ -118,8 +119,7 @@
+             numPages = 57,
+             imageUrl = null,
+             authors = null,
+-            position = 1,
+-            isCurrentlyReading = false
++            position = 1
+         )
+         bookQueries.insert(
+             id = 3L,
+@@ -127,8 +127,7 @@
+             numPages = 8312,
+             imageUrl = null,
+             authors = null,
+-            position = 3,
+-            isCurrentlyReading = false
++            position = 3
+         )
+ 
+         val books = bookQueries.selectBooksToRead().executeAsList()
+Index: goodreadsapi/src/main/java/me/thanel/goodreadsapi/GoodreadsApi.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package me.thanel.goodreadsapi\r\n\r\nimport kotlinx.coroutines.Dispatchers\r\nimport kotlinx.coroutines.withContext\r\nimport me.thanel.goodreadsapi.internal.GoodreadsApiImpl\r\nimport me.thanel.goodreadsapi.model.AccessTokenData\r\nimport me.thanel.goodreadsapi.model.Book\r\nimport me.thanel.goodreadsapi.model.GoodreadsSecrets\r\nimport me.thanel.goodreadsapi.model.ReadingProgressStatusGroup\r\nimport me.thanel.goodreadsapi.model.RequestTokenData\r\nimport se.akerfeldt.okhttp.signpost.OkHttpOAuthConsumer\r\nimport se.akerfeldt.okhttp.signpost.OkHttpOAuthProvider\r\n\r\n/**\r\n * Core interface for communication with the Goodreads API.\r\n */\r\ninterface GoodreadsApi {\r\n\r\n    /// Requests\r\n\r\n    /**\r\n     * Gets the id of the currently authenticated user.\r\n     */\r\n    suspend fun getUserId(): Long\r\n\r\n    /**\r\n     * Gets books in the [shelf] of user with id equal to [userId].\r\n     */\r\n    suspend fun getBooksInShelf(userId: Long, shelf: String): List<Book>\r\n\r\n    /**\r\n     * Gets currently read books together with their progress for the user with id equal to\r\n     * [userId].\r\n     */\r\n    suspend fun getReadingProgressStatus(userId: Long): ReadingProgressStatusGroup\r\n\r\n    /**\r\n     * Gets review for a book with the specified [bookId].\r\n     */\r\n    suspend fun getReviewIdForBook(userId: Long, bookId: Long): Long?\r\n\r\n    /// Actions\r\n\r\n    suspend fun updateProgressByPageNumber(bookId: Long, page: Int, body: String?)\r\n\r\n    suspend fun finishReading(reviewId: Long, rating: Int?, body: String?)\r\n\r\n    suspend fun startReadingBook(bookId: Long)\r\n\r\n    companion object {\r\n\r\n        /**\r\n         * Creates class for communicating with the Goodreads API.\r\n         *\r\n         * @param secrets secret information required by some of the calls to the Goodreads API.\r\n         * @param baseUrl the base url of the Goodreads API.\r\n         */\r\n        fun create(\r\n            secrets: GoodreadsSecrets,\r\n            baseUrl: String = DEFAULT_BASE_URL\r\n        ): GoodreadsApi = GoodreadsApiImpl(secrets, baseUrl)\r\n\r\n        suspend fun authorize(\r\n            consumerKey: String,\r\n            consumerSecret: String,\r\n            baseUrl: String = DEFAULT_BASE_URL\r\n        ) = withContext(Dispatchers.IO) {\r\n            val provider = createAuthProvider(baseUrl)\r\n            val consumer = OkHttpOAuthConsumer(consumerKey, consumerSecret)\r\n            val authUrl = provider.retrieveRequestToken(consumer, CALLBACK_URL)\r\n            RequestTokenData(authUrl, consumer.token, consumer.tokenSecret)\r\n        }\r\n\r\n        suspend fun getAccessToken(\r\n            consumerKey: String,\r\n            consumerSecret: String,\r\n            token: String,\r\n            tokenSecret: String,\r\n            baseUrl: String = DEFAULT_BASE_URL\r\n        ) = withContext(Dispatchers.IO) {\r\n            val consumer = OkHttpOAuthConsumer(consumerKey, consumerSecret)\r\n            consumer.setTokenWithSecret(token, tokenSecret)\r\n            createAuthProvider(baseUrl).retrieveAccessToken(consumer, null)\r\n            AccessTokenData(consumer.token, consumer.tokenSecret)\r\n        }\r\n\r\n        private const val DEFAULT_BASE_URL = \"https://www.goodreads.com/\"\r\n        private const val CALLBACK_URL = \"me.thanel.readtracker://oauth\"\r\n\r\n        private fun createAuthProvider(baseUrl: String) = OkHttpOAuthProvider(\r\n            \"${baseUrl}oauth/request_token\",\r\n            \"${baseUrl}oauth/access_token\",\r\n            \"${baseUrl}oauth/authorize?mobile=1\"\r\n        )\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- goodreadsapi/src/main/java/me/thanel/goodreadsapi/GoodreadsApi.kt	(date 1568047959000)
++++ goodreadsapi/src/main/java/me/thanel/goodreadsapi/GoodreadsApi.kt	(date 1568050462242)
+@@ -4,7 +4,6 @@
+ import kotlinx.coroutines.withContext
+ import me.thanel.goodreadsapi.internal.GoodreadsApiImpl
+ import me.thanel.goodreadsapi.model.AccessTokenData
+-import me.thanel.goodreadsapi.model.Book
+ import me.thanel.goodreadsapi.model.GoodreadsSecrets
+ import me.thanel.goodreadsapi.model.ReadingProgressStatusGroup
+ import me.thanel.goodreadsapi.model.RequestTokenData
+@@ -26,7 +25,7 @@
+     /**
+      * Gets books in the [shelf] of user with id equal to [userId].
+      */
+-    suspend fun getBooksInShelf(userId: Long, shelf: String): List<Book>
++    suspend fun getBooksInShelf(userId: Long, shelf: String): ReadingProgressStatusGroup
+ 
+     /**
+      * Gets currently read books together with their progress for the user with id equal to
+Index: goodreadsapi/src/main/java/me/thanel/goodreadsapi/model/Book.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package me.thanel.goodreadsapi.model\r\n\r\ndata class Book(\r\n    val id: Long,\r\n    val title: String,\r\n    val numPages: Int,\r\n    val imageUrl: String?,\r\n    val authors: String?,\r\n    val isCurrentlyReading: Boolean\r\n)\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- goodreadsapi/src/main/java/me/thanel/goodreadsapi/model/Book.kt	(date 1568047959000)
++++ goodreadsapi/src/main/java/me/thanel/goodreadsapi/model/Book.kt	(date 1568049335614)
+@@ -5,6 +5,5 @@
+     val title: String,
+     val numPages: Int,
+     val imageUrl: String?,
+-    val authors: String?,
+-    val isCurrentlyReading: Boolean
++    val authors: String?
+ )
+Index: goodreadsapi/src/main/java/me/thanel/goodreadsapi/model/ReadingProgressStatus.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package me.thanel.goodreadsapi.model\r\n\r\ndata class ReadingProgressStatus(\r\n    val id: Long,\r\n    val bookId: Long,\r\n    val page: Int,\r\n    val reviewId: Long\r\n)\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- goodreadsapi/src/main/java/me/thanel/goodreadsapi/model/ReadingProgressStatus.kt	(date 1568047959000)
++++ goodreadsapi/src/main/java/me/thanel/goodreadsapi/model/ReadingProgressStatus.kt	(date 1568048403389)
+@@ -1,7 +1,7 @@
+ package me.thanel.goodreadsapi.model
+ 
+ data class ReadingProgressStatus(
+-    val id: Long,
++    val id: Long?,
+     val bookId: Long,
+     val page: Int,
+     val reviewId: Long
+Index: goodreadsapi/src/main/java/me/thanel/goodreadsapi/internal/GoodreadsApiImpl.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package me.thanel.goodreadsapi.internal\r\n\r\nimport kotlinx.coroutines.Dispatchers\r\nimport kotlinx.coroutines.withContext\r\nimport me.thanel.goodreadsapi.GoodreadsApi\r\nimport me.thanel.goodreadsapi.internal.model.ShortDate\r\nimport me.thanel.goodreadsapi.internal.model.UserStatus\r\nimport me.thanel.goodreadsapi.internal.util.nullIfBlank\r\nimport me.thanel.goodreadsapi.model.Book\r\nimport me.thanel.goodreadsapi.model.GoodreadsSecrets\r\nimport me.thanel.goodreadsapi.model.ReadingProgressStatus\r\nimport me.thanel.goodreadsapi.model.ReadingProgressStatusGroup\r\nimport kotlin.math.roundToInt\r\nimport me.thanel.goodreadsapi.internal.model.Book as InternalBook\r\n\r\ninternal class GoodreadsApiImpl(secrets: GoodreadsSecrets, baseUrl: String) : GoodreadsApi {\r\n\r\n    private val service by lazy {\r\n        GoodreadsServiceCreator(baseUrl, secrets).createService()\r\n    }\r\n\r\n    /// Requests\r\n\r\n    override suspend fun getUserId() = withContext(Dispatchers.IO) {\r\n        service.getUserIdAsync().await().user.id\r\n    }\r\n\r\n    override suspend fun getReadingProgressStatus(userId: Long): ReadingProgressStatusGroup =\r\n        withContext(Dispatchers.IO) {\r\n            val response = service.getUserAsync(userId).await()\r\n            val internalStatuses = response.user.userStatuses\r\n            val statuses = internalStatuses?.map { status ->\r\n                // User might have saved their progress using percentages instead of pages.\r\n                // In [getCurrentPage] we are converting these progresses to pages which is the\r\n                // only way how this app stores info about every progress.\r\n                val page = getCurrentPage(status)\r\n                ReadingProgressStatus(status.id, status.book.id, page, status.reviewId)\r\n            }\r\n            val books = internalStatuses?.map {\r\n                it.book.toPublicBook(true)\r\n            }\r\n            return@withContext ReadingProgressStatusGroup(\r\n                statuses ?: emptyList(),\r\n                books ?: emptyList()\r\n            )\r\n        }\r\n\r\n    override suspend fun getBooksInShelf(userId: Long, shelf: String) =\r\n        withContext(Dispatchers.IO) {\r\n            val response = service.getBooksInShelfAsync(userId, shelf).await()\r\n            val reviews = response.reviews?.map { review ->\r\n                val shelves = review.shelves ?: emptyList()\r\n                val isCurrentlyReading = shelves.any { it.name == \"currently-reading\" }\r\n                review.book.toPublicBook(isCurrentlyReading)\r\n            }\r\n            reviews ?: emptyList()\r\n        }\r\n\r\n    override suspend fun getReviewIdForBook(userId: Long, bookId: Long): Long? =\r\n        withContext(Dispatchers.IO) {\r\n            val response = service.getBookReviewAsync(userId, bookId).await()\r\n            response.review?.id\r\n        }\r\n\r\n    /// Actions\r\n\r\n    override suspend fun updateProgressByPageNumber(bookId: Long, page: Int, body: String?) {\r\n        withContext(Dispatchers.IO) {\r\n            service.updateUserStatusByPageNumberAsync(bookId, page, body.nullIfBlank()).await()\r\n        }\r\n    }\r\n\r\n    override suspend fun startReadingBook(bookId: Long) {\r\n        withContext(Dispatchers.IO) {\r\n            service.addBookToShelfAsync(bookId, \"currently-reading\").await()\r\n        }\r\n    }\r\n\r\n    override suspend fun finishReading(reviewId: Long, rating: Int?, body: String?) {\r\n        withContext(Dispatchers.IO) {\r\n            service.editReviewAsync(\r\n                reviewId = reviewId,\r\n                reviewText = body.nullIfBlank(),\r\n                rating = rating,\r\n                dateRead = ShortDate.now(),\r\n                shelf = \"read\",\r\n                finished = true\r\n            ).await()\r\n        }\r\n    }\r\n\r\n    /// Private\r\n\r\n    private fun getCurrentPage(userStatus: UserStatus): Int {\r\n        val page = userStatus.page\r\n        if (page != null && page > 0) return page\r\n        val percent = userStatus.percent ?: 0\r\n        return percentToPage(percent, userStatus.book.numPages)\r\n    }\r\n\r\n    private fun percentToPage(percent: Int, numPages: Int): Int {\r\n        val floatPercent = percent / 100f\r\n        return (floatPercent * numPages).roundToInt()\r\n    }\r\n\r\n    private fun InternalBook.toPublicBook(isCurrentlyReading: Boolean) = Book(\r\n        id,\r\n        title,\r\n        numPages,\r\n        imageUrl,\r\n        authors.joinToString { it.name }.nullIfBlank(),\r\n        isCurrentlyReading = isCurrentlyReading\r\n    )\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- goodreadsapi/src/main/java/me/thanel/goodreadsapi/internal/GoodreadsApiImpl.kt	(date 1568047959000)
++++ goodreadsapi/src/main/java/me/thanel/goodreadsapi/internal/GoodreadsApiImpl.kt	(date 1568049371183)
+@@ -37,7 +37,7 @@
+                 ReadingProgressStatus(status.id, status.book.id, page, status.reviewId)
+             }
+             val books = internalStatuses?.map {
+-                it.book.toPublicBook(true)
++                it.book.toPublicBook()
+             }
+             return@withContext ReadingProgressStatusGroup(
+                 statuses ?: emptyList(),
+@@ -45,15 +45,29 @@
+             )
+         }
+ 
+-    override suspend fun getBooksInShelf(userId: Long, shelf: String) =
++    override suspend fun getBooksInShelf(userId: Long, shelf: String): ReadingProgressStatusGroup =
+         withContext(Dispatchers.IO) {
+             val response = service.getBooksInShelfAsync(userId, shelf).await()
+-            val reviews = response.reviews?.map { review ->
+-                val shelves = review.shelves ?: emptyList()
+-                val isCurrentlyReading = shelves.any { it.name == "currently-reading" }
+-                review.book.toPublicBook(isCurrentlyReading)
++            val statuses = response.reviews
++                ?.filter { review ->
++                    val shelves = review.shelves ?: emptyList()
++                    shelves.any { it.name == "currently-reading" }
++                }
++                ?.map { review ->
++                    ReadingProgressStatus(
++                        id = null,
++                        bookId = review.book.id,
++                        page = 0,
++                        reviewId = review.id
++                    )
++                }
++            val books = response.reviews?.map {
++                it.book.toPublicBook()
+             }
+-            reviews ?: emptyList()
++            ReadingProgressStatusGroup(
++                statuses ?: emptyList(),
++                books ?: emptyList()
++            )
+         }
+ 
+     override suspend fun getReviewIdForBook(userId: Long, bookId: Long): Long? =
+@@ -103,12 +117,11 @@
+         return (floatPercent * numPages).roundToInt()
+     }
+ 
+-    private fun InternalBook.toPublicBook(isCurrentlyReading: Boolean) = Book(
++    private fun InternalBook.toPublicBook() = Book(
+         id,
+         title,
+         numPages,
+         imageUrl,
+-        authors.joinToString { it.name }.nullIfBlank(),
+-        isCurrentlyReading = isCurrentlyReading
++        authors.joinToString { it.name }.nullIfBlank()
+     )
+ }
+Index: goodreadsapi/src/test/java/me/thanel/goodreadsapi/GoodreadsServiceTest.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package me.thanel.goodreadsapi\r\n\r\nimport kotlinx.coroutines.runBlocking\r\nimport me.thanel.goodreadsapi.internal.model.ShortDate\r\nimport me.thanel.goodreadsapi.internal.util.applyIf\r\nimport me.thanel.goodreadsapi.internal.util.urlDecode\r\nimport me.thanel.goodreadsapi.model.GoodreadsSecrets\r\nimport okhttp3.mockwebserver.MockResponse\r\nimport okhttp3.mockwebserver.MockWebServer\r\nimport okhttp3.mockwebserver.RecordedRequest\r\nimport org.hamcrest.CoreMatchers.equalTo\r\nimport org.junit.After\r\nimport org.junit.Assert.assertThat\r\nimport org.junit.Before\r\nimport org.junit.Test\r\nimport java.io.File\r\n\r\nclass GoodreadsServiceTest {\r\n    private lateinit var server: MockWebServer\r\n    private lateinit var api: GoodreadsApi\r\n\r\n    @Before\r\n    fun setup() {\r\n        server = MockWebServer()\r\n        server.start()\r\n        val secrets = GoodreadsSecrets(\"\", \"\", \"\", \"\")\r\n        api = GoodreadsApi.create(secrets, server.url(\"\").toString())\r\n    }\r\n\r\n    @After\r\n    fun tearDown() {\r\n        server.shutdown()\r\n    }\r\n\r\n    @Test\r\n    fun `getUserId should return id of authenticated user`() {\r\n        stubResponse(\"api_auth_user.xml\")\r\n\r\n        val userId = runBlocking { api.getUserId() }\r\n\r\n        assertThat(userId, equalTo(7L))\r\n    }\r\n\r\n    @Test\r\n    fun `getBooksInShelf should return all books in currently-reading shelf`() {\r\n        stubResponse(\"books_currently_reading.xml\")\r\n\r\n        val books = runBlocking { api.getBooksInShelf(7L, \"currently-reading\") }\r\n\r\n        assertThat(books.size, equalTo(3))\r\n        val b0 = books[0]\r\n        assertThat(b0.id, equalTo(6L))\r\n        assertThat(b0.title, equalTo(\"Harry Potter and the Goblet of Fire (Harry Potter, #4)\"))\r\n        assertThat(b0.numPages, equalTo(734))\r\n        assertThat(b0.imageUrl, equalTo(\"https://images.gr-assets.com/books/1554006152m/6.jpg\"))\r\n        assertThat(b0.authors, equalTo(\"J.K. Rowling\"))\r\n        assertThat(b0.isCurrentlyReading, equalTo(true))\r\n        val b1 = books[1]\r\n        assertThat(b1.id, equalTo(5L))\r\n        assertThat(b1.title, equalTo(\"Harry Potter and the Prisoner of Azkaban (Harry Potter, #3)\"))\r\n        assertThat(b1.numPages, equalTo(435))\r\n        assertThat(b1.imageUrl, equalTo(\"https://images.gr-assets.com/books/1499277281m/5.jpg\"))\r\n        assertThat(b1.authors, equalTo(\"J.K. Rowling\"))\r\n        assertThat(b1.isCurrentlyReading, equalTo(true))\r\n        val b2 = books[2]\r\n        assertThat(b2.id, equalTo(15881L))\r\n        assertThat(b2.title, equalTo(\"Harry Potter and the Chamber of Secrets (Harry Potter, #2)\"))\r\n        assertThat(b2.numPages, equalTo(341))\r\n        assertThat(b2.imageUrl, equalTo(\"https://images.gr-assets.com/books/1474169725m/15881.jpg\"))\r\n        assertThat(b2.authors, equalTo(\"J.K. Rowling\"))\r\n        assertThat(b2.isCurrentlyReading, equalTo(true))\r\n    }\r\n\r\n    @Test\r\n    fun `getBooksInShelf should return all books in to-read shelf`() {\r\n        stubResponse(\"books_to_read.xml\")\r\n\r\n        val books = runBlocking { api.getBooksInShelf(7L, \"to-read\") }\r\n\r\n        assertThat(books.size, equalTo(3))\r\n        val b0 = books[0]\r\n        assertThat(b0.id, equalTo(2L))\r\n        assertThat(\r\n            b0.title,\r\n            equalTo(\"Harry Potter and the Order of the Phoenix (Harry Potter, #5)\")\r\n        )\r\n        assertThat(b0.numPages, equalTo(870))\r\n        assertThat(b0.imageUrl, equalTo(\"https://images.gr-assets.com/books/1546910265m/2.jpg\"))\r\n        assertThat(b0.authors, equalTo(\"J.K. Rowling\"))\r\n        assertThat(b0.isCurrentlyReading, equalTo(false))\r\n        val b1 = books[1]\r\n        assertThat(b1.id, equalTo(1L))\r\n        assertThat(b1.title, equalTo(\"Harry Potter and the Half-Blood Prince (Harry Potter, #6)\"))\r\n        assertThat(b1.numPages, equalTo(652))\r\n        assertThat(b1.imageUrl, equalTo(\"https://images.gr-assets.com/books/1361039191m/1.jpg\"))\r\n        assertThat(b1.authors, equalTo(\"J.K. Rowling\"))\r\n        assertThat(b1.isCurrentlyReading, equalTo(false))\r\n        val b2 = books[2]\r\n        assertThat(b2.id, equalTo(136251L))\r\n        assertThat(b2.title, equalTo(\"Harry Potter and the Deathly Hallows (Harry Potter, #7)\"))\r\n        assertThat(b2.numPages, equalTo(759))\r\n        assertThat(\r\n            b2.imageUrl,\r\n            equalTo(\"https://images.gr-assets.com/books/1474171184m/136251.jpg\")\r\n        )\r\n        assertThat(b2.authors, equalTo(\"J.K. Rowling\"))\r\n        assertThat(b2.isCurrentlyReading, equalTo(false))\r\n    }\r\n\r\n    @Test\r\n    fun `getReadingProgressStatus should return currently read books with their progress`() {\r\n        stubResponse(\"user_show.xml\")\r\n\r\n        val readingProgress = runBlocking { api.getReadingProgressStatus(7L) }\r\n\r\n        assertThat(readingProgress.statuses.size, equalTo(2))\r\n        val s0 = readingProgress.statuses[0]\r\n        assertThat(s0.id, equalTo(1234L))\r\n        assertThat(s0.page, equalTo(78))\r\n        assertThat(s0.bookId, equalTo(5L))\r\n        assertThat(s0.reviewId, equalTo(5678L))\r\n        val s1 = readingProgress.statuses[1]\r\n        assertThat(s1.id, equalTo(1235L))\r\n        assertThat(s1.page, equalTo(307))\r\n        assertThat(s1.bookId, equalTo(15881L))\r\n        assertThat(s1.reviewId, equalTo(5679L))\r\n\r\n        assertThat(readingProgress.books.size, equalTo(2))\r\n        val b0 = readingProgress.books[0]\r\n        assertThat(b0.id, equalTo(5L))\r\n        assertThat(b0.title, equalTo(\"Harry Potter and the Prisoner of Azkaban (Harry Potter, #3)\"))\r\n        assertThat(b0.numPages, equalTo(435))\r\n        assertThat(b0.imageUrl, equalTo(\"https://images.gr-assets.com/books/1499277281m/5.jpg\"))\r\n        assertThat(b0.authors, equalTo(\"J.K. Rowling, Mary GrandPré\"))\r\n        assertThat(b0.isCurrentlyReading, equalTo(true))\r\n        val b1 = readingProgress.books[1]\r\n        assertThat(b1.id, equalTo(15881L))\r\n        assertThat(b1.title, equalTo(\"Harry Potter and the Chamber of Secrets (Harry Potter, #2)\"))\r\n        assertThat(b1.numPages, equalTo(341))\r\n        assertThat(b1.imageUrl, equalTo(\"https://images.gr-assets.com/books/1474169725m/15881.jpg\"))\r\n        assertThat(b1.authors, equalTo(\"J.K. Rowling, Mary GrandPré\"))\r\n        assertThat(b1.isCurrentlyReading, equalTo(true))\r\n    }\r\n\r\n    @Test\r\n    fun `updateProgressByPageNumber should make request with correct parameters`() {\r\n        stubResponse(code = 200)\r\n\r\n        runBlocking { api.updateProgressByPageNumber(5L, 128, \"Test\") }\r\n\r\n        val request = server.takeRequest()\r\n        assertThat(request.path, equalTo(\"/user_status.xml\"))\r\n        val parameters = request.extractFormUrlEncodedParameters()\r\n        assertThat(parameters.size, equalTo(3))\r\n        assertThat(parameters[0], equalTo(\"user_status[book_id]\" to \"5\"))\r\n        assertThat(parameters[1], equalTo(\"user_status[page]\" to \"128\"))\r\n        assertThat(parameters[2], equalTo(\"user_status[body]\" to \"Test\"))\r\n    }\r\n\r\n    @Test\r\n    fun `updateProgressByPageNumber should not set body parameter when it is blank`() {\r\n        stubResponse()\r\n\r\n        runBlocking { api.updateProgressByPageNumber(9L, 234, \" \") }\r\n\r\n        val request = server.takeRequest()\r\n        val parameters = request.extractFormUrlEncodedParameters()\r\n        assertThat(parameters.size, equalTo(2))\r\n        assertThat(parameters[0], equalTo(\"user_status[book_id]\" to \"9\"))\r\n        assertThat(parameters[1], equalTo(\"user_status[page]\" to \"234\"))\r\n    }\r\n\r\n    @Test\r\n    fun `startReadingBook should make request with correct parameters`() {\r\n        stubResponse()\r\n\r\n        runBlocking { api.startReadingBook(9L) }\r\n\r\n        val request = server.takeRequest()\r\n        assertThat(request.path, equalTo(\"/shelf/add_to_shelf.xml\"))\r\n        val parameters = request.extractFormUrlEncodedParameters()\r\n        assertThat(parameters.size, equalTo(2))\r\n        assertThat(parameters[0], equalTo(\"book_id\" to \"9\"))\r\n        assertThat(parameters[1], equalTo(\"name\" to \"currently-reading\"))\r\n    }\r\n\r\n    @Test\r\n    fun `finishReading should make request with correct parameters`() {\r\n        stubResponse()\r\n        ShortDate.formatter =  { \"2019-06-09\" }\r\n\r\n        runBlocking { api.finishReading(1245L, 5, \"Cool\") }\r\n\r\n        val request = server.takeRequest()\r\n        assertThat(request.path, equalTo(\"/review/1245.xml\"))\r\n        val parameters = request.extractFormUrlEncodedParameters()\r\n        assertThat(parameters.size, equalTo(5))\r\n        assertThat(parameters[0], equalTo(\"review[review]\" to \"Cool\"))\r\n        assertThat(parameters[1], equalTo(\"review[rating]\" to \"5\"))\r\n        assertThat(parameters[2], equalTo(\"review[read_at]\" to \"2019-06-09\"))\r\n        assertThat(parameters[3], equalTo(\"finished\" to \"true\"))\r\n        assertThat(parameters[4], equalTo(\"shelf\" to \"read\"))\r\n    }\r\n\r\n    @Test\r\n    fun `getReviewIdForBook should make request with correct parameters`() {\r\n        stubResponse(\"review_by_user_and_book.xml\")\r\n\r\n        val reviewId = runBlocking { api.getReviewIdForBook(1L, 2L) }\r\n\r\n        assertThat(reviewId, equalTo(54648L))\r\n\r\n        val request = server.takeRequest()\r\n        val uri = request.requestUrl\r\n        assertThat(uri.encodedPath(), equalTo(\"/review/show_by_user_and_book.xml\"))\r\n        assertThat(uri.queryParameter(\"user_id\"), equalTo(\"1\"))\r\n        assertThat(uri.queryParameter(\"book_id\"), equalTo(\"2\"))\r\n    }\r\n\r\n    @Test\r\n    fun `getReviewIdForBook should return review id`() {\r\n        stubResponse(\"review_by_user_and_book.xml\")\r\n\r\n        val reviewId = runBlocking { api.getReviewIdForBook(1L, 2L) }\r\n\r\n        assertThat(reviewId, equalTo(54648L))\r\n    }\r\n\r\n    private fun RecordedRequest.extractFormUrlEncodedParameters(): List<Pair<String, String>> {\r\n        val body = body.readString(Charsets.UTF_8)\r\n        val parameters = body.split('&')\r\n        return parameters.map {\r\n            val pair = it.split('=')\r\n            pair[0].urlDecode() to pair[1].urlDecode()\r\n        }\r\n    }\r\n\r\n    private fun stubResponse(filename: String? = null, code: Int = 200) {\r\n        server.enqueue(\r\n            MockResponse()\r\n                .setResponseCode(code)\r\n                .applyIf(filename != null) {\r\n                    setBody(getXml(\"responses/$filename\"))\r\n                }\r\n        )\r\n    }\r\n\r\n    private fun getXml(path: String): String {\r\n        val uri = javaClass.classLoader!!.getResource(path)\r\n        val file = File(uri.path)\r\n        return file.readText()\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- goodreadsapi/src/test/java/me/thanel/goodreadsapi/GoodreadsServiceTest.kt	(date 1568047959000)
++++ goodreadsapi/src/test/java/me/thanel/goodreadsapi/GoodreadsServiceTest.kt	(date 1568049335721)
+@@ -4,7 +4,9 @@
+ import me.thanel.goodreadsapi.internal.model.ShortDate
+ import me.thanel.goodreadsapi.internal.util.applyIf
+ import me.thanel.goodreadsapi.internal.util.urlDecode
++import me.thanel.goodreadsapi.model.Book
+ import me.thanel.goodreadsapi.model.GoodreadsSecrets
++import me.thanel.goodreadsapi.model.ReadingProgressStatus
+ import okhttp3.mockwebserver.MockResponse
+ import okhttp3.mockwebserver.MockWebServer
+ import okhttp3.mockwebserver.RecordedRequest
+@@ -45,66 +47,88 @@
+     fun `getBooksInShelf should return all books in currently-reading shelf`() {
+         stubResponse("books_currently_reading.xml")
+ 
+-        val books = runBlocking { api.getBooksInShelf(7L, "currently-reading") }
++        val (statuses, books) = runBlocking { api.getBooksInShelf(7L, "currently-reading") }
+ 
+-        assertThat(books.size, equalTo(3))
+-        val b0 = books[0]
+-        assertThat(b0.id, equalTo(6L))
+-        assertThat(b0.title, equalTo("Harry Potter and the Goblet of Fire (Harry Potter, #4)"))
+-        assertThat(b0.numPages, equalTo(734))
+-        assertThat(b0.imageUrl, equalTo("https://images.gr-assets.com/books/1554006152m/6.jpg"))
+-        assertThat(b0.authors, equalTo("J.K. Rowling"))
+-        assertThat(b0.isCurrentlyReading, equalTo(true))
+-        val b1 = books[1]
+-        assertThat(b1.id, equalTo(5L))
+-        assertThat(b1.title, equalTo("Harry Potter and the Prisoner of Azkaban (Harry Potter, #3)"))
+-        assertThat(b1.numPages, equalTo(435))
+-        assertThat(b1.imageUrl, equalTo("https://images.gr-assets.com/books/1499277281m/5.jpg"))
+-        assertThat(b1.authors, equalTo("J.K. Rowling"))
+-        assertThat(b1.isCurrentlyReading, equalTo(true))
+-        val b2 = books[2]
+-        assertThat(b2.id, equalTo(15881L))
+-        assertThat(b2.title, equalTo("Harry Potter and the Chamber of Secrets (Harry Potter, #2)"))
+-        assertThat(b2.numPages, equalTo(341))
+-        assertThat(b2.imageUrl, equalTo("https://images.gr-assets.com/books/1474169725m/15881.jpg"))
+-        assertThat(b2.authors, equalTo("J.K. Rowling"))
+-        assertThat(b2.isCurrentlyReading, equalTo(true))
++        val expectedBooks = listOf(
++            Book(
++                id = 6L,
++                title = "Harry Potter and the Goblet of Fire (Harry Potter, #4)",
++                numPages = 734,
++                imageUrl = "https://images.gr-assets.com/books/1554006152m/6.jpg",
++                authors = "J.K. Rowling"
++            ),
++            Book(
++                id = 5L,
++                title = "Harry Potter and the Prisoner of Azkaban (Harry Potter, #3)",
++                numPages = 435,
++                imageUrl = "https://images.gr-assets.com/books/1499277281m/5.jpg",
++                authors = "J.K. Rowling"
++            ),
++            Book(
++                id = 15881L,
++                title = "Harry Potter and the Chamber of Secrets (Harry Potter, #2)",
++                numPages = 341,
++                imageUrl = "https://images.gr-assets.com/books/1474169725m/15881.jpg",
++                authors = "J.K. Rowling"
++            )
++        )
++        assertThat(books, equalTo(expectedBooks))
++
++        val expectedStatuses = listOf(
++            ReadingProgressStatus(
++                id = null,
++                bookId = 6L,
++                page = 0,
++                reviewId = 2833631637L
++            ),
++            ReadingProgressStatus(
++                id = null,
++                bookId = 5L,
++                page = 0,
++                reviewId = 2833631179L
++            ),
++            ReadingProgressStatus(
++                id = null,
++                bookId = 15881L,
++                page = 0,
++                reviewId = 2833630698L
++            )
++        )
++        assertThat(statuses, equalTo(expectedStatuses))
+     }
+ 
+     @Test
+     fun `getBooksInShelf should return all books in to-read shelf`() {
+         stubResponse("books_to_read.xml")
+ 
+-        val books = runBlocking { api.getBooksInShelf(7L, "to-read") }
++        val (statuses, books) = runBlocking { api.getBooksInShelf(7L, "to-read") }
+ 
+-        assertThat(books.size, equalTo(3))
+-        val b0 = books[0]
+-        assertThat(b0.id, equalTo(2L))
+-        assertThat(
+-            b0.title,
+-            equalTo("Harry Potter and the Order of the Phoenix (Harry Potter, #5)")
+-        )
+-        assertThat(b0.numPages, equalTo(870))
+-        assertThat(b0.imageUrl, equalTo("https://images.gr-assets.com/books/1546910265m/2.jpg"))
+-        assertThat(b0.authors, equalTo("J.K. Rowling"))
+-        assertThat(b0.isCurrentlyReading, equalTo(false))
+-        val b1 = books[1]
+-        assertThat(b1.id, equalTo(1L))
+-        assertThat(b1.title, equalTo("Harry Potter and the Half-Blood Prince (Harry Potter, #6)"))
+-        assertThat(b1.numPages, equalTo(652))
+-        assertThat(b1.imageUrl, equalTo("https://images.gr-assets.com/books/1361039191m/1.jpg"))
+-        assertThat(b1.authors, equalTo("J.K. Rowling"))
+-        assertThat(b1.isCurrentlyReading, equalTo(false))
+-        val b2 = books[2]
+-        assertThat(b2.id, equalTo(136251L))
+-        assertThat(b2.title, equalTo("Harry Potter and the Deathly Hallows (Harry Potter, #7)"))
+-        assertThat(b2.numPages, equalTo(759))
+-        assertThat(
+-            b2.imageUrl,
+-            equalTo("https://images.gr-assets.com/books/1474171184m/136251.jpg")
++        val expectedBooks = listOf(
++            Book(
++                id = 2L,
++                title = "Harry Potter and the Order of the Phoenix (Harry Potter, #5)",
++                numPages = 870,
++                imageUrl = "https://images.gr-assets.com/books/1546910265m/2.jpg",
++                authors = "J.K. Rowling"
++            ),
++            Book(
++                id = 1L,
++                title = "Harry Potter and the Half-Blood Prince (Harry Potter, #6)",
++                numPages = 652,
++                imageUrl = "https://images.gr-assets.com/books/1361039191m/1.jpg",
++                authors = "J.K. Rowling"
++            ),
++            Book(
++                id = 136251L,
++                title = "Harry Potter and the Deathly Hallows (Harry Potter, #7)",
++                numPages = 759,
++                imageUrl = "https://images.gr-assets.com/books/1474171184m/136251.jpg",
++                authors = "J.K. Rowling"
++            )
+         )
+-        assertThat(b2.authors, equalTo("J.K. Rowling"))
+-        assertThat(b2.isCurrentlyReading, equalTo(false))
++        assertThat(books, equalTo(expectedBooks))
++
++        assertThat(statuses.size, equalTo(0))
+     }
+ 
+     @Test
+@@ -132,14 +156,12 @@
+         assertThat(b0.numPages, equalTo(435))
+         assertThat(b0.imageUrl, equalTo("https://images.gr-assets.com/books/1499277281m/5.jpg"))
+         assertThat(b0.authors, equalTo("J.K. Rowling, Mary GrandPré"))
+-        assertThat(b0.isCurrentlyReading, equalTo(true))
+         val b1 = readingProgress.books[1]
+         assertThat(b1.id, equalTo(15881L))
+         assertThat(b1.title, equalTo("Harry Potter and the Chamber of Secrets (Harry Potter, #2)"))
+         assertThat(b1.numPages, equalTo(341))
+         assertThat(b1.imageUrl, equalTo("https://images.gr-assets.com/books/1474169725m/15881.jpg"))
+         assertThat(b1.authors, equalTo("J.K. Rowling, Mary GrandPré"))
+-        assertThat(b1.isCurrentlyReading, equalTo(true))
+     }
+ 
+     @Test
+@@ -187,7 +209,7 @@
+     @Test
+     fun `finishReading should make request with correct parameters`() {
+         stubResponse()
+-        ShortDate.formatter =  { "2019-06-09" }
++        ShortDate.formatter = { "2019-06-09" }
+ 
+         runBlocking { api.finishReading(1245L, 5, "Cool") }
+ 
+Index: app/src/test/java/me/thanel/readtracker/api/ReadingProgressRepositoryTest.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package me.thanel.readtracker.api\r\n\r\nimport androidx.test.ext.junit.runners.AndroidJUnit4\r\nimport kotlinx.coroutines.runBlocking\r\nimport me.thanel.readtracker.testbase.BaseRepositoryTest\r\nimport org.hamcrest.CoreMatchers.equalTo\r\nimport org.hamcrest.Matchers.hasSize\r\nimport org.junit.Assert.assertThat\r\nimport org.junit.Before\r\nimport org.junit.Ignore\r\nimport org.junit.Test\r\nimport org.junit.runner.RunWith\r\nimport org.mockito.Mockito.`when`\r\nimport org.mockito.Mockito.never\r\nimport org.mockito.Mockito.verify\r\n\r\n@RunWith(AndroidJUnit4::class)\r\nclass ReadingProgressRepositoryTest : BaseRepositoryTest() {\r\n\r\n    private lateinit var readingProgressRepository: ReadingProgressRepository\r\n\r\n    @Before\r\n    fun setup() {\r\n        val userRepository = UserRepository(goodreadsApi)\r\n        readingProgressRepository =\r\n            ReadingProgressRepository(goodreadsApi, database, userRepository)\r\n    }\r\n\r\n    @Test\r\n    fun `updating progress by page number should update local database`() = runBlocking {\r\n        stubBookWithProgress()\r\n\r\n        readingProgressRepository.updateProgressByPageNumber(1L, 200)\r\n\r\n        val progress = database.readProgressQueries.selectAll().executeAsOne()\r\n        assertThat(progress.bookId, equalTo(1L))\r\n        assertThat(progress.page, equalTo(200))\r\n    }\r\n\r\n    @Test\r\n    fun `updating progress by page number should make api call`() = runBlocking {\r\n        stubBookWithProgress()\r\n\r\n        readingProgressRepository.updateProgressByPageNumber(1L, 200)\r\n\r\n        verify(goodreadsApi).updateProgressByPageNumber(1L, 200, null)\r\n    }\r\n\r\n    @Test\r\n    fun `finishing reading should make api call`() = runBlocking {\r\n        stubBookWithProgress()\r\n\r\n        readingProgressRepository.finishReading(1L, 2L, 3, \"Nice book!\")\r\n\r\n        verify(goodreadsApi).finishReading(2L, 3, \"Nice book!\")\r\n    }\r\n\r\n    @Test\r\n    fun `finishing reading should remove book from local database`() = runBlocking {\r\n        stubBookWithProgress()\r\n\r\n        readingProgressRepository.finishReading(1L, 2L, 3, \"Nice book!\")\r\n\r\n        val books = database.bookQueries.selectAll().executeAsList()\r\n        assertThat(books, hasSize(0))\r\n    }\r\n\r\n    @Test\r\n    fun `finishing reading should fetch review id if it was not provided`() = runBlocking {\r\n        stubBookWithProgress()\r\n        `when`(goodreadsApi.getUserId()).thenReturn(1L)\r\n        `when`(goodreadsApi.getReviewIdForBook(1L, 1L)).thenReturn(12L)\r\n\r\n        readingProgressRepository.finishReading(1L, null, 3, \"Nice book!\")\r\n\r\n        verify(goodreadsApi).finishReading(12L, 3, \"Nice book!\")\r\n    }\r\n\r\n    @Test\r\n    @Ignore(\"Figure out a way to handle this situation\")\r\n    fun `error when fetching review id for finishing reading a book should be handled`() = runBlocking {\r\n        stubBookWithProgress()\r\n        `when`(goodreadsApi.getUserId()).thenReturn(1L)\r\n        `when`(goodreadsApi.getReviewIdForBook(1L, 1L)).thenReturn(null)\r\n\r\n        readingProgressRepository.finishReading(1L, null)\r\n\r\n        // TODO: What should happen here?\r\n    }\r\n\r\n    @Test\r\n    fun `initial progress update on a book should move it to currently reading shelf`() = runBlocking {\r\n        database.bookQueries.insert(1L, \"Divergent\", 100, null, null, null, false)\r\n\r\n        readingProgressRepository.updateProgressByPageNumber(1L, 10)\r\n\r\n        verify(goodreadsApi).startReadingBook(1L)\r\n    }\r\n\r\n    @Test\r\n    fun `progress update should not move book to currently reading shelf if it had previous progress`() =\r\n        runBlocking {\r\n            stubBookWithProgress()\r\n\r\n            readingProgressRepository.updateProgressByPageNumber(1L, 10)\r\n\r\n            verify(goodreadsApi, never()).startReadingBook(1L)\r\n        }\r\n\r\n    private fun stubBookWithProgress() {\r\n        database.bookQueries.insert(1L, \"Divergent\", 100, null, null, null, true)\r\n        database.readProgressQueries.insert(1L, 1L, 30, 1L)\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/test/java/me/thanel/readtracker/api/ReadingProgressRepositoryTest.kt	(date 1568047959000)
++++ app/src/test/java/me/thanel/readtracker/api/ReadingProgressRepositoryTest.kt	(date 1568049602085)
+@@ -90,7 +90,7 @@
+ 
+     @Test
+     fun `initial progress update on a book should move it to currently reading shelf`() = runBlocking {
+-        database.bookQueries.insert(1L, "Divergent", 100, null, null, null, false)
++        database.bookQueries.insert(1L, "Divergent", 100, null, null, null)
+ 
+         readingProgressRepository.updateProgressByPageNumber(1L, 10)
+ 
+@@ -108,7 +108,7 @@
+         }
+ 
+     private fun stubBookWithProgress() {
+-        database.bookQueries.insert(1L, "Divergent", 100, null, null, null, true)
++        database.bookQueries.insert(1L, "Divergent", 100, null, null, null)
+         database.readProgressQueries.insert(1L, 1L, 30, 1L)
+     }
+ }
+Index: database/src/test/java/me/thanel/readtracker/database/SampleData.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package me.thanel.readtracker.database\r\n\r\nobject SampleData {\r\n    val bookBeingRead: Book = Book.Impl(\r\n        id = 6L,\r\n        title = \"Harry Potter and the Goblet of Fire (Harry Potter, #4)\",\r\n        numPages = 734,\r\n        imageUrl = \"https://images.gr-assets.com/books/1554006152m/6.jpg\",\r\n        authors = \"J.K. Rowling\",\r\n        position = 1,\r\n        isCurrentlyReading = true\r\n    )\r\n\r\n    val bookToRead: Book = Book.Impl(\r\n        id = 5L,\r\n        title = \"Harry Potter and the Prisoner of Azkaban (Harry Potter, #3)\",\r\n        numPages = 435,\r\n        imageUrl = null,\r\n        authors = \"J.K. Rowling\",\r\n        position = 2,\r\n        isCurrentlyReading = false\r\n    )\r\n\r\n    val progressForBookBeingRead: ReadProgress = ReadProgress.Impl(\r\n        id = 12L,\r\n        bookId = bookBeingRead.id,\r\n        page = 203,\r\n        reviewId = 5L\r\n    )\r\n\r\n    val progressForBookToRead: ReadProgress = ReadProgress.Impl(\r\n        id = 83L,\r\n        bookId = bookToRead.id,\r\n        page = 0,\r\n        reviewId = 22L\r\n    )\r\n\r\n    fun generateBooks(startNumber: Int = 1, count: Int = 10): List<Book> {\r\n        val endNumber = startNumber + count\r\n        return (startNumber until endNumber).map { number ->\r\n            Book.Impl(\r\n                id = number.toLong(),\r\n                title = \"Book #$number\",\r\n                numPages = number * 100,\r\n                imageUrl = null,\r\n                authors = \"Author #$number\",\r\n                position = number,\r\n                isCurrentlyReading = false\r\n            )\r\n        }\r\n    }\r\n\r\n    fun generateReadProgress(count: Int = 10): List<ReadProgress> {\r\n        return (1..count).map { number ->\r\n            ReadProgress.Impl(\r\n                id = number.toLong(),\r\n                bookId = number.toLong(),\r\n                page = number * 50,\r\n                reviewId = number.toLong()\r\n            )\r\n        }\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- database/src/test/java/me/thanel/readtracker/database/SampleData.kt	(date 1568047959000)
++++ database/src/test/java/me/thanel/readtracker/database/SampleData.kt	(date 1568049786487)
+@@ -7,8 +7,7 @@
+         numPages = 734,
+         imageUrl = "https://images.gr-assets.com/books/1554006152m/6.jpg",
+         authors = "J.K. Rowling",
+-        position = 1,
+-        isCurrentlyReading = true
++        position = 1
+     )
+ 
+     val bookToRead: Book = Book.Impl(
+@@ -17,8 +16,7 @@
+         numPages = 435,
+         imageUrl = null,
+         authors = "J.K. Rowling",
+-        position = 2,
+-        isCurrentlyReading = false
++        position = 2
+     )
+ 
+     val progressForBookBeingRead: ReadProgress = ReadProgress.Impl(
+@@ -44,8 +42,7 @@
+                 numPages = number * 100,
+                 imageUrl = null,
+                 authors = "Author #$number",
+-                position = number,
+-                isCurrentlyReading = false
++                position = number
+             )
+         }
+     }
+Index: database/src/test/java/me/thanel/readtracker/database/DatabaseTest.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package me.thanel.readtracker.database\r\n\r\nimport android.content.Context\r\nimport androidx.test.core.app.ApplicationProvider\r\nimport org.junit.Before\r\n\r\nabstract class DatabaseTest {\r\n    protected lateinit var database: Database\r\n\r\n    protected val bookQueries get() = database.bookQueries\r\n    protected val readProgressQueries get() = database.readProgressQueries\r\n\r\n    @Before\r\n    fun setupBase() {\r\n        val context: Context = ApplicationProvider.getApplicationContext()\r\n        database = DatabaseFactory.createDatabase(context, name = null)\r\n    }\r\n}\r\n\r\nfun BookQueries.insert(books: List<Book>) {\r\n    books.forEach { book ->\r\n        insert(book)\r\n    }\r\n}\r\n\r\nfun BookQueries.insert(book: Book) {\r\n    insert(\r\n        id = book.id,\r\n        title = book.title,\r\n        numPages = book.numPages,\r\n        imageUrl = book.imageUrl,\r\n        authors = book.authors,\r\n        position = book.position,\r\n        isCurrentlyReading = book.isCurrentlyReading\r\n    )\r\n}\r\n\r\nfun ReadProgressQueries.insert(readProgresses: List<ReadProgress>) {\r\n    readProgresses.forEach { readProgress ->\r\n        insert(readProgress)\r\n    }\r\n}\r\n\r\nfun ReadProgressQueries.insert(readProgress: ReadProgress) {\r\n    insert(\r\n        id = readProgress.id,\r\n        bookId = readProgress.bookId,\r\n        page = readProgress.page,\r\n        reviewId = readProgress.reviewId\r\n    )\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- database/src/test/java/me/thanel/readtracker/database/DatabaseTest.kt	(date 1568047959000)
++++ database/src/test/java/me/thanel/readtracker/database/DatabaseTest.kt	(date 1568049786530)
+@@ -30,8 +30,7 @@
+         numPages = book.numPages,
+         imageUrl = book.imageUrl,
+         authors = book.authors,
+-        position = book.position,
+-        isCurrentlyReading = book.isCurrentlyReading
++        position = book.position
+     )
+ }
+ 
+Index: database/src/main/sqldelight/me/thanel/readtracker/database/Book.sq
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import java.lang.Boolean;\r\n\r\nCREATE TABLE book (\r\n    id INTEGER NOT NULL PRIMARY KEY ON CONFLICT REPLACE,\r\n    title TEXT NOT NULL,\r\n    numPages INTEGER as Int NOT NULL,\r\n    imageUrl TEXT,\r\n    authors TEXT,\r\n    position INTEGER as Int UNIQUE ON CONFLICT REPLACE,\r\n    isCurrentlyReading INTEGER as Boolean NOT NULL\r\n);\r\n\r\ninsert:\r\nINSERT INTO book(id, title, numPages, imageUrl, authors, position, isCurrentlyReading)\r\nVALUES (?, ?, ?, ?, ?, ?, ?);\r\n\r\ndeleteAll:\r\nDELETE FROM book;\r\n\r\ndeleteBooksWithoutPosition:\r\nDELETE FROM book WHERE position IS NULL;\r\n\r\nselectBooksToRead:\r\nSELECT\r\n  book.id,\r\n  book.title,\r\n  book.numPages,\r\n  book.imageUrl,\r\n  book.authors\r\nFROM book\r\nWHERE isCurrentlyReading = 0\r\nORDER BY position ASC;\r\n\r\nselectAll:\r\nSELECT * FROM book;\r\n\r\ndeleteBooksWithProgress:\r\nDELETE FROM book\r\nWHERE isCurrentlyReading = 1\r\nAND id IN (\r\n  SELECT bookId\r\n  FROM readProgress\r\n);\r\n\r\ndeleteBookWithId:\r\nDELETE FROM book\r\nWHERE id = ?;\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- database/src/main/sqldelight/me/thanel/readtracker/database/Book.sq	(date 1568047959000)
++++ database/src/main/sqldelight/me/thanel/readtracker/database/Book.sq	(date 1568049480589)
+@@ -6,13 +6,12 @@
+     numPages INTEGER as Int NOT NULL,
+     imageUrl TEXT,
+     authors TEXT,
+-    position INTEGER as Int UNIQUE ON CONFLICT REPLACE,
+-    isCurrentlyReading INTEGER as Boolean NOT NULL
++    position INTEGER as Int UNIQUE ON CONFLICT REPLACE
+ );
+ 
+ insert:
+-INSERT INTO book(id, title, numPages, imageUrl, authors, position, isCurrentlyReading)
+-VALUES (?, ?, ?, ?, ?, ?, ?);
++INSERT INTO book(id, title, numPages, imageUrl, authors, position)
++VALUES (?, ?, ?, ?, ?, ?);
+ 
+ deleteAll:
+ DELETE FROM book;
+@@ -28,7 +27,10 @@
+   book.imageUrl,
+   book.authors
+ FROM book
+-WHERE isCurrentlyReading = 0
++WHERE id NOT IN (
++  SELECT bookId
++  FROM readProgress
++)
+ ORDER BY position ASC;
+ 
+ selectAll:
+@@ -36,10 +38,10 @@
+ 
+ deleteBooksWithProgress:
+ DELETE FROM book
+-WHERE isCurrentlyReading = 1
+-AND id IN (
++WHERE id IN (
+   SELECT bookId
+   FROM readProgress
++  WHERE page > 0
+ );
+ 
+ deleteBookWithId:
+Index: app/src/main/java/me/thanel/readtracker/api/ReadingProgressRepository.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package me.thanel.readtracker.api\r\n\r\nimport androidx.lifecycle.LiveData\r\nimport kotlinx.coroutines.Dispatchers\r\nimport kotlinx.coroutines.withContext\r\nimport me.thanel.goodreadsapi.GoodreadsApi\r\nimport me.thanel.goodreadsapi.model.Book\r\nimport me.thanel.readtracker.database.Database\r\nimport me.thanel.readtracker.database.executeAsListLiveData\r\nimport me.thanel.readtracker.model.BookWithProgress\r\nimport javax.inject.Inject\r\nimport javax.inject.Singleton\r\n\r\n@Singleton\r\nclass ReadingProgressRepository @Inject constructor(\r\n    private val api: GoodreadsApi,\r\n    private val database: Database,\r\n    private val userRepository: UserRepository\r\n) {\r\n    suspend fun updateProgressByPageNumber(\r\n        bookId: Long,\r\n        pageNumber: Int,\r\n        reviewBody: String? = null\r\n    ) = withContext(Dispatchers.IO) {\r\n        if (hasProgressForBook(bookId)) {\r\n            database.readProgressQueries.updateProgress(pageNumber, bookId)\r\n        } else {\r\n            // TODO: Save new progress in database (what to do with reviewId)\r\n            api.startReadingBook(bookId)\r\n        }\r\n        api.updateProgressByPageNumber(bookId, pageNumber, reviewBody)\r\n    }\r\n\r\n    fun getBooksToReadAsLiveData(): LiveData<List<BookWithProgress>> {\r\n        return database.bookQueries.selectBooksToRead { id, title, numPages, imageUrl, authors ->\r\n            BookWithProgress(\r\n                progressId = null,\r\n                page = 0,\r\n                reviewId = null,\r\n                book = Book(\r\n                    id = id,\r\n                    numPages = numPages,\r\n                    title = title,\r\n                    imageUrl = imageUrl,\r\n                    authors = authors,\r\n                    isCurrentlyReading = false\r\n                )\r\n            )\r\n        }.executeAsListLiveData()\r\n    }\r\n\r\n    fun getBooksWithProgressAsLiveData(): LiveData<List<BookWithProgress>> {\r\n        return database.readProgressQueries.selectWithBookInformation { id, page, reviewId, bookId, numPages, bookTitle, bookImageUrl, bookAuthors ->\r\n            BookWithProgress(\r\n                progressId = id,\r\n                page = page ?: 0,\r\n                reviewId = reviewId,\r\n                book = Book(\r\n                    id = bookId,\r\n                    numPages = numPages,\r\n                    title = bookTitle,\r\n                    imageUrl = bookImageUrl,\r\n                    authors = bookAuthors,\r\n                    isCurrentlyReading = true\r\n                )\r\n            )\r\n        }.executeAsListLiveData()\r\n    }\r\n\r\n    suspend fun finishReading(\r\n        bookId: Long,\r\n        reviewId: Long?,\r\n        rating: Int? = null,\r\n        reviewText: String? = null\r\n    ) = withContext(Dispatchers.Default) {\r\n        if (reviewId != null) {\r\n            finishReadingInternal(bookId, reviewId, rating, reviewText)\r\n            return@withContext\r\n        }\r\n\r\n        val userId = userRepository.getUserId()\r\n        val newReviewId = api.getReviewIdForBook(userId, bookId)\r\n        if (newReviewId != null) {\r\n            finishReadingInternal(bookId, newReviewId, rating, reviewText)\r\n        } else {\r\n            TODO(\"Handle error when trying to fetch review id\")\r\n        }\r\n    }\r\n\r\n    private suspend fun finishReadingInternal(\r\n        bookId: Long,\r\n        reviewId: Long,\r\n        rating: Int? = null,\r\n        reviewBody: String? = null\r\n    ) {\r\n        api.finishReading(reviewId, rating, reviewBody)\r\n        database.bookQueries.deleteBookWithId(bookId)\r\n    }\r\n\r\n    suspend fun synchronizeDatabase() = withContext(Dispatchers.IO) {\r\n        val userId = userRepository.getUserId()\r\n        val (statuses, books) = api.getReadingProgressStatus(userId)\r\n\r\n        database.transaction {\r\n            // In local database we might have potentially no longer valid data. Here we are\r\n            // removing all books with progress which should be contained in the result of\r\n            // this API call.\r\n            database.bookQueries.deleteBooksWithProgress()\r\n\r\n            books.forEach { book ->\r\n                insertBook(book, null)\r\n            }\r\n\r\n            statuses.forEach { status ->\r\n                database.readProgressQueries.insert(\r\n                    status.id,\r\n                    status.bookId,\r\n                    status.page,\r\n                    status.reviewId\r\n                )\r\n            }\r\n        }\r\n\r\n        val currentlyReadingBooks = api.getBooksInShelf(userId, \"currently-reading\")\r\n        database.transaction {\r\n            currentlyReadingBooks.forEach { book ->\r\n                insertBook(book, null)\r\n            }\r\n        }\r\n\r\n        val booksToRead = api.getBooksInShelf(userId, \"to-read\")\r\n        database.transaction {\r\n            booksToRead.forEachIndexed { position, book ->\r\n                insertBook(book, position)\r\n            }\r\n        }\r\n    }\r\n\r\n    private fun hasProgressForBook(bookId: Long) =\r\n        database.readProgressQueries.selectProgressForBook(bookId).executeAsOneOrNull() != null\r\n\r\n    private fun insertBook(book: Book, position: Int?) {\r\n        database.bookQueries.insert(\r\n            book.id,\r\n            book.title,\r\n            book.numPages,\r\n            book.imageUrl,\r\n            book.authors,\r\n            position,\r\n            book.isCurrentlyReading\r\n        )\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/me/thanel/readtracker/api/ReadingProgressRepository.kt	(date 1568047959000)
++++ app/src/main/java/me/thanel/readtracker/api/ReadingProgressRepository.kt	(date 1568050410677)
+@@ -42,8 +42,7 @@
+                     numPages = numPages,
+                     title = title,
+                     imageUrl = imageUrl,
+-                    authors = authors,
+-                    isCurrentlyReading = false
++                    authors = authors
+                 )
+             )
+         }.executeAsListLiveData()
+@@ -60,8 +59,7 @@
+                     numPages = numPages,
+                     title = bookTitle,
+                     imageUrl = bookImageUrl,
+-                    authors = bookAuthors,
+-                    isCurrentlyReading = true
++                    authors = bookAuthors
+                 )
+             )
+         }.executeAsListLiveData()
+@@ -121,19 +119,28 @@
+             }
+         }
+ 
+-        val currentlyReadingBooks = api.getBooksInShelf(userId, "currently-reading")
++        val (currentlyReadingStatuses, currentlyReadingBooks) = api.getBooksInShelf(userId, "currently-reading")
+         database.transaction {
+             currentlyReadingBooks.forEach { book ->
+                 insertBook(book, null)
+             }
+-        }
+ 
+-        val booksToRead = api.getBooksInShelf(userId, "to-read")
+-        database.transaction {
+-            booksToRead.forEachIndexed { position, book ->
+-                insertBook(book, position)
++            currentlyReadingStatuses.forEach { status ->
++                database.readProgressQueries.insert(
++                    id = status.id,
++                    bookId = status.bookId,
++                    page = status.page,
++                    reviewId = status.reviewId
++                )
+             }
+         }
++        //
++        // val (_, booksToRead) = api.getBooksInShelf(userId, "to-read")
++        // database.transaction {
++        //     booksToRead.forEachIndexed { position, book ->
++        //         insertBook(book, position)
++        //     }
++        // }
+     }
+ 
+     private fun hasProgressForBook(bookId: Long) =
+@@ -146,8 +153,7 @@
+             book.numPages,
+             book.imageUrl,
+             book.authors,
+-            position,
+-            book.isCurrentlyReading
++            position
+         )
+     }
+ }
+Index: app/src/test/java/me/thanel/readtracker/api/SynchronizeDatabaseTest.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package me.thanel.readtracker.api\r\n\r\nimport androidx.test.ext.junit.runners.AndroidJUnit4\r\nimport kotlinx.coroutines.runBlocking\r\nimport me.thanel.goodreadsapi.model.Book\r\nimport me.thanel.goodreadsapi.model.ReadingProgressStatus\r\nimport me.thanel.goodreadsapi.model.ReadingProgressStatusGroup\r\nimport me.thanel.readtracker.database.ReadProgress\r\nimport me.thanel.readtracker.testbase.BaseRepositoryTest\r\nimport org.hamcrest.Matchers.empty\r\nimport org.hamcrest.Matchers.equalTo\r\nimport org.junit.Assert.assertThat\r\nimport org.junit.Before\r\nimport org.junit.Test\r\nimport org.junit.runner.RunWith\r\nimport org.mockito.Mockito.`when`\r\n\r\n@RunWith(AndroidJUnit4::class)\r\nclass SynchronizeDatabaseTest : BaseRepositoryTest() {\r\n\r\n    private lateinit var readingProgressRepository: ReadingProgressRepository\r\n\r\n    @Before\r\n    fun setup() {\r\n        val userRepository = UserRepository(goodreadsApi)\r\n        readingProgressRepository =\r\n            ReadingProgressRepository(goodreadsApi, database, userRepository)\r\n\r\n        runBlocking {\r\n            `when`(goodreadsApi.getUserId()).thenReturn(1L)\r\n        }\r\n    }\r\n\r\n    @Test\r\n    fun `should remove no longer existing books`() = runBlocking {\r\n        stubBookWithProgress()\r\n        stubReadingProgressStatus(emptyList(), emptyList())\r\n        stubCurrentlyReadBooks(emptyList())\r\n        stubBooksToRead(emptyList())\r\n\r\n        readingProgressRepository.synchronizeDatabase()\r\n\r\n        assertThat(getStatuses(), empty())\r\n        assertThat(getBooks(), empty())\r\n    }\r\n\r\n    @Test\r\n    fun `should store downloaded books with their progresses`() = runBlocking {\r\n        val expectedStatuses = generateReadingStatuses()\r\n        val expectedBooks = generateBooks()\r\n        stubReadingProgressStatus(expectedStatuses, expectedBooks)\r\n        stubCurrentlyReadBooks(emptyList())\r\n        stubBooksToRead(emptyList())\r\n\r\n        readingProgressRepository.synchronizeDatabase()\r\n\r\n        assertThat(getStatuses(), equalTo(expectedStatuses.map(ReadingProgressStatus::toDbStatus)))\r\n        assertThat(getBooks(), equalTo(expectedBooks.map { it.toDbBook() }))\r\n    }\r\n\r\n    @Test\r\n    fun `should store currently read books without progress`() = runBlocking {\r\n        val expectedBooks = generateBooks(isCurrentlyReading = false)\r\n        stubReadingProgressStatus(emptyList(), emptyList())\r\n        stubCurrentlyReadBooks(expectedBooks)\r\n        stubBooksToRead(emptyList())\r\n\r\n        readingProgressRepository.synchronizeDatabase()\r\n\r\n        assertThat(getStatuses(), empty())\r\n        assertThat(getBooks(), equalTo(expectedBooks.map { it.toDbBook() }))\r\n    }\r\n\r\n    @Test\r\n    fun `should store books to read in order`() = runBlocking {\r\n        val expectedBooks = generateBooks(isCurrentlyReading = false)\r\n        stubReadingProgressStatus(emptyList(), emptyList())\r\n        stubCurrentlyReadBooks(emptyList())\r\n        stubBooksToRead(expectedBooks)\r\n\r\n        readingProgressRepository.synchronizeDatabase()\r\n\r\n        assertThat(getStatuses(), empty())\r\n        val expectedBooksInOrder = expectedBooks.mapIndexed { index, book ->\r\n            book.toDbBook(position = index)\r\n        }\r\n        assertThat(getBooks(), equalTo(expectedBooksInOrder))\r\n    }\r\n\r\n    private fun getStatuses() = database.readProgressQueries.selectAll().executeAsList()\r\n\r\n    private fun getBooks() = database.bookQueries.selectAll().executeAsList()\r\n\r\n    private fun generateBooks(isCurrentlyReading: Boolean = true): List<Book> {\r\n        return (1..10).map {\r\n            Book(\r\n                id = it.toLong(),\r\n                title = \"Book #$it\",\r\n                numPages = it * 200,\r\n                imageUrl = null,\r\n                authors = null,\r\n                isCurrentlyReading = isCurrentlyReading\r\n            )\r\n        }\r\n    }\r\n\r\n    private fun generateReadingStatuses(): List<ReadingProgressStatus> {\r\n        return (1..10).map {\r\n            ReadingProgressStatus(\r\n                id = it.toLong(),\r\n                bookId = it.toLong(),\r\n                page = it * 100,\r\n                reviewId = it.toLong()\r\n            )\r\n        }\r\n    }\r\n\r\n    private suspend fun stubReadingProgressStatus(\r\n        statuses: List<ReadingProgressStatus>,\r\n        books: List<Book>\r\n    ) {\r\n        `when`(goodreadsApi.getReadingProgressStatus(1L))\r\n            .thenReturn(ReadingProgressStatusGroup(statuses, books))\r\n    }\r\n\r\n    private suspend fun stubCurrentlyReadBooks(books: List<Book>) {\r\n        `when`(goodreadsApi.getBooksInShelf(1L, \"currently-reading\"))\r\n            .thenReturn(books)\r\n    }\r\n\r\n    private suspend fun stubBooksToRead(books: List<Book>) {\r\n        `when`(goodreadsApi.getBooksInShelf(1L, \"to-read\"))\r\n            .thenReturn(books)\r\n    }\r\n\r\n    private fun stubBookWithProgress() {\r\n        database.bookQueries.insert(1L, \"Divergent\", 100, null, null, null, true)\r\n        database.readProgressQueries.insert(1L, 1L, 30, 1L)\r\n    }\r\n}\r\n\r\nfun Book.toDbBook(position: Int? = null): me.thanel.readtracker.database.Book =\r\n    me.thanel.readtracker.database.Book.Impl(\r\n        id = id,\r\n        title = title,\r\n        numPages = numPages,\r\n        imageUrl = imageUrl,\r\n        authors = authors,\r\n        position = position,\r\n        isCurrentlyReading = isCurrentlyReading\r\n    )\r\n\r\nfun ReadingProgressStatus.toDbStatus(): ReadProgress = ReadProgress.Impl(\r\n    id = id,\r\n    bookId = bookId,\r\n    page = page,\r\n    reviewId = reviewId\r\n)\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/test/java/me/thanel/readtracker/api/SynchronizeDatabaseTest.kt	(date 1568047959000)
++++ app/src/test/java/me/thanel/readtracker/api/SynchronizeDatabaseTest.kt	(date 1568049602119)
+@@ -60,7 +60,7 @@
+ 
+     @Test
+     fun `should store currently read books without progress`() = runBlocking {
+-        val expectedBooks = generateBooks(isCurrentlyReading = false)
++        val expectedBooks = generateBooks()
+         stubReadingProgressStatus(emptyList(), emptyList())
+         stubCurrentlyReadBooks(expectedBooks)
+         stubBooksToRead(emptyList())
+@@ -73,7 +73,7 @@
+ 
+     @Test
+     fun `should store books to read in order`() = runBlocking {
+-        val expectedBooks = generateBooks(isCurrentlyReading = false)
++        val expectedBooks = generateBooks()
+         stubReadingProgressStatus(emptyList(), emptyList())
+         stubCurrentlyReadBooks(emptyList())
+         stubBooksToRead(expectedBooks)
+@@ -91,15 +91,14 @@
+ 
+     private fun getBooks() = database.bookQueries.selectAll().executeAsList()
+ 
+-    private fun generateBooks(isCurrentlyReading: Boolean = true): List<Book> {
++    private fun generateBooks(): List<Book> {
+         return (1..10).map {
+             Book(
+                 id = it.toLong(),
+                 title = "Book #$it",
+                 numPages = it * 200,
+                 imageUrl = null,
+-                authors = null,
+-                isCurrentlyReading = isCurrentlyReading
++                authors = null
+             )
+         }
+     }
+@@ -124,17 +123,20 @@
+     }
+ 
+     private suspend fun stubCurrentlyReadBooks(books: List<Book>) {
+-        `when`(goodreadsApi.getBooksInShelf(1L, "currently-reading"))
+-            .thenReturn(books)
++        stubBooksInShelf("currently-reading", books)
+     }
+ 
+     private suspend fun stubBooksToRead(books: List<Book>) {
+-        `when`(goodreadsApi.getBooksInShelf(1L, "to-read"))
+-            .thenReturn(books)
++        stubBooksInShelf("to-read", books)
++    }
++
++    private suspend fun stubBooksInShelf(shelf: String, books: List<Book>) {
++        `when`(goodreadsApi.getBooksInShelf(1L, shelf))
++            .thenReturn(ReadingProgressStatusGroup(emptyList(), books))
+     }
+ 
+     private fun stubBookWithProgress() {
+-        database.bookQueries.insert(1L, "Divergent", 100, null, null, null, true)
++        database.bookQueries.insert(1L, "Divergent", 100, null, null, null)
+         database.readProgressQueries.insert(1L, 1L, 30, 1L)
+     }
+ }
+@@ -146,12 +148,11 @@
+         numPages = numPages,
+         imageUrl = imageUrl,
+         authors = authors,
+-        position = position,
+-        isCurrentlyReading = isCurrentlyReading
++        position = position
+     )
+ 
+ fun ReadingProgressStatus.toDbStatus(): ReadProgress = ReadProgress.Impl(
+-    id = id,
++    id = id ?: 0,
+     bookId = bookId,
+     page = page,
+     reviewId = reviewId
+Index: database/src/main/sqldelight/me/thanel/readtracker/database/ReadProgress.sq
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>CREATE TABLE readProgress (\r\n    id INTEGER NOT NULL PRIMARY KEY ON CONFLICT REPLACE,\r\n    bookId INTEGER NOT NULL UNIQUE ON CONFLICT REPLACE,\r\n    page INTEGER as Int NOT NULL,\r\n    reviewId INTEGER NOT NULL,\r\n    FOREIGN KEY (bookId) REFERENCES book(id) ON DELETE CASCADE\r\n);\r\n\r\nselectAll:\r\nSELECT *\r\nFROM readProgress;\r\n\r\ndeleteAll:\r\nDELETE FROM readProgress;\r\n\r\nselectWithBookInformation:\r\nSELECT\r\n    readProgress.id,\r\n    readProgress.page,\r\n    readProgress.reviewId,\r\n    book.id AS bookId,\r\n    book.numPages,\r\n    book.title AS bookTitle,\r\n    book.imageUrl AS bookImageUrl,\r\n    book.authors AS bookAuthors\r\nFROM book\r\nLEFT JOIN readProgress ON readProgress.bookId = book.id\r\nWHERE book.isCurrentlyReading = 1;\r\n\r\ninsert:\r\nINSERT INTO readProgress(id, bookId, page, reviewId)\r\nVALUES (?, ?, ?, ?);\r\n\r\nselectProgressForBook:\r\nSELECT * FROM readProgress WHERE bookId = ?;\r\n\r\nupdateProgress:\r\nUPDATE readProgress\r\nSET page = ?\r\nWHERE bookId = ?;\r\n\r\ndeleteBookForReview:\r\nDELETE FROM book\r\nWHERE id = (\r\n  SELECT bookId\r\n  FROM readProgress\r\n  WHERE reviewId = ?\r\n  LIMIT 1\r\n);\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- database/src/main/sqldelight/me/thanel/readtracker/database/ReadProgress.sq	(date 1568047959000)
++++ database/src/main/sqldelight/me/thanel/readtracker/database/ReadProgress.sq	(date 1568050880017)
+@@ -1,6 +1,6 @@
+ CREATE TABLE readProgress (
+-    id INTEGER NOT NULL PRIMARY KEY ON CONFLICT REPLACE,
+-    bookId INTEGER NOT NULL UNIQUE ON CONFLICT REPLACE,
++    id INTEGER NOT NULL PRIMARY KEY ON CONFLICT IGNORE AUTOINCREMENT,
++    bookId INTEGER NOT NULL UNIQUE ON CONFLICT IGNORE,
+     page INTEGER as Int NOT NULL,
+     reviewId INTEGER NOT NULL,
+     FOREIGN KEY (bookId) REFERENCES book(id) ON DELETE CASCADE
+@@ -25,7 +25,7 @@
+     book.authors AS bookAuthors
+ FROM book
+ LEFT JOIN readProgress ON readProgress.bookId = book.id
+-WHERE book.isCurrentlyReading = 1;
++WHERE readProgress.page > 0;
+ 
+ insert:
+ INSERT INTO readProgress(id, bookId, page, reviewId)

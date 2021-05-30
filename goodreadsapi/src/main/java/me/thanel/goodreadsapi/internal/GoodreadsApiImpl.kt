@@ -76,6 +76,18 @@ internal class GoodreadsApiImpl(secrets: GoodreadsSecrets, baseUrl: String) : Go
         }
     }
 
+    override suspend fun finishReadingBook(bookId: Long, rating: Int?, reviewText: String?) {
+        withContext(Dispatchers.IO) {
+            service.createReviewAsync(
+                bookId = bookId,
+                reviewText = reviewText.nullIfBlank(),
+                rating = rating,
+                dateRead = ShortDate.now(),
+                shelf = "read"
+            ).await()
+        }
+    }
+
     override suspend fun finishReading(reviewId: Long, rating: Int?, body: String?) {
         withContext(Dispatchers.IO) {
             service.editReviewAsync(

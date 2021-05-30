@@ -45,6 +45,16 @@ internal interface GoodreadsService {
         @Field("user_status[body]") body: String?
     ): Deferred<ResponseBody>
 
+    @POST("/review.xml")
+    @FormUrlEncoded
+    fun createReviewAsync(
+        @Field("book_id") bookId: Long,
+        @Field("review[review]") reviewText: String?,
+        @Field("review[rating]") rating: Int?,
+        @Field("review[read_at]") dateRead: ShortDate?,
+        @Field("shelf") shelf: String?
+    ): Deferred<ResponseBody>
+
     @POST("/review/{reviewId}.xml")
     @FormUrlEncoded
     fun editReviewAsync(
